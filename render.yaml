@@ -1,0 +1,11 @@
+services:
+  - type: web
+    runtime: static
+    name: pvm-game
+    buildCommand: 'echo "PvM estático - sem etapa de build"'
+    staticPublishPath: .
+    autoDeploy: true
+    headers:
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
