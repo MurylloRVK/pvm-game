@@ -8,6 +8,8 @@ PvM Admin API
 from __future__ import annotations
 
 import hmac
+import hashlib
+import re
 import os
 import secrets
 import threading
@@ -35,9 +37,28 @@ ALLOWED_EVENT_TYPES = {
     "flame", "armored", "phantom", "spore", "cosmic", "tafAura",
 }
 
+# Códigos de jogo: os valores visíveis são derivados em tempo de execução da senha
+# privada do administrador. O HTML público nunca recebe a lista completa.
+PROMO_CODE_SPECS = [
+    {"id":"sprout_cache","label":"Broto de Ouro","tier":"Comum","coins":250,"xp":50,"action":"reward","message":"+250 moedas e +50 XP."},
+    {"id":"silver_mist","label":"Noite de Bruma","tier":"Comum","coins":500,"xp":120,"action":"reward","message":"+500 moedas e +120 XP."},
+    {"id":"silver_aura","label":"Aura de Prata","tier":"Incomum","coins":750,"xp":200,"action":"reward","message":"+750 moedas e +200 XP."},
+    {"id":"garden_reserve","label":"Reserva do Jardim","tier":"Incomum","coins":1200,"xp":300,"action":"reward","message":"+1.200 moedas e +300 XP."},
+    {"id":"marigold_royal","label":"Calêndula Real","tier":"Raro","coins":1800,"xp":450,"action":"reward","message":"+1.800 moedas e +450 XP."},
+    {"id":"neco_treasury","label":"Tesouro do Neco","tier":"Épico","coins":3000,"xp":700,"action":"reward","message":"+3.000 moedas e +700 XP."},
+    {"id":"garden_awakened","label":"Jardim Desperto","tier":"Lendário","coins":0,"xp":0,"action":"unlock_all","message":"Todo o conteúdo foi liberado neste navegador."},
+    {"id":"chaos_authority","label":"Autoridade do Caos","tier":"Mítico","coins":0,"xp":0,"action":"chaos_mode","message":"Modo de caos extremo ativado."},
+    {"id":"aurafarmer_call","label":"Chamado do Aura Farmer","tier":"Mítico","coins":0,"xp":0,"action":"taf","message":"O Aura Farmer foi invocado."},
+    {"id":"cosmic_mutation","label":"Ruptura Cósmica","tier":"Lendário","coins":900,"xp":350,"action":"mutation_event","eventType":"cosmic","durationSeconds":600,"message":"Evento Cósmico iniciado por 10 minutos: +900 moedas e +350 XP."},
+]
+PROMO_CODE_PREFIX = "PVM-"
+PROMO_CODE_HEX_LENGTH = 28  # 112 bits; codes are not practical to guess randomly.
+
 _lock = threading.RLock()
 _sessions: dict[str, float] = {}
 _login_attempts: dict[str, deque[float]] = defaultdict(deque)
+_promo_attempts: dict[str, deque[float]] = defaultdict(deque)
+_promo_redemptions: set[tuple[str, str]] = set()
 _presence: dict[str, float] = {}
 _event_log: deque[dict[str, Any]] = deque(maxlen=EVENT_LOG_LIMIT)
 _active_world_events: dict[str, dict[str, Any]] = {}
@@ -107,6 +128,28 @@ def admin_required(fn):
             return jsonify({"error": "Sessão de administrador ausente ou expirada."}), 401
         return fn(*args, **kwargs)
     return wrapper
+
+
+
+def _promo_catalog() -> list[dict[str, Any]] | None:
+    admin_secret = os.environ.get("PVM_ADMIN_PASSWORD", "")
+    if not admin_secret:
+        return None
+    key = hmac.new(
+        admin_secret.encode("utf-8"),
+        b"PvM-private-promo-code-derivation-v1",
+        hashlib.sha256,
+    ).digest()
+    catalog = []
+    for spec in PROMO_CODE_SPECS:
+        digest = hmac.new(
+            key,
+            ("pvm-code:" + spec["id"]).encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest().upper()[:PROMO_CODE_HEX_LENGTH]
+        catalog.append({**spec, "code": PROMO_CODE_PREFIX + digest})
+    return catalog
+
 
 
 def _online_count_locked(now: float) -> int:
@@ -231,6 +274,82 @@ def admin_status():
         "onlinePlayers": count,
         "activeEvents": active_events,
         "latestId": latest_id,
+    })
+
+
+
+@app.get("/api/admin/promo-codes")
+@admin_required
+def admin_promo_codes():
+    catalog = _promo_catalog()
+    if catalog is None:
+        return jsonify({"error": "Configure PVM_ADMIN_PASSWORD no ambiente privado do Render."}), 503
+    return jsonify({
+        "ok": True,
+        "codes": [
+            {
+                "code": item["code"],
+                "label": item["label"],
+                "tier": item["tier"],
+                "message": item["message"],
+                "action": item["action"],
+            }
+            for item in catalog
+        ],
+    })
+
+
+@app.post("/api/redeem-code")
+def redeem_promo_code():
+    catalog = _promo_catalog()
+    if catalog is None:
+        return jsonify({"error": "O serviço de códigos ainda não foi configurado."}), 503
+
+    body = request.get_json(silent=True) or {}
+    supplied = body.get("code")
+    player = body.get("player")
+    if not isinstance(supplied, str) or not (24 <= len(supplied.strip()) <= 40):
+        return jsonify({"error": "Código inválido."}), 400
+    if not isinstance(player, str) or not (1 <= len(player.strip()) <= 64):
+        return jsonify({"error": "Identificação da conta inválida."}), 400
+
+    code = re.sub(r"\\s+", "", supplied).upper()
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
+    now = time.time()
+    matched = None
+    for item in catalog:
+        if hmac.compare_digest(code.encode("utf-8"), item["code"].encode("utf-8")):
+            matched = item
+            break
+
+    with _lock:
+        attempts = _promo_attempts[ip]
+        while attempts and now - attempts[0] > 600:
+            attempts.popleft()
+        if len(attempts) >= 8:
+            return jsonify({"error": "Muitas tentativas de código. Aguarde alguns minutos."}), 429
+        if matched is None:
+            attempts.append(now)
+            return jsonify({"error": "Código não reconhecido."}), 404
+
+        player_key = hashlib.sha256(player.strip().casefold().encode("utf-8")).hexdigest()[:32]
+        redemption_key = (player_key, matched["id"])
+        if redemption_key in _promo_redemptions:
+            return jsonify({"error": "Este código já foi resgatado por esta conta."}), 409
+        _promo_redemptions.add(redemption_key)
+        attempts.clear()
+
+    return jsonify({
+        "ok": True,
+        "id": matched["id"],
+        "label": matched["label"],
+        "tier": matched["tier"],
+        "coins": int(matched.get("coins", 0)),
+        "xp": int(matched.get("xp", 0)),
+        "action": matched["action"],
+        "eventType": matched.get("eventType"),
+        "durationSeconds": int(matched.get("durationSeconds", 0)),
+        "message": matched["message"],
     })
 
 
