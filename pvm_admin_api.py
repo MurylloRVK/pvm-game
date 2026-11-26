@@ -114,7 +114,7 @@ def _online_count_locked(now: float) -> int:
     return len(_presence)
 
 
-def _append_event_locked(kind: str, payload: dict[str, Any]) -> int:
+def _append_event_locked(kind: str, payload: dict[str, Any], origin_client_id: str = "") -> int:
     global _next_event_id
     event_id = _next_event_id
     _next_event_id += 1
@@ -122,6 +122,7 @@ def _append_event_locked(kind: str, payload: dict[str, Any]) -> int:
         "id": event_id,
         "type": kind,
         "payload": payload,
+        "originClientId": origin_client_id[:96],
         "createdAt": int(time.time() * 1000),
     })
     return event_id
@@ -233,6 +234,7 @@ def admin_status():
 def admin_broadcast():
     body = request.get_json(silent=True) or {}
     kind = body.get("type")
+    origin_client_id = str(body.get("originClientId") or "")[:96]
     now_ms = int(time.time() * 1000)
 
     if kind == "event":
@@ -260,14 +262,14 @@ def admin_broadcast():
         }
         with _lock:
             _active_world_events[event["id"]] = event
-            event_id = _append_event_locked("event", event)
+            event_id = _append_event_locked("event", event, origin_client_id)
             online_players = _online_count_locked(time.time())
         return jsonify({"ok": True, "eventId": event_id, "deliveredTo": online_players})
 
     if kind == "clear":
         with _lock:
             _active_world_events.clear()
-            event_id = _append_event_locked("clear", {})
+            event_id = _append_event_locked("clear", {}, origin_client_id)
             online_players = _online_count_locked(time.time())
         return jsonify({"ok": True, "eventId": event_id, "deliveredTo": online_players})
 
@@ -278,7 +280,7 @@ def admin_broadcast():
             hp = 24000
         payload = {"hp": max(12000, min(250000, hp))}
         with _lock:
-            event_id = _append_event_locked("taf", payload)
+            event_id = _append_event_locked("taf", payload, origin_client_id)
             online_players = _online_count_locked(time.time())
         return jsonify({"ok": True, "eventId": event_id, "deliveredTo": online_players})
 
@@ -288,7 +290,7 @@ def admin_broadcast():
         if not title or not message:
             return jsonify({"error": "Preencha o título e o comunicado."}), 400
         with _lock:
-            event_id = _append_event_locked("notice", {"title": title, "body": message})
+            event_id = _append_event_locked("notice", {"title": title, "body": message}, origin_client_id)
             online_players = _online_count_locked(time.time())
         return jsonify({"ok": True, "eventId": event_id, "deliveredTo": online_players})
 
