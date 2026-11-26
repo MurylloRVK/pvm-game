@@ -248,8 +248,10 @@ def admin_broadcast():
             return jsonify({"error": "A duração do evento precisa estar entre agora e sete dias."}), 400
 
         label = str(raw.get("label") or event_type)[:80]
+        requested_id = str(raw.get("id") or "")
+        safe_id = requested_id if requested_id and len(requested_id) <= 80 and requested_id.replace("_", "").replace("-", "").isalnum() else f"admin-{secrets.token_hex(8)}"
         event = {
-            "id": f"admin-{secrets.token_hex(8)}",
+            "id": safe_id,
             "type": event_type,
             "label": label,
             "source": "admin-hub",
