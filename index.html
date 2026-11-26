@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.22.0" name="application-version"/>
+<meta content="5.23.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -486,6 +486,15 @@
 </section>
 <section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5 border-2 border-lime-500/70 bg-gradient-to-br from-emerald-950/80 to-slate-950/80"><div class="flex flex-wrap items-center justify-between gap-3"><div class="min-w-0"><div class="text-xs uppercase tracking-[.25em] text-lime-200 font-black">🌱 Evento especial • lançamento</div><h3 class="text-2xl font-display text-yellow-200">🚀 Evento de Lançamento PvM 5.7</h3><p class="text-sm text-emerald-100/90 mt-1">Uma nova etapa começa: escolha seu Jardim Solar ou Lunar, cuide do Jardim Zen e enfrente hordas com um ritmo renovado. Entre no evento e resgate o presente de lançamento.</p></div><button class="btn-pvz rounded-xl px-5 py-3 font-display text-white shrink-0" onclick="claimPvmLaunchGift()">🎁 Resgatar presente</button></div><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="bg-black/30 rounded-full px-3 py-1 text-lime-100">Presente único por conta</span><span class="bg-black/30 rounded-full px-3 py-1 text-lime-100">150 moedas + 100 XP</span></div></section>
 <section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5"><div class="flex items-center justify-between gap-3 mb-3"><h3 class="text-lg font-display text-lime-300">🗺️ Suas Fases Criadas</h3><span class="text-xs bg-amber-950 px-2.5 py-1 rounded-full text-amber-300 font-bold" id="custom-level-count">0 fases</span></div><div class="max-h-40 overflow-y-auto flex flex-col gap-2 pr-1" id="custom-levels-menu-list"></div></section>
+<section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5" id="pvm-home-progress-card">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div><div class="text-[10px] uppercase tracking-[.22em] text-lime-300 font-black">SEU JARDIM</div><h3 class="text-xl font-display text-yellow-200">📊 Resumo do progresso</h3></div><span class="text-[10px] text-amber-200/70">Atualiza ao voltar ao menu</span></div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+<div class="rounded-xl border border-lime-700/70 bg-black/25 p-3"><div class="text-[10px] uppercase tracking-wide text-lime-200">Campanha</div><div class="text-2xl font-display text-white mt-1" id="pvm-home-campaign-count">0/60</div><div class="h-2 rounded-full bg-slate-800 overflow-hidden mt-2"><div class="h-full rounded-full bg-lime-400 transition-all" id="pvm-home-campaign-bar" style="width:0%"></div></div><div class="text-[10px] text-amber-100/70 mt-1">Fases concluídas</div></div>
+<div class="rounded-xl border border-emerald-700/70 bg-black/25 p-3"><div class="text-[10px] uppercase tracking-wide text-emerald-200">Coleção</div><div class="text-2xl font-display text-white mt-1" id="pvm-home-plants-count">0/0</div><div class="text-[10px] text-amber-100/70 mt-1">Plantas liberadas</div></div>
+<div class="rounded-xl border border-amber-700/70 bg-black/25 p-3"><div class="text-[10px] uppercase tracking-wide text-amber-200">Editor</div><div class="text-2xl font-display text-white mt-1" id="pvm-home-levels-count">0</div><div class="text-[10px] text-amber-100/70 mt-1">Fases criadas</div></div>
+<div class="rounded-xl border border-purple-700/70 bg-black/25 p-3"><div class="text-[10px] uppercase tracking-wide text-purple-200">Laboratório</div><div class="text-2xl font-display text-white mt-1" id="pvm-home-zombies-count">0</div><div class="text-[10px] text-amber-100/70 mt-1">Monstros criados</div></div>
+</div>
+</section>
 <p class="text-xs text-emerald-200/70 mt-4 text-center">O progresso da campanha fica salvo neste navegador.</p>
 </div>
 <!-- JARDIM COMUNITÁRIO: primeira etapa da arquitetura online (protótipo local) -->
@@ -596,7 +605,7 @@
 </div>
 <!-- MENU DE PAUSA -->
 <div class="hidden fixed inset-0 z-[95] bg-black/85 items-center justify-center p-4" id="pause-overlay">
-<div class="panel-wood rounded-3xl p-6 w-full max-w-md text-center"><div class="text-6xl mb-2">⏸️</div><h2 class="text-3xl font-display text-yellow-200 mb-2">JOGO PAUSADO</h2><p class="text-amber-100/80 text-sm mb-5">O gramado está esperando você.</p><div class="bg-black/25 border border-sky-700/70 rounded-xl p-3 mb-3 text-left"><div class="flex justify-between gap-2 text-sm text-sky-100"><label for="pause-preferred-speed">Velocidade extra do botão rápido</label><strong class="text-yellow-200" id="pause-preferred-speed-label">20x</strong></div><input class="w-full mt-2 accent-sky-400" id="pause-preferred-speed" max="20" min="3" oninput="setPreferredGameSpeed(this.value)" step="1" type="range" value="20"/><p class="text-[11px] text-amber-100/70 mt-1">O botão alterna: 1x → 2x → velocidade escolhida → 1x.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><button class="btn-pvz rounded-xl py-3 font-display text-lg text-white" onclick="resumeGame()">▶ Continuar</button><button class="btn-wood rounded-xl py-3 font-bold text-white" onclick="restartCurrentLevel()">↻ Reiniciar fase</button><button class="btn-danger rounded-xl py-3 font-bold text-white sm:col-span-2" onclick="exitToMenu()">⌂ Menu principal</button></div></div>
+<div class="panel-wood rounded-3xl p-6 w-full max-w-md text-center"><div class="text-6xl mb-2">⏸️</div><h2 class="text-3xl font-display text-yellow-200 mb-2">JOGO PAUSADO</h2><p class="text-amber-100/80 text-sm mb-1">O gramado está esperando você.</p><p class="text-xs text-lime-200/80 mb-4">Atalho no computador: <b>Esc</b> pausa e continua a partida.</p><div class="bg-black/25 border border-sky-700/70 rounded-xl p-3 mb-3 text-left"><div class="flex justify-between gap-2 text-sm text-sky-100"><label for="pause-preferred-speed">Velocidade extra do botão rápido</label><strong class="text-yellow-200" id="pause-preferred-speed-label">20x</strong></div><input class="w-full mt-2 accent-sky-400" id="pause-preferred-speed" max="20" min="3" oninput="setPreferredGameSpeed(this.value)" step="1" type="range" value="20"/><p class="text-[11px] text-amber-100/70 mt-1">O botão alterna: 1x → 2x → velocidade escolhida → 1x.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><button class="btn-pvz rounded-xl py-3 font-display text-lg text-white" onclick="resumeGame()">▶ Continuar</button><button class="btn-wood rounded-xl py-3 font-bold text-white" onclick="restartCurrentLevel()">↻ Reiniciar fase</button><button class="btn-danger rounded-xl py-3 font-bold text-white sm:col-span-2" onclick="exitToMenu()">⌂ Menu principal</button></div></div>
 </div>
 <!-- ALMANAQUE: consulta de plantas e monstros -->
 <div class="hidden w-full max-w-6xl flex-col" id="screen-almanac">
@@ -2149,12 +2158,32 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     function resetPlantLabSettings(){document.getElementById('lab-damage').value='1';document.getElementById('lab-speed').value='1';document.getElementById('lab-free-plants').checked=false;PlantLabSettings.damageMultiplier=1+Math.min(.45,Number(localStorage.getItem('pvm_perm_damage_level_v53')||0)*.03);PlantLabSettings.attackSpeedMultiplier=1+Math.min(.30,Number(localStorage.getItem('pvm_perm_speed_level_v53')||0)*.02);PlantLabSettings.freePlants=false;updatePlantLabControls();updateSeedBankVisuals();document.getElementById('plant-lab-status').textContent='Modificadores atuais: dano 1x • velocidade 1x • custos normais.';showToast('Experimentos restaurados ao normal.','info');}
 
 
+    function renderHomeProgressSummary(){
+      const totalStages=Array.isArray(CAMPAIGN_LEVELS)?CAMPAIGN_LEVELS.length:60;
+      const completed=Array.isArray(adventureProgress.completedLevels)?[...new Set(adventureProgress.completedLevels.map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=totalStages))].length:0;
+      const totalPlants=Object.keys(PLANTS).length;
+      const unlockedPlants=allContentUnlocked?totalPlants:new Set((adventureProgress.unlockedPlants||[]).filter(id=>!!PLANTS[id])).size;
+      const customLevels=getCustomLevels().length;
+      const customZombies=getCustomZombies().length;
+      const campaignLabel=document.getElementById('pvm-home-campaign-count');
+      const campaignBar=document.getElementById('pvm-home-campaign-bar');
+      const plantsLabel=document.getElementById('pvm-home-plants-count');
+      const levelsLabel=document.getElementById('pvm-home-levels-count');
+      const zombiesLabel=document.getElementById('pvm-home-zombies-count');
+      if(campaignLabel)campaignLabel.textContent=`${completed}/${totalStages}`;
+      if(campaignBar)campaignBar.style.width=`${totalStages?Math.round(completed/totalStages*100):0}%`;
+      if(plantsLabel)plantsLabel.textContent=`${unlockedPlants}/${totalPlants}`;
+      if(levelsLabel)levelsLabel.textContent=String(customLevels);
+      if(zombiesLabel)zombiesLabel.textContent=String(customZombies);
+    }
+
     function renderMenuLists(){
       const box=document.getElementById('custom-levels-menu-list'), custom=getCustomLevels();
       document.getElementById('custom-level-count').textContent=`${custom.length} ${custom.length===1?'fase':'fases'}`;box.innerHTML='';
       if(!custom.length)box.innerHTML='<div class="text-xs text-amber-300/60 italic py-2">Nenhuma fase criada ainda. Use o Editor de Fases para montar uma!</div>';
       else custom.forEach(lvl=>{const row=document.createElement('div');row.className='flex items-center justify-between bg-amber-950/90 border border-amber-700/70 rounded-xl px-3 py-2 gap-2';row.innerHTML=`<div class="min-w-0"><div class="font-bold text-sm text-yellow-200">${lvl.name} ${lvl.hasBoss?'🤖':''}</div><div class="text-[11px] text-amber-300/80">${lvl.waves} ondas • ☀️ ${lvl.initialSun}</div></div><div class="flex gap-1.5 shrink-0"><button class="btn-pvz px-3 py-1 rounded-lg text-xs font-bold text-white">Jogar</button><button class="bg-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold text-white">Editar</button></div>`;const b=row.querySelectorAll('button');b[0].onclick=()=>startLevel(lvl,-1);b[1].onclick=()=>openLevelEditor(lvl.id);box.appendChild(row);});
       updateWalletUI();const n=adventureProgress.maxUnlockedLevel, lvl=CAMPAIGN_LEVELS[Math.min(59,n-1)];document.getElementById('adventure-home-progress').textContent=allContentUnlocked?'🔓 Tudo liberado • Modo sandbox':(n>=60&&adventureProgress.completedLevels.includes(60)?'Campanha concluída!':`${lvl.worldName} • Fase ${selectedWorldNumber(n-1)}`);
+      renderHomeProgressSummary();
     }
     function openAdventure(){selectedAdventureLevel=Math.max(0,Math.min(CAMPAIGN_LEVELS.length-1,(Number(adventureProgress.maxUnlockedLevel)||1)-1));selectedAdventureWorld=Math.floor(selectedAdventureLevel/10);showScreen('adventure');}
     function selectAdventureWorld(w){
@@ -2392,6 +2421,16 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     function startLevel(levelConfig,campaignIdx=-1,isRestart=false){if(isRestart){launchLevel(levelConfig,campaignIdx,true);return;}pendingLevel=JSON.parse(JSON.stringify(levelConfig));pendingCampaignIndex=campaignIdx;pendingRestart=false;renderSeedSelection();const modal=document.getElementById('seed-select-modal');modal.classList.remove('hidden');modal.classList.add('flex');}
     function pauseGame(){if(!Game.running||Game.levelCompleted)return;Game.running=false;document.getElementById('pause-overlay').classList.remove('hidden');document.getElementById('pause-overlay').classList.add('flex');}
     function resumeGame(){document.getElementById('pause-overlay').classList.add('hidden');document.getElementById('pause-overlay').classList.remove('flex');Game.running=true;Game.lastTime=performance.now();startGameLoop();}
+    // Atalho de teclado para pausar/continuar sem interferir em campos de texto ou em modais.
+    window.addEventListener('keydown',event=>{
+      if(event.key!=='Escape')return;
+      const tag=(event.target?.tagName||'').toLowerCase();
+      if(['input','textarea','select'].includes(tag))return;
+      const pause=document.getElementById('pause-overlay');
+      if(pause?.classList.contains('flex')){event.preventDefault();resumeGame();return;}
+      const screen=document.getElementById('screen-game');
+      if(screen?.classList.contains('flex')&&Game.running&&!Game.levelCompleted){event.preventDefault();pauseGame();}
+    });
 
     function launchLevel(levelConfig, campaignIdx = -1, isRestart = false) {
       SoundFX.init();
@@ -8151,7 +8190,7 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 </script>
 
 
-<!-- PvM 5.22: Seu Zé permanece acessível no menu e fica fora dos atalhos durante a partida; SHINY reaplica atributos ao entrar na conta e ao receber planta na roleta; rerrolagem falha preserva mutação antiga; armaduras dobradas têm renderização própria; nome público atualizado para Rei de Papel. IDs internos preservados. -->
+<!-- PvM 5.23: resumo dinâmico do progresso no menu e atalho Esc para pausar/continuar; 5.22: Seu Zé permanece acessível no menu e fica fora dos atalhos durante a partida; SHINY reaplica atributos ao entrar na conta e ao receber planta na roleta; rerrolagem falha preserva mutação antiga; armaduras dobradas têm renderização própria; nome público atualizado para Rei de Papel. IDs internos preservados. -->
 <!--
 # MAPA DO CÓDIGO PvM 5.16
 # TAF (chefe): procure por "# BOSS SPAWNER", "# ADMIN SUMMON" e "# TAF UPDATE".
