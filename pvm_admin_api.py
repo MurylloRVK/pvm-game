@@ -313,7 +313,7 @@ def redeem_promo_code():
     if not isinstance(player, str) or not (1 <= len(player.strip()) <= 64):
         return jsonify({"error": "Identificação da conta inválida."}), 400
 
-    code = re.sub(r"\\s+", "", supplied).upper()
+    code = re.sub(r"\s+", "", supplied).upper()
     ip = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
     now = time.time()
     matched = None
