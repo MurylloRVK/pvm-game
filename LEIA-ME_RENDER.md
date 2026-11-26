@@ -1,45 +1,58 @@
-# PvM — publicação no Render
+# PvM — publicação e configuração do Render
 
-Este pacote é um site estático: o jogo roda no navegador e não precisa de servidor de aplicação para abrir.
+## Serviços do projeto
 
-## Arquivos
+- **pvm-game**: site estático com o jogo (index.html).
+- **pvm-admin-api**: API Python separada para autenticar o administrador e distribuir avisos, eventos e invocação do TAF aos jogadores online.
 
-- `index.html`: jogo completo.
-- `render.yaml`: configuração do Render Static Site.
+Os dois serviços usam o repositório MurylloRVK/pvm-game, branch main, com deploy automático.
 
-## Publicar
+## Configurar a senha do administrador (obrigatório)
 
-1. Crie um repositório no GitHub chamado, por exemplo, `pvm-game`.
-2. Envie `index.html` e `render.yaml` para a raiz do repositório (não coloque dentro de outra pasta).
-3. No Render, escolha **New → Blueprint** e conecte o repositório. O `render.yaml` deste pacote configura o site estático automaticamente.
-4. Revise o serviço `pvm-game` identificado no Blueprint e aplique a configuração.
-5. Aguarde o primeiro deploy e abra a URL `*.onrender.com` para testar. Compartilhe essa URL com os amigos somente depois do teste.
+A senha **não deve** ser colocada no index.html, em arquivos JavaScript, no GitHub, em render.yaml, nem enviada em mensagens.
 
-Alternativa: em **New → Static Site**, conecte o mesmo repositório e configure Build Command como `echo "PvM estático - sem etapa de build"` e Publish Directory como `.`.
+1. Abra o serviço **pvm-admin-api** no Render.
+2. Entre em **Environment**.
+3. Em **Environment Variables**, clique em **Add**.
+4. Crie a variável:
+   - **Key:** PVM_ADMIN_PASSWORD
+   - **Value:** uma senha nova, exclusiva e longa, que você não reutilize em outros lugares.
+5. Salve usando **Save, rebuild, and deploy** (ou **Save and deploy**).
 
-## Atualizar depois
+Depois que o serviço reiniciar, abra o PvM, entre no Painel de Administrador e use essa senha. Ela é enviada por HTTPS ao servidor para validação; o servidor não a devolve ao navegador. A sessão temporária fica apenas na memória da aba e termina ao sair/recarregar ou após expirar.
 
-Edite o `index.html`, salve, faça commit e envie (`push`) para a mesma branch do GitHub. Com o auto-deploy ligado, o Render publica a nova versão automaticamente.
+**Importante:** a senha que aparecia em versões antigas do JavaScript deve ser considerada comprometida. Não a reutilize.
 
-## Contas e progresso — aviso importante
+## O que o painel global já distribui
 
-A versão atual guarda contas, moedas, plantas personalizadas e progresso em `localStorage` do navegador. Isso significa:
+- Comunicados/notificações para jogadores com o PvM aberto.
+- Eventos e mutações de partida, com duração.
+- Encerramento dos eventos globais.
+- Invocação do TAF; se um jogador estiver no menu, o pedido fica aguardando a próxima fase por até 10 minutos.
 
-- Atualizar o mesmo site na mesma URL normalmente preserva os dados locais daquele navegador.
-- Cada computador/navegador tem seu próprio armazenamento; as contas **não** são sincronizadas entre os amigos.
-- Limpar os dados do navegador, mudar o domínio ou usar outro perfil pode fazer os dados locais parecerem sumidos.
-- Antes de atualizar, faça backup/exportação do progresso no jogo, quando disponível.
+A central não depende mais de uma aba de administrador hospedando uma conexão P2P. Os clientes consultam a API automaticamente.
 
-Para contas compartilhadas e eventos globais para todos os jogadores, ainda será necessário um backend com autenticação e banco de dados. Este pacote não cria essa sincronização.
+## Limitações atuais do painel
+
+- Contas, progresso, moedas e boosters ainda usam o armazenamento local de cada navegador.
+- A lista de contas/boosters do painel é local ao navegador do administrador; ela ainda não administra perfis de outros jogadores.
+- O relay entrega ações a quem está online naquele momento. Avisos não são uma caixa de entrada persistente para jogadores offline.
+- A presença e a lista de eventos ficam em memória no serviço e são reiniciadas quando ele reinicia ou volta de suspensão.
+
+O serviço pvm-admin-api usa o plano gratuito do Render. Serviços web gratuitos podem suspender após 15 minutos sem tráfego e precisam acordar quando chega uma nova solicitação; a primeira conexão depois disso pode demorar cerca de um minuto. Se jogadores estiverem com o PvM aberto, a consulta periódica mantém o serviço recebendo tráfego.
+
+## Prévia de plantas
+
+Antes de iniciar uma fase, a seleção de sementes mostra uma imagem estática da planta escolhida, desenhada pelo mesmo renderizador do Almanaque. A prévia usa um quadro congelado e não entra no ciclo de animação.
+
+## Atualizar o jogo
+
+Edite index.html, faça commit e envie para a branch main. Os serviços conectados recebem o deploy automaticamente.
+
+## Contas e progresso
+
+Contas, moedas, plantas personalizadas e progresso continuam guardados no localStorage do navegador. Cada navegador tem seu próprio armazenamento. Limpar os dados, mudar de domínio ou trocar de perfil pode fazer o progresso local parecer sumido. Faça backup/exportação dos dados quando disponível.
 
 ## Música do TAF
 
-O HTML procura o arquivo `The Aura Farmer - Horror Skunx (official song)_128k.mp3` ao lado do `index.html`. O áudio não foi incluído neste pacote. Só adicione uma faixa ao repositório se você tiver autorização para hospedá-la e distribuí-la; caso contrário, mantenha a trilha alternativa do jogo ou use áudio próprio/licenciado.
-
-## Teste antes de divulgar
-
-- Abra o Adventure e selecione fases de regiões diferentes.
-- Abra o Almanaque, lojas, laboratórios, Oficina do Caos e códigos.
-- Crie uma planta no Laboratório e confira se aparece no seletor de sementes.
-- Inicie uma partida de teste e invoque o TAF pelo painel de administrador.
-- Confirme a barra de vida, música, zumbis de reforço e o estado de fúria abaixo de 10% de HP.
+O HTML procura o arquivo The Aura Farmer - Horror Skunx (official song)_128k.mp3 ao lado do index.html. O áudio não está incluído no repositório. Só adicione áudio que você tenha autorização para hospedar e distribuir.
