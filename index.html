@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.23.0" name="application-version"/>
+<meta content="5.24.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -589,6 +589,22 @@
 <label class="text-xs font-bold text-lime-100">Ordenar por<select id="seed-select-sort" class="w-full mt-1 rounded-xl p-2.5 bg-amber-950 border border-amber-700 text-white" onchange="renderSeedSelection()"><option value="unlock">Ordem de liberação</option><option value="rarity">Raridade</option><option value="power">Poder</option><option value="cost">Custo de Sol</option><option value="name">Nome</option></select></label>
 </div>
 <p id="seed-select-results" class="text-xs text-amber-100/70 mb-2"></p>
+<section id="seed-selection-preview" class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-3 items-center rounded-2xl border-2 border-lime-700/70 bg-black/30 p-3 mb-3">
+  <div class="flex justify-center items-center rounded-xl bg-emerald-950/70 border border-emerald-700/60 p-2">
+    <canvas id="seed-select-preview-image" width="220" height="170" class="max-w-full h-auto"></canvas>
+  </div>
+  <div class="min-w-0">
+    <div class="text-[10px] uppercase tracking-[.2em] font-black text-lime-300">Prévia da planta</div>
+    <h3 id="seed-select-preview-name" class="text-xl sm:text-2xl font-display text-yellow-100 mt-1">Selecione uma planta</h3>
+    <p id="seed-select-preview-desc" class="text-xs sm:text-sm text-amber-100/80 mt-1">A imagem fica congelada enquanto você monta seu pacote.</p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[10px] sm:text-xs">
+      <div class="rounded-lg bg-amber-950/70 p-2">☀️ Custo <b id="seed-select-preview-cost" class="block text-yellow-100">—</b></div>
+      <div class="rounded-lg bg-amber-950/70 p-2">❤️ Vida <b id="seed-select-preview-hp" class="block text-yellow-100">—</b></div>
+      <div class="rounded-lg bg-amber-950/70 p-2">⚔️ Dano <b id="seed-select-preview-damage" class="block text-yellow-100">—</b></div>
+      <div class="rounded-lg bg-amber-950/70 p-2">⏱️ Recarga <b id="seed-select-preview-cooldown" class="block text-yellow-100">—</b></div>
+    </div>
+  </div>
+</section>
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2" id="seed-select-grid"></div>
 <div class="flex flex-wrap justify-between gap-2 mt-4"><button class="btn-wood px-4 py-3 rounded-xl font-bold text-white" onclick="closeSeedSelection()">Voltar</button><button class="btn-pvz px-7 py-3 rounded-xl font-display text-lg text-white" onclick="confirmSeedSelection()">COMEÇAR FASE ▶</button></div>
 </div>
@@ -2341,6 +2357,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     const SEED_LOADOUT_KEY='pvz_seed_loadout_v1';
     let pendingLevel=null, pendingCampaignIndex=-1, pendingRestart=false;
     let selectedSeedPlants=(()=>{try{return JSON.parse(localStorage.getItem(SEED_LOADOUT_KEY)||'[]').filter(id=>PLANTS[id]);}catch{return [];}})();
+    let selectedSeedPreviewId=null;
     // # SEED UNLOCK LIST — merge campaign unlocks, prize unlocks, and every saved user-created plant.
     function getUnlockedSeedIds(){
       const base=allContentUnlocked?Object.keys(PLANTS):adventureProgress.unlockedPlants;
@@ -2372,6 +2389,35 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     }
     function seedPowerScore(p){return (Number(p.damage)||0)*2+(Number(p.hp)||300)/120+(Number(p.sunProduction)||0)*.6+(p.singleUse?15:0)+(p.platform?10:0);}
     function seedRarityLabel(p,id){return p.rarity|| (PVZ1_ORDER_INDEX.has(id)?'original':'especial');}
+    function renderSeedSelectionPreview(id){
+      const canvas=document.getElementById('seed-select-preview-image');
+      const name=document.getElementById('seed-select-preview-name');
+      const desc=document.getElementById('seed-select-preview-desc');
+      const cost=document.getElementById('seed-select-preview-cost');
+      const hp=document.getElementById('seed-select-preview-hp');
+      const damage=document.getElementById('seed-select-preview-damage');
+      const cooldown=document.getElementById('seed-select-preview-cooldown');
+      const plant=id?PLANTS[id]:null;
+      if(!plant){
+        if(canvas){const ctx=canvas.getContext('2d');if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height);}
+        if(name)name.textContent='Selecione uma planta';
+        if(desc)desc.textContent='A imagem fica congelada enquanto você monta seu pacote.';
+        if(cost)cost.textContent='—';if(hp)hp.textContent='—';if(damage)damage.textContent='—';if(cooldown)cooldown.textContent='—';
+        return;
+      }
+      if(canvas){
+        // noAnim impede o spriteLoop do Almanaque de redesenhar este canvas.
+        canvas.dataset.noAnim='1';
+        drawAlmanacSprite(canvas,'plant',id,0,1);
+      }
+      if(name)name.textContent=plant.name||id;
+      if(desc)desc.textContent=plant.desc||'Planta selecionada para a próxima fase.';
+      if(cost)cost.textContent=String(Math.max(0,Number(plant.cost)||0));
+      if(hp)hp.textContent=String(Math.max(1,Number(plant.hp)||300));
+      if(damage)damage.textContent=Number(plant.damage)>0?String(plant.damage):'Especial';
+      if(cooldown)cooldown.textContent=`${Number(plant.cooldown)||0}s`;
+    }
+
     function renderSeedSelection(){
       normalizeSeedLoadout();
       const grid=document.getElementById('seed-select-grid');if(!grid)return;
@@ -2401,6 +2447,10 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         if(sort==='name')return String(pa.name||a.id).localeCompare(String(pb.name||b.id),'pt-BR');
         return seedUnlockOrder(a.id,pa)-seedUnlockOrder(b.id,pb);
       });
+      if(!items.some(item=>item.id===selectedSeedPreviewId)){
+        selectedSeedPreviewId=items.find(item=>selectedSeedPlants.includes(item.id))?.id||items[0]?.id||null;
+      }
+      renderSeedSelectionPreview(selectedSeedPreviewId);
       const resultLabel=document.getElementById('seed-select-results');if(resultLabel)resultLabel.textContent=`${items.length} planta(s) encontradas • ${items.filter(x=>PVZ1_ORDER_INDEX.has(x.id)).length} originais do PvZ 1 aparecem primeiro na ordem clássica; as modificadas vêm depois pela liberação.`;
       items.forEach(({id,p})=>{
         const on=selectedSeedPlants.includes(id),card=document.createElement('button');card.type='button';
@@ -2411,7 +2461,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         const damage=Number(p.damage)||0,hp=Number(p.hp)||300;
         card.innerHTML=`<div class="flex items-center gap-2"><span class="text-3xl">${safe(p.emoji||'🌱')}</span><span class="min-w-0"><b class="block text-yellow-100 text-sm">${safe(p.name||id)}</b><small class="text-[10px] text-amber-200/80">${rarity} • ${roleName}</small></span></div><div class="mt-2 text-[10px] text-amber-100/80">☀️ ${Math.max(0,Number(p.cost)||0)} • ❤️ ${hp}${damage?` • ⚔️ ${damage}`:''}</div><div class="mt-1 text-[11px] font-bold ${on?'text-lime-200':'text-amber-200'}">${on?'✓ Selecionada':'＋ Adicionar'}</div>`;
         card.title=p.desc||p.name||id;card.disabled=!on&&selectedSeedPlants.length>=max;
-        card.onclick=()=>{if(on)selectedSeedPlants=selectedSeedPlants.filter(x=>x!==id);else if(selectedSeedPlants.length<max)selectedSeedPlants.push(id);try{localStorage.setItem(SEED_LOADOUT_KEY,JSON.stringify(selectedSeedPlants));}catch{}renderSeedSelection();};
+        card.onclick=()=>{selectedSeedPreviewId=id;if(on)selectedSeedPlants=selectedSeedPlants.filter(x=>x!==id);else if(selectedSeedPlants.length<max)selectedSeedPlants.push(id);try{localStorage.setItem(SEED_LOADOUT_KEY,JSON.stringify(selectedSeedPlants));}catch{}renderSeedSelection();};
         grid.appendChild(card);
       });
       if(!items.length){const empty=document.createElement('p');empty.className='col-span-full p-4 text-center text-amber-100/70';empty.textContent='Nenhuma planta encontrada. Tente outra busca ou categoria.';grid.appendChild(empty);}
@@ -7023,23 +7073,36 @@ window.PVM_SECRET_CODES={
 window.pvmTestTAFFromSettings=()=>{if(!isAdmin){game.toast('Ative o Painel de Administrador antes de usar /TAF.','error');return false}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp:24000});if(ok)game.toast('🐎 TAF invocado para teste!','success');return !!ok};
 
 // Admin panel. Passphrase is deliberately client-side; it is a convenience gate, not secure server authorization.
-const ADMIN_PHRASE='CG5, GOAT';
 window.pvmTogglePassword=(id,button)=>{const input=$(id);if(!input)return;const showing=input.type==='password';input.type=showing?'text':'password';if(button){button.textContent=showing?'🙈':'👁️';button.setAttribute('aria-label',showing?'Ocultar senha':'Mostrar senha')}};
-window.openPvmAdmin=()=>{if(isAdmin){renderAdminPanel();return}showModal('👑 Painel de administrador',`<div class="space-y-3"><p class="pvm-muted">Ative a opção para revelar o campo de autorização.</p><label class="flex items-center gap-2 font-bold"><input id="pvm-admin-enable" type="checkbox" onchange="pvmRevealAdminCode(this.checked)"> Ativar modo administrador</label><div id="pvm-admin-code-wrap" class="hidden space-y-2"><label class="block text-sm">Senha secreta<div class="relative flex items-center"><input id="pvm-admin-code" class="pvm-input pr-12" type="password" placeholder="Digite a senha secreta" autocomplete="off"><button type="button" class="absolute right-2 text-xl px-2" aria-label="Mostrar ou ocultar senha do administrador" onclick="pvmTogglePassword('pvm-admin-code',this)">👁️</button></div></label><button class="pvm-btn w-full" onclick="pvmCheckAdminCode()">Acessar painel</button></div><p id="pvm-admin-feedback" class="pvm-muted"></p><p class="text-xs text-amber-200/70">O código fica no HTML local e pode ser visto por quem tiver acesso ao arquivo. Para proteção real, a autorização precisa de um servidor privado.</p></div>`)};
+window.openPvmAdmin=()=>{if(isAdmin){renderAdminPanel();return}showModal('👑 Painel de administrador',`<div class="space-y-3"><p class="pvm-muted">A senha é validada pelo servidor privado do Render; ela não fica gravada no HTML do jogo.</p><label class="flex items-center gap-2 font-bold"><input id="pvm-admin-enable" type="checkbox" onchange="pvmRevealAdminCode(this.checked)"> Ativar modo administrador</label><div id="pvm-admin-code-wrap" class="hidden space-y-2"><label class="block text-sm">Senha secreta<div class="relative flex items-center"><input id="pvm-admin-code" class="pvm-input pr-12" type="password" placeholder="Digite sua senha privada" autocomplete="off"><button type="button" class="absolute right-2 text-xl px-2" aria-label="Mostrar ou ocultar senha do administrador" onclick="pvmTogglePassword('pvm-admin-code',this)">👁️</button></div></label><button class="pvm-btn w-full" onclick="pvmCheckAdminCode()">Acessar painel</button></div><p id="pvm-admin-feedback" class="pvm-muted"></p><p class="text-xs text-amber-200/70">Não reutilize a senha antiga: ela já esteve no código público. Cadastre uma senha nova somente no ambiente privado do serviço pvm-admin-api no Render.</p></div>`)};
 window.pvmRevealAdminCode=v=>$('pvm-admin-code-wrap').classList.toggle('hidden',!v);
-window.pvmCheckAdminCode=()=>{const value=$('pvm-admin-code').value.trim().toUpperCase();if(value!==ADMIN_PHRASE){$('pvm-admin-feedback').textContent='Código incorreto.';return}isAdmin=true;$('pvm-admin-feedback').textContent='Acesso concedido.';window.PVM_GLOBAL_ADMIN?.startHost?.();renderAdminPanel()};
+window.pvmCheckAdminCode=async()=>{
+ const input=$('pvm-admin-code'),feedback=$('pvm-admin-feedback'),password=input?.value||'';
+ if(!password){if(feedback)feedback.textContent='Digite a senha de administrador.';return;}
+ if(feedback)feedback.textContent='Conectando ao servidor seguro…';
+ try{
+   await window.PVM_ADMIN_API?.login?.(password);
+   if(input)input.value='';
+   isAdmin=true;
+   if(feedback)feedback.textContent='Acesso autorizado pelo servidor.';
+   window.PVM_GLOBAL_ADMIN?.startHost?.();
+   renderAdminPanel();
+ }catch(error){
+   if(feedback)feedback.textContent=error?.message||'Não foi possível validar a senha no servidor.';
+ }
+};
 function renderAdminPanel(){
  const bp=getProgress().boosters||{xp:0,coins:0};
  const accountOptions=Object.entries(accountStore).map(([k,a])=>`<option value="${esc(k)}" ${k===activeAccount?'selected':''}>${esc(a.name||k)}</option>`).join(''); showModal('👑 Administração do PvM',`<div class="space-y-4">
- <div class="pvm-reward"><b>✅ Modo administrador ativado nesta sessão</b><p class="pvm-muted">Boosters são aplicados à conta selecionada neste navegador. Eventos e comunicados podem ser enviados aos jogadores conectados ao hub global enquanto esta aba do administrador permanecer aberta.</p></div>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-cyan-200">📡 Central global de jogadores</h3><p class="pvm-muted">O administrador mantém a central aberta e os outros jogadores se conectam automaticamente ao entrar no PvM. Assim, eventos, comunicados e o TAF chegam aos jogadores online.</p><p id="pvm-global-admin-status" class="pvm-muted">Iniciando central global…</p><button class="pvm-btn w-full" onclick="PVM_GLOBAL_ADMIN?.startHost?.()">🔄 Iniciar / reconectar central global</button></section>
+ <div class="pvm-reward"><b>✅ Administrador autenticado pelo servidor</b><p class="pvm-muted">Eventos, comunicados e anúncios do TAF são enviados pelo servidor aos jogadores que estiverem com o PvM aberto. A lista de contas e os boosters exibidos abaixo ainda são locais a este navegador; não representam contas de outros jogadores.</p></div>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-cyan-200">📡 Central global de jogadores</h3><p class="pvm-muted">O servidor recebe os anúncios e os distribui automaticamente. Não é necessário manter uma aba de administrador aberta como central P2P.</p><p id="pvm-global-admin-status" class="pvm-muted">Conectando à API do PvM…</p><button class="pvm-btn w-full" onclick="PVM_GLOBAL_ADMIN?.startHost?.()">🔄 Atualizar conexão e jogadores online</button></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-lime-200">🎁 Distribuir boosters temporários</h3>
  <label class="block text-sm">Conta que receberá<select id="pvm-admin-booster-account" class="pvm-input" onchange="pvmAdminRefreshBoostInfo(this.value)">${accountOptions}</select></label>
  <p id="pvm-admin-target-boosts" class="pvm-muted">Boosters da conta selecionada: XP ×${bp.xp||0} • Moedas ×${bp.coins||0}</p>
  <label class="block text-sm">Tipo de booster<select id="pvm-admin-booster-type" class="pvm-input"><option value="xp">⭐ XP em dobro</option><option value="coins">🪙 Moedas em dobro</option><option value="damage">🌱 Dano das plantas +20%</option><option value="speed">⚡ Velocidade de ataque +15%</option></select></label>
  <label class="block text-sm">Duração escolhida por você (minutos)<input id="pvm-admin-booster-duration" class="pvm-input" type="number" min="1" max="10080" step="1" required placeholder="Digite a duração em minutos"></label>
  <button class="pvm-btn w-full" onclick="pvmAdminGrantBoosters()">Conceder booster</button></section>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🔐 Registro privado de códigos secretos</h3><p class="pvm-muted">Esta lista aparece somente depois da senha de administrador. Compartilhe os códigos individualmente quando decidir.</p><div class="space-y-2">${Object.entries(window.PVM_SECRET_CODES||{}).map(([code,reward])=>`<div class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/25 p-2"><div><b class="text-yellow-100 tracking-wide">${esc(code)}</b><div class="pvm-muted">${esc(reward.message)}</div></div><button class="pvm-btn" type="button" onclick="navigator.clipboard?.writeText('${esc(code)}')">Copiar</button></div>`).join('')}</div><p class="pvm-muted">Códigos antigos continuam disponíveis. Como o jogo atual é HTML local, alguém com acesso ao código-fonte pode inspecioná-los; segredo real exige validação no servidor.</p></section>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🎟️ Códigos promocionais do jogo</h3><p class="pvm-muted">Aviso: os códigos de recompensa desta versão ainda estão no JavaScript público. Não trate esta lista como segredo nem coloque códigos únicos ou recompensas sensíveis aqui.</p><div class="space-y-2">${Object.entries(window.PVM_SECRET_CODES||{}).map(([code,reward])=>`<div class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/25 p-2"><div><b class="text-yellow-100 tracking-wide">${esc(code)}</b><div class="pvm-muted">${esc(reward.message)}</div></div><button class="pvm-btn" type="button" onclick="navigator.clipboard?.writeText('${esc(code)}')">Copiar</button></div>`).join('')}</div><p class="pvm-muted">Códigos antigos continuam disponíveis. Como o jogo atual é HTML local, alguém com acesso ao código-fonte pode inspecioná-los; segredo real exige validação no servidor.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🐎 TAF — The Aura Farmer</h3><p class="pvm-muted">Invocação manual em qualquer modo de jogo com uma fase ativa. O chefe tem barra de vida própria, dança entre as três últimas colunas, chama zumbis e atordoa plantas.</p><label class="block text-sm">Vida do TAF (HP)<input id="pvm-admin-taf-hp" class="pvm-input" type="number" min="12000" max="250000" step="1000" value="24000"></label><label class="block text-sm">Alcance<select id="pvm-admin-taf-scope" class="pvm-input"><option value="global" selected>🌍 Todos os jogadores online no PvM</option><option value="room">Jogador 1 + Jogador 2 da sala VS</option><option value="local">Somente minha partida</option></select></label><label class="block text-sm">Música alternativa do TAF (opcional; até 15 MB)<input id="pvm-admin-taf-audio" class="pvm-input" type="file" accept="audio/*"></label><p class="pvm-muted">Padrão: procura o MP3 “The Aura Farmer - Horror Skunx (official song)_128k.mp3” na mesma pasta do index.html. Se selecionar outro áudio aqui, ele substitui o arquivo padrão nesta sessão. A música fica em loop até o TAF morrer.</p><button class="pvm-btn w-full" onclick="pvmAdminSpawnTAF()">🐎 INVOCAR TAF</button><p id="pvm-admin-taf-status" class="pvm-muted">Entre em uma partida para invocar o chefe.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🌩️ Evento / mutação da partida</h3>
  <label class="block text-sm">Efeito<select id="pvm-admin-world-event" class="pvm-input">
@@ -7059,15 +7122,15 @@ function renderAdminPanel(){
 window.pvmAdminRefreshBoostInfo=target=>{if(!isAdmin)return;const rec=accountStore[target],b=rec?.progress?.boosters||{xp:0,coins:0},el=$('pvm-admin-target-boosts');if(el)el.textContent=`Boosters da conta selecionada: XP ×${Number(b.xp)||0} • Moedas ×${Number(b.coins)||0}`};
 window.pvmAdminGrantBoosters=()=>{if(!isAdmin)return;const kind=$('pvm-admin-booster-type')?.value,target=$('pvm-admin-booster-account')?.value||activeAccount,duration=Number($('pvm-admin-booster-duration')?.value);if(!Number.isFinite(duration)||duration<1||duration>10080){game.toast('Digite a duração do booster em minutos (1 a 10080).','error');return}const record=accountStore[target];if(!record){game.toast('Essa conta não foi encontrada neste navegador.','error');return}record.progress=record.progress||defaultsProgress();record.progress.boosters={xp:0,coins:0,...(record.progress.boosters||{})};record.progress.timedBoosters=record.progress.timedBoosters||{};const key={xp:'xpUntil',coins:'coinsUntil',damage:'damageUntil',speed:'speedUntil'}[kind];if(!key){game.toast('Escolha um booster válido.','error');return}record.progress.timedBoosters[key]=Date.now()+duration*60000;persistAccounts();if(target===activeAccount){bridge.setProgress(record.progress);bridge.save();window.PVM_REFRESH_TIMED_BOOSTS?.()}game.toast(`🎁 Booster ${kind} aplicado por ${duration} minutos à conta ${record.name}.`,'success');renderAdminPanel()};
 window.pvmAdminSendMail=()=>{if(!isAdmin)return;const title=$('pvm-admin-mail-title').value.trim(),body=$('pvm-admin-mail-body').value.trim();if(!title||!body){game.toast('Preencha título e mensagem.','error');return}const item={from:'Administração',title,body,time:Date.now()};addMail(item,true);const delivered=window.PVM_GLOBAL_ADMIN?.broadcastNotice?.(title,body)||0;game.toast(`📣 Comunicado salvo aqui e enviado para ${delivered} jogador(es) online.`,'success');renderAdminPanel()};
-window.pvmAdminPublishEvent=()=>{if(!isAdmin)return;const title=$('pvm-admin-event-title').value.trim(),body=$('pvm-admin-event-body').value.trim();if(!title||!body){game.toast('Preencha nome e descrição do evento.','error');return}const msg={type:'event',title,body};receiveBus(msg);bus?.postMessage(msg);game.toast('Evento anunciado nas sessões locais.','success');renderAdminPanel()};
+window.pvmAdminPublishEvent=async()=>{if(!isAdmin)return;const title=$('pvm-admin-event-title').value.trim(),body=$('pvm-admin-event-body').value.trim();if(!title||!body){game.toast('Preencha nome e descrição do evento.','error');return}try{const delivered=await window.PVM_GLOBAL_ADMIN?.broadcastNotice?.(title,body)||0;const item={from:'Administração',title,body,time:Date.now()};addMail(item,true);game.toast(`📣 Comunicado enviado a ${delivered} jogador(es) online.`,'success');renderAdminPanel()}catch(error){game.toast(error?.message||'Falha ao enviar o comunicado ao servidor.','error')}};
 window.pvmAdminOpenWarfront=()=>{if(!isAdmin)return;const f=window.wfOpenAdmin;if(f)f();else game.toast('Painel de eventos da Frente não encontrado.','error')};
 window.pvmAdminSendMusic=async()=>{if(!isAdmin)return;const file=$('pvm-admin-audio').files?.[0];if(!file){$('pvm-admin-music-status').textContent='Escolha um arquivo de áudio primeiro.';return}if(file.size>15*1024*1024){$('pvm-admin-music-status').textContent='O arquivo precisa ter até 15 MB.';return}const msg={type:'track',title:file.name,file};playAdminAudio(file,file.name);bus?.postMessage(msg);$('pvm-admin-music-status').textContent=`Enviada: ${file.name}. Outros jogadores precisam estar com o PvM aberto na mesma origem.`};
 window.pvmAdminStopMusic=()=>{if(!isAdmin)return;if(customAudio)customAudio.pause();adminTrack=null;pendingAudio=null;bus?.postMessage({type:'track-stop'});$('pvm-admin-music-status').textContent='Reprodução compartilhada interrompida.'};
 // # ADMIN TAF INVOCATION — independent from campaign mode or level number.
-window.pvmAdminSpawnTAF=async()=>{if(!isAdmin)return;const status=$('pvm-admin-taf-status'),hp=Number($('pvm-admin-taf-hp')?.value)||24000,scope=$('pvm-admin-taf-scope')?.value||'global',file=$('pvm-admin-taf-audio')?.files?.[0]||null;if(!Number.isFinite(hp)||hp<12000||hp>250000){if(status)status.textContent='A vida precisa ficar entre 12.000 e 250.000 HP.';return}if(file&&!window.PVM_SET_TAF_MUSIC_FILE?.(file)){if(status)status.textContent='Escolha um áudio válido de até 15 MB.';return}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp});if(!ok){if(status)status.textContent='Não invocou: inicie uma fase e confira se já existe outro chefe.';return}let sent=0;if(scope==='global')sent=window.PVM_GLOBAL_ADMIN?.broadcastTAF?.({hp})||0;else if(scope==='room')sent=window.PVMOnlineVersus?.broadcastBoss?.({hp})?1:0;if(status)status.textContent=scope==='global'?`TAF invocado aqui e enviado para ${sent} jogador(es) conectados. Mantenha a central do administrador aberta.`:scope==='room'?(sent?'TAF invocado para os dois jogadores conectados.':'TAF invocado nesta partida. Nenhum Jogador 2 está conectado na sala VS.'):'TAF invocado somente na sua partida.';game.toast('🐎 TAF entrou no gramado!','success')};
-window.pvmAdminStartWorldEvent=async()=>{if(!isAdmin)return;const type=$('pvm-admin-world-event')?.value,scope=$('pvm-admin-world-scope')?.value||'local',minutes=Number($('pvm-admin-world-duration')?.value);if(!Number.isFinite(minutes)||minutes<1||minutes>10080){$('pvm-admin-world-status').textContent='Digite a duração em minutos (1 a 10080) antes de iniciar.';return}const labels={taco:'Chuva de Tacos',shock:'Tempestade Elétrica',leprechaun:'Leprechaun',eclipse:'Eclipse',chorume:'Chorume',frost:'Geada',flame:'Incandescente',armored:'Blindado',phantom:'Espectral',spore:'Esporos',cosmic:'Cósmica',tafAura:'Aura do TAF'};if(!labels[type])return;let audioFile=$('pvm-admin-taco-audio')?.files?.[0]||null;if(type==='taco'&&audioFile){try{const url=URL.createObjectURL(audioFile),audio=new Audio();const duration=await new Promise(resolve=>{audio.onloadedmetadata=()=>resolve(audio.duration);audio.onerror=()=>resolve(0);audio.src=url});URL.revokeObjectURL(url);if(!Number.isFinite(duration)||duration<30){$('pvm-admin-world-status').textContent='O áudio escolhido precisa ter pelo menos 30 segundos. Evento não iniciado.';return}playAdminAudio(audioFile,audioFile.name);bus?.postMessage({type:'track',title:audioFile.name,file:audioFile})}catch{$('pvm-admin-world-status').textContent='Não foi possível validar o áudio. O evento pode ser iniciado sem música.'}}const event={id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),type,scope,label:labels[type],source:scope==='global'?'admin-hub':'admin-local',startsAt:Date.now(),endsAt:Date.now()+minutes*60000};window.PVM_ADD_WORLD_EVENT?.(event);bus?.postMessage({type:'pvm-world-event',event});let delivered=0;if(scope==='global')delivered=window.PVM_GLOBAL_ADMIN?.broadcastEvent?.(event)||0;else if(scope==='room')delivered=window.PVMOnlineVersus?.broadcastEvent?.(event)?1:0;$('pvm-admin-world-status').textContent=scope==='global'?`${labels[type]} ativo por ${minutes} min e enviado para ${delivered} jogador(es) online. Deixe a central do administrador aberta.`:scope==='room'?`${labels[type]} enviado para ${delivered} jogador(es) da sala VS.`:`${labels[type]} ativo por ${minutes} min neste navegador.`;game.toast(`🌩️ ${labels[type]} iniciado!`,'success')};
-window.pvmAdminStopWorldEvent=()=>{if(!isAdmin)return;window.PVM_SET_WORLD_EVENT?.(null);bus?.postMessage({type:'pvm-world-event',event:null});window.PVMOnlineVersus?.broadcastEventClearAll?.();const delivered=window.PVM_GLOBAL_ADMIN?.broadcastClear?.()||0;$('pvm-admin-world-status').textContent=`Eventos encerrados aqui e enviados para ${delivered} jogador(es) online.`;game.toast('Eventos e mutações encerrados.','info')};
-window.pvmAdminLogout=()=>{isAdmin=false;showModal('👑 Administrador','<p class="pvm-muted">Modo administrador desativado.</p>')};
+window.pvmAdminSpawnTAF=async()=>{if(!isAdmin)return;const status=$('pvm-admin-taf-status'),hp=Number($('pvm-admin-taf-hp')?.value)||24000,scope=$('pvm-admin-taf-scope')?.value||'global',file=$('pvm-admin-taf-audio')?.files?.[0]||null;if(!Number.isFinite(hp)||hp<12000||hp>250000){if(status)status.textContent='A vida precisa ficar entre 12.000 e 250.000 HP.';return}if(file&&!window.PVM_SET_TAF_MUSIC_FILE?.(file)){if(status)status.textContent='Escolha um áudio válido de até 15 MB.';return}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp});if(!ok){if(status)status.textContent='Não invocou: inicie uma fase e confira se já existe outro chefe.';return}let sent=0;if(scope==='global'){try{sent=await window.PVM_GLOBAL_ADMIN?.broadcastTAF?.({hp})||0}catch(error){if(status)status.textContent=`TAF invocado aqui, mas o envio global falhou: ${error?.message||'servidor indisponível'}`;game.toast('O TAF foi invocado apenas nesta partida; falhou o envio global.','error');return}}else if(scope==='room')sent=window.PVMOnlineVersus?.broadcastBoss?.({hp})?1:0;if(status)status.textContent=scope==='global'?`TAF invocado aqui e enviado para ${sent} jogador(es) conectados. Mantenha a central do administrador aberta.`:scope==='room'?(sent?'TAF invocado para os dois jogadores conectados.':'TAF invocado nesta partida. Nenhum Jogador 2 está conectado na sala VS.'):'TAF invocado somente na sua partida.';game.toast('🐎 TAF entrou no gramado!','success')};
+window.pvmAdminStartWorldEvent=async()=>{if(!isAdmin)return;const type=$('pvm-admin-world-event')?.value,scope=$('pvm-admin-world-scope')?.value||'local',minutes=Number($('pvm-admin-world-duration')?.value);if(!Number.isFinite(minutes)||minutes<1||minutes>10080){$('pvm-admin-world-status').textContent='Digite a duração em minutos (1 a 10080) antes de iniciar.';return}const labels={taco:'Chuva de Tacos',shock:'Tempestade Elétrica',leprechaun:'Leprechaun',eclipse:'Eclipse',chorume:'Chorume',frost:'Geada',flame:'Incandescente',armored:'Blindado',phantom:'Espectral',spore:'Esporos',cosmic:'Cósmica',tafAura:'Aura do TAF'};if(!labels[type])return;let audioFile=$('pvm-admin-taco-audio')?.files?.[0]||null;if(type==='taco'&&audioFile){try{const url=URL.createObjectURL(audioFile),audio=new Audio();const duration=await new Promise(resolve=>{audio.onloadedmetadata=()=>resolve(audio.duration);audio.onerror=()=>resolve(0);audio.src=url});URL.revokeObjectURL(url);if(!Number.isFinite(duration)||duration<30){$('pvm-admin-world-status').textContent='O áudio escolhido precisa ter pelo menos 30 segundos. Evento não iniciado.';return}playAdminAudio(audioFile,audioFile.name);bus?.postMessage({type:'track',title:audioFile.name,file:audioFile})}catch{$('pvm-admin-world-status').textContent='Não foi possível validar o áudio. O evento pode ser iniciado sem música.'}}const event={id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),type,scope,label:labels[type],source:scope==='global'?'admin-hub':'admin-local',startsAt:Date.now(),endsAt:Date.now()+minutes*60000};window.PVM_ADD_WORLD_EVENT?.(event);bus?.postMessage({type:'pvm-world-event',event});let delivered=0;if(scope==='global'){try{delivered=await window.PVM_GLOBAL_ADMIN?.broadcastEvent?.(event)||0}catch(error){$('pvm-admin-world-status').textContent=`Evento ativo apenas aqui; envio global falhou: ${error?.message||'servidor indisponível'}`;game.toast('O evento não foi enviado aos outros jogadores.','error');return}}else if(scope==='room')delivered=window.PVMOnlineVersus?.broadcastEvent?.(event)?1:0;$('pvm-admin-world-status').textContent=scope==='global'?`${labels[type]} ativo por ${minutes} min e enviado para ${delivered} jogador(es) online. Deixe a central do administrador aberta.`:scope==='room'?`${labels[type]} enviado para ${delivered} jogador(es) da sala VS.`:`${labels[type]} ativo por ${minutes} min neste navegador.`;game.toast(`🌩️ ${labels[type]} iniciado!`,'success')};
+window.pvmAdminStopWorldEvent=async()=>{if(!isAdmin)return;window.PVM_SET_WORLD_EVENT?.(null);bus?.postMessage({type:'pvm-world-event',event:null});window.PVMOnlineVersus?.broadcastEventClearAll?.();try{const delivered=await window.PVM_GLOBAL_ADMIN?.broadcastClear?.()||0;$('pvm-admin-world-status').textContent=`Eventos encerrados aqui e enviados para ${delivered} jogador(es) online.`;game.toast('Eventos e mutações encerrados.','info')}catch(error){$('pvm-admin-world-status').textContent='Eventos encerrados neste navegador, mas não foi possível avisar os outros jogadores: '+(error?.message||'servidor indisponível');game.toast('Falha ao encerrar os eventos globalmente.','error')}};
+window.pvmAdminLogout=()=>{isAdmin=false;window.PVM_ADMIN_API?.logout?.();showModal('👑 Administrador','<p class="pvm-muted">Sessão administrativa encerrada neste navegador.</p>')};
 const oldWfAdmin=window.wfOpenAdmin;window.wfOpenAdmin=()=>{if(!isAdmin){window.openPvmAdmin();return}oldWfAdmin?.()};
 
 // Add one themed set of original villain zombies to the catalog and late-game roster.
@@ -8469,105 +8532,8 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 -->
 
 
-<!-- PvM Global Admin Hub: relay de eventos/comunicados/TAF entre jogadores online. -->
-<script>
-(()=>{
- 'use strict';
- const HUB_ID='pvm-global-admin-hub-2026-pvm';
- const SOURCES=['https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js','https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js'];
- let peer=null,role='client',connections=new Set(),retryTimer=null,loading=null,status='Conectando à central global…',lastAttempt=0;
- const $=id=>document.getElementById(id);
- const setStatus=value=>{status=value;const el=$('pvm-global-admin-status');if(el)el.textContent=value;};
- const toast=(message,type='info')=>window.PVMBridge?.toast?.(message,type);
- function loadPeer(){
-  if(window.Peer)return Promise.resolve(window.Peer);
-  if(loading)return loading;
-  loading=new Promise((resolve,reject)=>{let i=0;const next=()=>{if(window.Peer){resolve(window.Peer);return;}if(i>=SOURCES.length){reject(new Error('Não foi possível carregar o serviço de conexão.'));return;}const script=document.createElement('script');script.src=SOURCES[i++];script.async=true;script.onload=()=>window.Peer?resolve(window.Peer):next();script.onerror=next;document.head.appendChild(script);};next();});
-  return loading;
- }
- function activeGlobalEvents(){return (window.PVM_GET_WORLD_EVENTS?.()||[]).filter(e=>e&&e.source==='admin-hub'&&Number(e.endsAt)>Date.now());}
- function send(conn,message){try{if(conn?.open){conn.send({pvmGlobalAdmin:'v1',...message});return true;}}catch(e){console.warn('PvM global relay send failed',e);}return false;}
- function sendSnapshot(conn){send(conn,{type:'snapshot',events:activeGlobalEvents()});}
- function removeConnection(conn){connections.delete(conn);updateHostStatus();}
- function updateHostStatus(){if(role==='host')setStatus(`Central global ativa • ${connections.size} jogador(es) conectado(s). Mantenha esta aba aberta.`);}
- function broadcast(message){let sent=0;for(const conn of [...connections])if(send(conn,message))sent++;return sent;}
- function receive(message){
-  if(!message||message.pvmGlobalAdmin!=='v1')return;
-  if(message.type==='snapshot'){
-   const existing=(window.PVM_GET_WORLD_EVENTS?.()||[]).filter(e=>e?.source==='admin-hub');
-   existing.forEach(e=>window.PVM_REMOVE_WORLD_EVENT?.(e.id));
-   (Array.isArray(message.events)?message.events:[]).forEach(e=>window.PVM_ADD_WORLD_EVENT?.({...e,source:'admin-hub'}));
-  }else if(message.type==='event'&&message.event){window.PVM_ADD_WORLD_EVENT?.({...message.event,source:'admin-hub'});}
-  else if(message.type==='clear-global-events'){
-   (window.PVM_GET_WORLD_EVENTS?.()||[]).filter(e=>e?.source==='admin-hub').forEach(e=>window.PVM_REMOVE_WORLD_EVENT?.(e.id));
-  }else if(message.type==='taf'){
-   const ok=window.PVM_RECEIVE_TAF_BOSS?.(message.options||{});
-   if(!ok)toast('🐎 O administrador anunciou o TAF. Entre em uma partida sem outro chefe para recebê-lo.','info');
-  }else if(message.type==='notice'){
-   const title=String(message.title||'Comunicado da Administração').slice(0,90),body=String(message.body||'').slice(0,260);
-   toast(`📣 ${title}: ${body}`,'success');
-  }
- }
- function destroyPeer(){
-  for(const c of [...connections]){try{c.close();}catch{}}
-  connections.clear();try{peer?.destroy();}catch{}peer=null;
- }
- function scheduleReconnect(){
-  if(role==='host'||retryTimer)return;
-  retryTimer=setTimeout(()=>{retryTimer=null;connectAsPlayer();},9000);
- }
- async function connectAsPlayer(){
-  if(role==='host'||peer)return;
-  lastAttempt=Date.now();
-  try{
-   const PeerClass=await loadPeer();
-   if(role==='host'||peer)return;
-   const p=new PeerClass();peer=p;role='client';
-   p.on('open',()=>{
-    if(peer!==p||role==='host')return;
-    const conn=p.connect(HUB_ID,{reliable:true});let opened=false;
-    const timeout=setTimeout(()=>{if(!opened&&peer===p){try{p.destroy();}catch{}peer=null;setStatus('Central global ainda offline. Nova tentativa automática em instantes.');scheduleReconnect();}},8000);
-    conn.on('open',()=>{opened=true;clearTimeout(timeout);connections.add(conn);setStatus('Conectado à central global do PvM.');send(conn,{type:'hello'});});
-    conn.on('data',receive);
-    conn.on('close',()=>{clearTimeout(timeout);removeConnection(conn);if(peer===p&&role!=='host'){try{p.destroy();}catch{}peer=null;setStatus('Central global desconectada. Reconectando…');scheduleReconnect();}});
-    conn.on('error',()=>{clearTimeout(timeout);if(peer===p&&role!=='host'){try{p.destroy();}catch{}peer=null;scheduleReconnect();}});
-   });
-   p.on('error',()=>{if(peer===p&&role!=='host'){try{p.destroy();}catch{}peer=null;setStatus('Central global não encontrada. Nova tentativa automática em instantes.');scheduleReconnect();}});
-  }catch(e){setStatus(e.message+' Tentando novamente…');scheduleReconnect();}
- }
- async function startHost(){
-  if(role==='host'&&peer){updateHostStatus();return true;}
-  if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}
-  destroyPeer();role='starting';setStatus('Iniciando central global…');
-  try{
-   const PeerClass=await loadPeer();
-   const p=new PeerClass(HUB_ID);peer=p;
-   p.on('open',()=>{if(peer!==p)return;role='host';setStatus('Central global ativa • aguardando jogadores. Mantenha esta aba aberta.');toast('📡 Central global do PvM ativada.','success');});
-   p.on('connection',conn=>{
-    conn.on('open',()=>{connections.add(conn);sendSnapshot(conn);updateHostStatus();});
-    conn.on('data',message=>{if(message?.pvmGlobalAdmin==='v1'&&message.type==='hello')sendSnapshot(conn);});
-    conn.on('close',()=>removeConnection(conn));conn.on('error',()=>removeConnection(conn));
-   });
-   p.on('error',err=>{
-    if(peer!==p)return;
-    const msg=err?.type==='unavailable-id'?'A central já está aberta em outra sessão. Feche a outra aba de administrador.':`Falha na central global (${err?.type||'rede'}).`;
-    setStatus(msg);if(role==='starting'){try{p.destroy();}catch{}peer=null;role='client';scheduleReconnect();}
-   });
-   return true;
-  }catch(e){role='client';peer=null;setStatus('Não foi possível iniciar a central: '+e.message);scheduleReconnect();return false;}
- }
- window.PVM_GLOBAL_ADMIN={
-  startHost,
-  getStatus:()=>status,
-  getConnectedCount:()=>connections.size,
-  broadcastEvent:event=>broadcast({type:'event',event:{...event,source:'admin-hub'}}),
-  broadcastClear:()=>broadcast({type:'clear-global-events'}),
-  broadcastTAF:options=>broadcast({type:'taf',options}),
-  broadcastNotice:(title,body)=>broadcast({type:'notice',title,body})
- };
- setTimeout(()=>{if(role!=='host')connectAsPlayer();},1800);
-})();
-</script>
+<!-- PvM 5.24: relay global substituído por API autenticada no Render. -->
+
 
 
 <script>
@@ -8592,5 +8558,144 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 })();
 </script>
 
+<script>
+/* PvM 5.24 — cliente de autenticação e relay global. A senha nunca está neste arquivo. */
+(()=>{
+  'use strict';
+  const API_BASE='https://pvm-admin-api.onrender.com';
+  const CLIENT_KEY='pvm_player_presence_id_v1';
+  const CURSOR_KEY='pvm_admin_event_cursor_v1';
+  const $=id=>document.getElementById(id);
+  let adminToken=null,adminTokenExpiresAt=0;
+  let clientId='';
+  try{
+    clientId=sessionStorage.getItem(CLIENT_KEY)||'';
+    if(!clientId){clientId='pvm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,13);sessionStorage.setItem(CLIENT_KEY,clientId);}
+  }catch{clientId='pvm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,13);}
+  let cursor=null,connected=false,onlinePlayers=0,polling=false;
+  const appliedActiveEvents=new Set();
+  let pendingTaf=null;
+  try{const saved=sessionStorage.getItem(CURSOR_KEY);if(saved!==null)cursor=Math.max(0,Number(saved)||0);}catch{}
+  const toast=(message,type='info')=>window.PVMBridge?.toast?.(message,type);
+  function refreshStatus(){
+    const el=$('pvm-global-admin-status');
+    if(!el)return;
+    el.textContent=connected
+      ?`Servidor conectado • ${onlinePlayers} jogador(es) online no PvM.`
+      :'Conectando ao servidor global do PvM… novas tentativas automáticas em andamento.';
+  }
+  async function request(path,options={}){
+    const response=await fetch(API_BASE+path,{cache:'no-store',...options});
+    let data={};try{data=await response.json();}catch{}
+    if(!response.ok)throw new Error(data.error||`Falha no servidor (HTTP ${response.status}).`);
+    return data;
+  }
+  function clearAdminWorldEvents(){
+    const current=window.PVM_GET_WORLD_EVENTS?.()||[];
+    current.filter(e=>e&&e.source==='admin-hub').forEach(e=>window.PVM_REMOVE_WORLD_EVENT?.(e.id));
+    appliedActiveEvents.clear();
+  }
+  function applyActiveWorldEvent(event){
+    if(!event||!event.id||Number(event.endsAt)<=Date.now()||appliedActiveEvents.has(String(event.id)))return;
+    appliedActiveEvents.add(String(event.id));
+    window.PVM_ADD_WORLD_EVENT?.({...event,source:'admin-hub'});
+  }
+  function receiveRecord(record){
+    if(!record||!record.type)return;
+    const payload=record.payload||{};
+    if(record.type==='event'){
+      applyActiveWorldEvent(payload);
+    }else if(record.type==='clear'){
+      clearAdminWorldEvents();
+    }else if(record.type==='notice'){
+      const title=String(payload.title||'Comunicado da Administração').slice(0,90);
+      const body=String(payload.body||'').slice(0,260);
+      toast(`📣 ${title}: ${body}`,'success');
+    }else if(record.type==='taf'){
+      const options={hp:Math.max(12000,Math.min(250000,Number(payload.hp)||24000))};
+      const ok=window.PVM_RECEIVE_TAF_BOSS?.(options);
+      if(!ok){
+        pendingTaf={options,expiresAt:Date.now()+10*60*1000};
+        toast('🐎 O administrador anunciou o TAF. Entre em uma fase nos próximos 10 minutos para recebê-lo.','info');
+      }else toast('🐎 O TAF entrou na sua partida por ordem do administrador!','success');
+    }
+  }
+  function tryPendingTaf(){
+    if(!pendingTaf)return;
+    if(pendingTaf.expiresAt<=Date.now()){pendingTaf=null;return;}
+    if(window.PVM_RECEIVE_TAF_BOSS?.(pendingTaf.options))pendingTaf=null;
+  }
+  const originalLaunchLevel=window.launchLevel;
+  if(typeof originalLaunchLevel==='function'){
+    window.launchLevel=function(...args){
+      const result=originalLaunchLevel.apply(this,args);
+      setTimeout(tryPendingTaf,250);
+      return result;
+    };
+  }
+  async function pollOnce(){
+    let url=`${API_BASE}/api/poll?client_id=${encodeURIComponent(clientId)}`;
+    if(cursor!==null)url+=`&after=${encodeURIComponent(cursor)}`;
+    const response=await fetch(url,{method:'GET',cache:'no-store'});
+    let data={};try{data=await response.json();}catch{}
+    if(!response.ok)throw new Error(data.error||`Falha no servidor (HTTP ${response.status}).`);
+    const latest=Math.max(0,Number(data.latestId)||0);
+    if(cursor!==null&&latest<cursor){
+      cursor=0;appliedActiveEvents.clear();
+    }
+    onlinePlayers=Math.max(0,Number(data.onlinePlayers)||0);
+    (Array.isArray(data.activeEvents)?data.activeEvents:[]).forEach(applyActiveWorldEvent);
+    (Array.isArray(data.events)?data.events:[]).forEach(record=>{
+      const id=Number(record.id)||0;
+      if(record.originClientId&&record.originClientId===clientId)return;
+      receiveRecord(record);
+      if(id>cursor)cursor=id;
+    });
+    cursor=Math.max(cursor??0,latest);
+    try{sessionStorage.setItem(CURSOR_KEY,String(cursor));}catch{}
+    connected=true;refreshStatus();
+  }
+  async function pollLoop(){
+    if(polling)return;
+    polling=true;
+    try{await pollOnce();}
+    catch(error){connected=false;refreshStatus();console.warn('PvM global relay:',error?.message||error);}
+    finally{polling=false;setTimeout(pollLoop,4000);}
+  }
+  window.PVM_ADMIN_API={
+    async login(password){
+      const result=await request('/api/admin/login',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({password:String(password||'')})
+      });
+      adminToken=String(result.token||'');
+      adminTokenExpiresAt=Number(result.expiresAt)||0;
+      if(!adminToken)throw new Error('O servidor não devolveu uma sessão válida.');
+      return result;
+    },
+    logout(){adminToken=null;adminTokenExpiresAt=0;},
+    hasSession(){return !!adminToken&&adminTokenExpiresAt>Date.now();}
+  };
+  async function adminBroadcast(type,extra={}){
+    if(!window.PVM_ADMIN_API.hasSession())throw new Error('Sua sessão de administrador expirou. Entre novamente.');
+    const result=await request('/api/admin/broadcast',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`},
+      body:JSON.stringify({type,originClientId:clientId,...extra})
+    });
+    return Math.max(0,Number(result.deliveredTo)||0);
+  }
+  window.PVM_GLOBAL_ADMIN={
+    startHost(){refreshStatus();return true;},
+    getStatus(){return connected?`Servidor conectado • ${onlinePlayers} jogador(es) online.`:'Conectando ao servidor global…';},
+    getConnectedCount(){return onlinePlayers;},
+    broadcastEvent(event){if(event?.id)appliedActiveEvents.add(String(event.id));return adminBroadcast('event',{event});},
+    broadcastClear(){clearAdminWorldEvents();return adminBroadcast('clear');},
+    broadcastTAF(options){return adminBroadcast('taf',{options});},
+    broadcastNotice(title,body){return adminBroadcast('notice',{title,body});}
+  };
+  pollLoop();
+})();
+</script>
 </body>
 </html>
