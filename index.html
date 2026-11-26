@@ -8930,10 +8930,16 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
       return result;
     };
   }
-  wrap('collectSun',args=>{
-    const game=window.PVMBridge?.getGame?.();
-    if(game?.suns?.[args[0]])record('sun',1);
-  });
+  const originalCollectSun=window.collectSun;
+  if(typeof originalCollectSun==='function'){
+    window.collectSun=function(...args){
+      const game=window.PVMBridge?.getGame?.();
+      const hadSun=!!game?.suns?.[args[0]];
+      const result=originalCollectSun.apply(this,args);
+      if(hadSun)record('sun',1);
+      return result;
+    };
+  }
   wrap('damageZombie',(args)=>{
     const zombie=args[0],before=Number(zombie?.hp);
     if(!zombie||!(before>0))return;
