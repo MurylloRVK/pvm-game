@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.25.0" name="application-version"/>
+<meta content="5.26.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -461,6 +461,7 @@
 <button class="btn-wood px-4 py-2 rounded-xl text-sm font-bold text-white" onclick="pvmOpenGroup('collection')">📚 Coleção</button>
 <button class="btn-pvz px-4 py-2 rounded-xl text-sm font-bold text-white" onclick="pvmOpenGroup('shops')">🛍️ Lojas</button>
 <button class="btn-wood px-4 py-2 rounded-xl text-sm font-bold text-white" onclick="pvmOpenGroup('more')">☰ Mais</button>
+<button class="btn-purple px-4 py-2 rounded-xl text-sm font-bold text-white" onclick="pvmChallengesOpen()">🎯 Desafios</button>
 <button class="bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 px-4 py-2 rounded-xl text-sm font-bold text-amber-200" id="btn-toggle-sound">🔊 Som: Ligado</button>
 </div>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full">
@@ -486,6 +487,17 @@
 </section>
 <section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5 border-2 border-lime-500/70 bg-gradient-to-br from-emerald-950/80 to-slate-950/80"><div class="flex flex-wrap items-center justify-between gap-3"><div class="min-w-0"><div class="text-xs uppercase tracking-[.25em] text-lime-200 font-black">🌱 Evento especial • lançamento</div><h3 class="text-2xl font-display text-yellow-200">🚀 Evento de Lançamento PvM 5.7</h3><p class="text-sm text-emerald-100/90 mt-1">Uma nova etapa começa: escolha seu Jardim Solar ou Lunar, cuide do Jardim Zen e enfrente hordas com um ritmo renovado. Entre no evento e resgate o presente de lançamento.</p></div><button class="btn-pvz rounded-xl px-5 py-3 font-display text-white shrink-0" onclick="claimPvmLaunchGift()">🎁 Resgatar presente</button></div><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="bg-black/30 rounded-full px-3 py-1 text-lime-100">Presente único por conta</span><span class="bg-black/30 rounded-full px-3 py-1 text-lime-100">150 moedas + 100 XP</span></div></section>
 <section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5"><div class="flex items-center justify-between gap-3 mb-3"><h3 class="text-lg font-display text-lime-300">🗺️ Suas Fases Criadas</h3><span class="text-xs bg-amber-950 px-2.5 py-1 rounded-full text-amber-300 font-bold" id="custom-level-count">0 fases</span></div><div class="max-h-40 overflow-y-auto flex flex-col gap-2 pr-1" id="custom-levels-menu-list"></div></section>
+<section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5 border-2 border-emerald-600/60 bg-gradient-to-br from-emerald-950/80 to-slate-950/80" id="pvm-expeditions-home">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-3 min-w-0"><div class="text-4xl">🎯</div><div class="min-w-0"><div class="text-[10px] uppercase tracking-[.22em] text-lime-300 font-black">NOVO • CENTRAL DE OBJETIVOS</div><h3 class="text-xl font-display text-yellow-200">Expedições do Jardim</h3><p class="text-xs text-amber-100/75 mt-1">Desafios diários e semanais com moedas, XP e bônus de sequência.</p></div></div>
+<button class="btn-pvz rounded-xl px-5 py-3 font-display text-white shrink-0" onclick="pvmChallengesOpen()">ABRIR EXPEDIÇÕES ↗</button>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-4">
+<div class="rounded-xl bg-black/25 border border-lime-700/60 p-3"><div class="text-[10px] uppercase text-lime-200">Diários</div><div class="text-2xl font-display text-white" id="pvm-exp-home-daily">0/3</div></div>
+<div class="rounded-xl bg-black/25 border border-sky-700/60 p-3"><div class="text-[10px] uppercase text-sky-200">Semana</div><div class="text-2xl font-display text-white" id="pvm-exp-home-weekly">0/3</div></div>
+<div class="rounded-xl bg-black/25 border border-amber-700/60 p-3"><div class="text-[10px] uppercase text-amber-200">Sequência</div><div class="text-2xl font-display text-white" id="pvm-exp-home-streak">0 dias</div></div>
+</div>
+</section>
 <section class="panel-wood rounded-3xl p-4 sm:p-5 w-full mt-5" id="pvm-home-progress-card">
 <div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div><div class="text-[10px] uppercase tracking-[.22em] text-lime-300 font-black">SEU JARDIM</div><h3 class="text-xl font-display text-yellow-200">📊 Resumo do progresso</h3></div><span class="text-[10px] text-amber-200/70">Atualiza ao voltar ao menu</span></div>
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
@@ -8704,5 +8716,267 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
   pollLoop();
 })();
 </script>
+
+<style id="pvm-expeditions-style">
+.pvm-exp-modal{backdrop-filter:blur(5px)}
+.pvm-exp-card{background:linear-gradient(145deg,rgba(7,45,31,.94),rgba(35,25,15,.96));border:1px solid rgba(132,204,22,.35);border-radius:15px;padding:13px;min-width:0}
+.pvm-exp-card.week{background:linear-gradient(145deg,rgba(12,38,63,.94),rgba(35,25,15,.96));border-color:rgba(56,189,248,.35)}
+.pvm-exp-progress{height:9px;background:rgba(15,23,42,.9);border-radius:999px;overflow:hidden}
+.pvm-exp-progress>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#65a30d,#bef264);transition:width .2s}
+.pvm-exp-card.week .pvm-exp-progress>span{background:linear-gradient(90deg,#0284c7,#7dd3fc)}
+.pvm-exp-claim{border:1px solid rgba(250,204,21,.55);background:linear-gradient(135deg,#854d0e,#a16207);color:#fff7d6;border-radius:10px;padding:8px 11px;font-weight:900;font-size:12px;min-width:104px}
+.pvm-exp-claim:disabled{opacity:.43;cursor:not-allowed;filter:saturate(.5)}
+.pvm-exp-chip{border:1px solid rgba(253,230,138,.22);background:rgba(0,0,0,.24);border-radius:999px;padding:5px 9px;font-size:11px;color:#fef3c7}
+@media(max-width:640px){#pvm-expeditions-modal .pvm-exp-main{padding:13px!important}#pvm-expeditions-modal .pvm-exp-columns{grid-template-columns:1fr!important}}
+</style>
+<div class="hidden fixed inset-0 z-[145] bg-black/85 items-center justify-center p-3 sm:p-5 pvm-exp-modal" id="pvm-expeditions-modal" role="dialog" aria-modal="true" aria-labelledby="pvm-expeditions-title" onclick="pvmChallengesBackdrop(event)">
+<div class="panel-wood rounded-3xl pvm-exp-main p-4 sm:p-6 w-full max-w-6xl max-h-[94vh] overflow-y-auto shadow-2xl" onclick="event.stopPropagation()">
+<div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-amber-800 pb-4 mb-4">
+<div class="flex items-center gap-3"><div class="text-5xl">🧭</div><div><div class="text-[10px] tracking-[.25em] uppercase text-lime-300 font-black">CENTRAL DE OBJETIVOS</div><h2 class="text-2xl sm:text-3xl font-display text-yellow-200" id="pvm-expeditions-title">Expedições do Jardim</h2><p class="text-xs sm:text-sm text-amber-100/75 mt-1">Complete tarefas durante partidas normais e resgate as recompensas.</p></div></div>
+<button class="btn-danger rounded-xl px-4 py-2 font-bold text-white" onclick="pvmChallengesClose()">✕ Fechar</button>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="rounded-xl bg-black/25 border border-amber-700/70 p-3"><div class="text-[10px] uppercase text-amber-200">Sequência atual</div><div class="text-2xl sm:text-3xl font-display text-yellow-200" id="pvm-exp-streak">0 dias</div><div class="text-[10px] text-amber-100/60">Dias com todos os diários resgatados</div></div>
+<div class="rounded-xl bg-black/25 border border-lime-700/70 p-3"><div class="text-[10px] uppercase text-lime-200">Diários concluídos</div><div class="text-2xl sm:text-3xl font-display text-white" id="pvm-exp-daily-summary">0/3</div><div class="text-[10px] text-amber-100/60">Renovam à meia-noite</div></div>
+<div class="rounded-xl bg-black/25 border border-sky-700/70 p-3"><div class="text-[10px] uppercase text-sky-200">Semanais concluídos</div><div class="text-2xl sm:text-3xl font-display text-white" id="pvm-exp-weekly-summary">0/3</div><div class="text-[10px] text-amber-100/60">Renovam na segunda-feira</div></div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pvm-exp-columns" id="pvm-expeditions-content"></div>
+<div class="rounded-xl bg-black/25 border border-amber-800/60 p-3 mt-4 text-[11px] text-amber-100/70">O progresso é salvo no navegador e separado por conta neste dispositivo. Os objetivos avançam automaticamente ao coletar sóis, derrotar monstros, vencer partidas e jogar fases da campanha. O relógio segue a data local do dispositivo.</div>
+</div>
+</div>
+<script>
+/* PvM 5.26 — Expedições do Jardim: desafios diários/semanais, recompensas e sequência. */
+(()=>{
+  'use strict';
+  if(window.__PVM_EXPEDITIONS_526__)return;
+  window.__PVM_EXPEDITIONS_526__=true;
+  const STORE='pvm_garden_expeditions_v1:';
+  const $=id=>document.getElementById(id);
+  const DAILY_POOL=[
+    {id:'sun',icon:'☀️',title:'Colheita solar',desc:'Colete sóis durante as partidas.',target:25,unit:'sóis',coins:45,xp:35},
+    {id:'kills',icon:'🧟',title:'Limpeza do gramado',desc:'Derrote monstros de qualquer tipo.',target:24,unit:'monstros',coins:55,xp:40},
+    {id:'play',icon:'⏱️',title:'Tempo de jardinagem',desc:'Jogue por alguns minutos em fases ativas.',target:240,unit:'segundos',coins:45,xp:35},
+    {id:'wins',icon:'🏆',title:'Defesa bem-sucedida',desc:'Vença uma partida em qualquer modo.',target:1,unit:'vitória',coins:60,xp:45},
+    {id:'campaign',icon:'🗺️',title:'Passo na campanha',desc:'Conclua uma fase da campanha principal.',target:1,unit:'fase',coins:65,xp:50}
+  ];
+  const WEEKLY_POOL=[
+    {id:'sun',icon:'🌞',title:'Reserva de energia',desc:'Reúna sóis ao longo da semana.',target:150,unit:'sóis',coins:110,xp:90},
+    {id:'kills',icon:'💥',title:'Grande faxina',desc:'Derrote monstros em suas partidas.',target:140,unit:'monstros',coins:130,xp:110},
+    {id:'play',icon:'⌛',title:'Guardião persistente',desc:'Some tempo em fases ativas.',target:1200,unit:'segundos',coins:120,xp:100},
+    {id:'wins',icon:'🏅',title:'Jardim impenetrável',desc:'Conquiste vitórias durante a semana.',target:5,unit:'vitórias',coins:150,xp:125},
+    {id:'campaign',icon:'📜',title:'Rota de exploração',desc:'Conclua fases da campanha principal.',target:4,unit:'fases',coins:170,xp:140}
+  ];
+  let activeKey='',state=null,lastTick=0,playBuffer=0;
+  function pad(n){return String(n).padStart(2,'0');}
+  function dateStamp(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function todayStamp(){return dateStamp(new Date());}
+  function mondayStamp(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return dateStamp(d);}
+  function shiftStamp(s,delta){const p=s.split('-').map(Number);const d=new Date(p[0],p[1]-1,p[2]);d.setDate(d.getDate()+delta);return dateStamp(d);}
+  function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  function makeQuests(pool,count,salt){
+    const a=pool.slice();let seed=hash(salt);
+    for(let i=a.length-1;i>0;i--){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const j=seed%(i+1);[a[i],a[j]]=[a[j],a[i]];}
+    return a.slice(0,count).map(q=>({...q,progress:0,claimed:false,notified:false}));
+  }
+  function newState(){
+    const d=todayStamp(),w=mondayStamp();
+    return {version:1,streak:0,lastStreakDay:'',daily:{stamp:d,quests:makeQuests(DAILY_POOL,3,'daily:'+d),bonusClaimed:false},weekly:{stamp:w,quests:makeQuests(WEEKLY_POOL,3,'weekly:'+w),bonusClaimed:false}};
+  }
+  function accountName(){
+    let p={};try{p=window.PVMAccountBridge?.getProfile?.()||{};}catch{}
+    return String(p.name||'jogador').trim().toLocaleLowerCase('pt-BR').slice(0,40)||'jogador';
+  }
+  function save(){
+    try{localStorage.setItem(activeKey,JSON.stringify(state));}
+    catch(error){console.warn('PvM Expedições: não foi possível salvar.',error);}
+  }
+  function ensureState(){
+    const key=STORE+encodeURIComponent(accountName());
+    if(key!==activeKey){
+      activeKey=key;state=null;
+      try{state=JSON.parse(localStorage.getItem(activeKey)||'null');}catch{}
+      if(!state||state.version!==1)state=newState();
+    }
+    const d=todayStamp(),w=mondayStamp();
+    if(state.daily?.stamp!==d)state.daily={stamp:d,quests:makeQuests(DAILY_POOL,3,'daily:'+d),bonusClaimed:false};
+    if(state.weekly?.stamp!==w)state.weekly={stamp:w,quests:makeQuests(WEEKLY_POOL,3,'weekly:'+w),bonusClaimed:false};
+    if(!Number.isFinite(state.streak))state.streak=0;
+    if(typeof state.lastStreakDay!=='string')state.lastStreakDay='';
+    save();
+    return state;
+  }
+  function countClaimed(period){return period.quests.filter(q=>q.claimed).length;}
+  function allClaimed(period){return period.quests.length>0&&period.quests.every(q=>q.claimed);}
+  function showToast(message,type){window.PVMBridge?.toast?.(message,type||'success');}
+  function reward(coins,xp){
+    if(coins>0)window.PVMBridge?.addCoins?.(coins);
+    if(xp>0)window.PVM_GRANT_XP?.(xp);
+  }
+  function shortValue(v){
+    if(v>=3600)return Math.floor(v/3600)+'h '+Math.floor((v%3600)/60)+'min';
+    if(v>=60)return Math.floor(v/60)+'min '+Math.floor(v%60)+'s';
+    return String(Math.floor(v));
+  }
+  function homeRefresh(){
+    const s=ensureState(),d=s.daily,w=s.weekly;
+    const set=(id,value)=>{const el=$(id);if(el)el.textContent=value;};
+    set('pvm-exp-home-daily',countClaimed(d)+'/3');
+    set('pvm-exp-home-weekly',countClaimed(w)+'/3');
+    set('pvm-exp-home-streak',s.streak+' dias');
+  }
+  function questCard(q,period,index){
+    const progress=Math.min(q.target,Math.max(0,Number(q.progress)||0));
+    const percent=Math.min(100,progress/q.target*100);
+    const ready=progress>=q.target;
+    const claimed=!!q.claimed;
+    const progressText=q.id==='play'?shortValue(progress)+' / '+shortValue(q.target):Math.floor(progress)+' / '+q.target+' '+q.unit;
+    const action=claimed?'RESGATADO':ready?'RESGATAR':'EM ANDAMENTO';
+    const disabled=claimed||!ready;
+    const theme=period==='weekly'?' week':'';
+    return '<article class="pvm-exp-card'+theme+'"><div class="flex items-start gap-3"><div class="text-3xl shrink-0">'+q.icon+'</div><div class="min-w-0 flex-1"><div class="font-black text-yellow-100">'+q.title+'</div><p class="text-xs text-amber-100/70 mt-1">'+q.desc+'</p></div></div><div class="flex items-center justify-between gap-2 mt-4 mb-2 text-[11px]"><span class="text-lime-100 font-bold">'+progressText+'</span><span class="pvm-exp-chip">🪙 '+q.coins+' • ⭐ '+q.xp+' XP</span></div><div class="pvm-exp-progress"><span style="width:'+percent.toFixed(1)+'%"></span></div><div class="flex items-center justify-between gap-2 mt-3"><span class="text-[10px] text-amber-100/55">'+(claimed?'Recompensa já recebida':ready?'Objetivo completo!':'Continue jogando para avançar')+'</span><button class="pvm-exp-claim" '+(disabled?'disabled':'')+' onclick="pvmChallengeClaim(\''+period+'\','+index+')">'+action+'</button></div></article>';
+  }
+  function render(){
+    const s=ensureState(),daily=s.daily,weekly=s.weekly;
+    const modal=$('pvm-expeditions-modal');
+    if(!modal)return;
+    const dailyComplete=countClaimed(daily),weeklyComplete=countClaimed(weekly);
+    const set=(id,value)=>{const el=$(id);if(el)el.textContent=value;};
+    set('pvm-exp-streak',s.streak+' dias');
+    set('pvm-exp-daily-summary',dailyComplete+'/3');
+    set('pvm-exp-weekly-summary',weeklyComplete+'/3');
+    set('pvm-exp-home-daily',dailyComplete+'/3');
+    set('pvm-exp-home-weekly',weeklyComplete+'/3');
+    set('pvm-exp-home-streak',s.streak+' dias');
+    const content=$('pvm-expeditions-content');
+    if(!content)return;
+    let dailyHtml='<section><div class="flex items-center justify-between gap-2 mb-3"><div><div class="text-[10px] uppercase tracking-[.22em] text-lime-300 font-black">MISSÕES DE HOJE</div><h3 class="text-xl font-display text-yellow-100">🌱 Desafios diários</h3></div><span class="pvm-exp-chip">Renova à meia-noite</span></div><div class="flex flex-col gap-2">';
+    daily.quests.forEach((q,i)=>dailyHtml+=questCard(q,'daily',i));
+    dailyHtml+='</div>';
+    if(dailyComplete===3&&daily.bonusClaimed)dailyHtml+='<div class="rounded-xl border border-yellow-600/50 bg-yellow-950/40 p-3 mt-3 text-sm text-yellow-100">🎉 Bônus diário recebido! A sequência agora é de <b>'+s.streak+' dia(s)</b>.</div>';
+    else dailyHtml+='<div class="rounded-xl border border-yellow-600/40 bg-yellow-950/30 p-3 mt-3 text-xs text-yellow-100/90">🎁 Resgate os 3 desafios para ganhar <b>+80 moedas e +60 XP</b> extras e aumentar sua sequência diária.</div>';
+    dailyHtml+='</section>';
+    let weeklyHtml='<section><div class="flex items-center justify-between gap-2 mb-3"><div><div class="text-[10px] uppercase tracking-[.22em] text-sky-300 font-black">MISSÕES DA SEMANA</div><h3 class="text-xl font-display text-yellow-100">🌙 Desafios semanais</h3></div><span class="pvm-exp-chip">Renova segunda</span></div><div class="flex flex-col gap-2">';
+    weekly.quests.forEach((q,i)=>weeklyHtml+=questCard(q,'weekly',i));
+    weeklyHtml+='</div>';
+    if(weeklyComplete===3&&weekly.bonusClaimed)weeklyHtml+='<div class="rounded-xl border border-sky-600/50 bg-sky-950/40 p-3 mt-3 text-sm text-sky-100">🏅 Pacote semanal resgatado!</div>';
+    else weeklyHtml+='<div class="rounded-xl border border-sky-600/40 bg-sky-950/30 p-3 mt-3 text-xs text-sky-100/90">🎁 Resgate os 3 desafios para ganhar <b>+250 moedas e +200 XP</b> extras.</div>';
+    weeklyHtml+='</section>';
+    content.innerHTML=dailyHtml+weeklyHtml;
+    homeRefresh();
+  }
+  function addProgress(list,type,amount){
+    let changed=false;
+    list.forEach(q=>{
+      if(q.id!==type||q.claimed)return;
+      const before=Math.min(q.target,Number(q.progress)||0);
+      const after=Math.min(q.target,before+amount);
+      if(after>before){q.progress=after;changed=true;}
+      if(before<q.target&&after>=q.target&&!q.notified){q.notified=true;showToast('🎯 Desafio concluído: '+q.title+'. Abra Expedições para resgatar!','success');}
+    });
+    return changed;
+  }
+  function record(type,amount){
+    if(!(amount>0))return;
+    const s=ensureState();
+    const a=addProgress(s.daily.quests,type,amount);
+    const b=addProgress(s.weekly.quests,type,amount);
+    if(a||b){save();homeRefresh();if($('pvm-expeditions-modal')?.classList.contains('flex'))render();}
+  }
+  window.pvmChallengeClaim=(period,index)=>{
+    const s=ensureState(),p=period==='weekly'?s.weekly:s.daily,q=p.quests[index];
+    if(!q||q.claimed||q.progress<q.target)return;
+    q.claimed=true;
+    save();
+    reward(q.coins,q.xp);
+    showToast('🎁 Recompensa recebida: +'+q.coins+' moedas e +'+q.xp+' XP!','success');
+    if(allClaimed(p)&&!p.bonusClaimed){
+      p.bonusClaimed=true;
+      if(period==='daily'){
+        const today=p.stamp;
+        if(s.lastStreakDay===shiftStamp(today,-1))s.streak++;
+        else if(s.lastStreakDay!==today)s.streak=1;
+        s.lastStreakDay=today;
+        save();
+        reward(80,60);
+        showToast('🌟 Todos os desafios diários concluídos! +80 moedas, +60 XP e sequência de '+s.streak+' dia(s).','success');
+        if(s.streak>0&&s.streak%7===0){
+          reward(180,150);
+          showToast('🏆 MARCO DE 7 DIAS! +180 moedas e +150 XP extras.','success');
+        }
+      }else{
+        save();
+        reward(250,200);
+        showToast('🏅 Semana completa! +250 moedas e +200 XP extras.','success');
+      }
+    }
+    render();
+  };
+  window.pvmChallengesOpen=()=>{
+    const modal=$('pvm-expeditions-modal');if(!modal)return;
+    render();modal.classList.remove('hidden');modal.classList.add('flex');
+  };
+  window.pvmChallengesClose=()=>{
+    const modal=$('pvm-expeditions-modal');if(!modal)return;
+    modal.classList.add('hidden');modal.classList.remove('flex');
+  };
+  window.pvmChallengesBackdrop=event=>{if(event?.target?.id==='pvm-expeditions-modal')window.pvmChallengesClose();};
+  window.PVM_EXPEDITIONS={refresh:render};
+  function wrap(name,handler){
+    const original=window[name];
+    if(typeof original!=='function')return;
+    window[name]=function(...args){
+      const result=original.apply(this,args);
+      try{handler.call(this,args,result);}catch(error){console.warn('PvM Expedições ('+name+'):',error);}
+      return result;
+    };
+  }
+  wrap('collectSun',args=>{
+    const game=window.PVMBridge?.getGame?.();
+    if(game?.suns?.[args[0]])record('sun',1);
+  });
+  wrap('damageZombie',(args)=>{
+    const zombie=args[0],before=Number(zombie?.hp);
+    if(!zombie||!(before>0))return;
+    const after=Number(zombie.hp);
+    if(after<=0)record('kills',1);
+  });
+  wrap('updateGame',()=>{
+    const game=window.PVMBridge?.getGame?.();
+    if(!game?.level||game.levelCompleted){lastTick=0;playBuffer=0;return;}
+    const now=performance.now();
+    if(lastTick>0){
+      const delta=Math.max(0,Math.min(.25,(now-lastTick)/1000));
+      playBuffer+=delta;
+      if(playBuffer>=1){const whole=Math.floor(playBuffer);playBuffer-=whole;record('play',whole);}
+    }
+    lastTick=now;
+  });
+  const previousGameOver=window.PVM_ON_GAME_OVER;
+  window.PVM_ON_GAME_OVER=(won)=>{
+    try{
+      if(won){
+        record('wins',1);
+        const game=window.PVMBridge?.getGame?.();
+        if(Number(game?.campaignIndex)>=0)record('campaign',1);
+      }
+    }catch(error){console.warn('PvM Expedições (fim da partida):',error);}
+    if(typeof previousGameOver==='function')return previousGameOver(won);
+  };
+  ensureState();homeRefresh();
+  const previousShowScreen=window.PVMBridge?.showScreen;
+  if(typeof previousShowScreen==='function'){
+    // A tela inicial é atualizada quando o jogador volta ao menu, sem alterar a navegação original.
+    const originalShowScreen=window.showScreen;
+    if(typeof originalShowScreen==='function'){
+      window.showScreen=function(name,...args){
+        const result=originalShowScreen.call(this,name,...args);
+        if(name==='menu')homeRefresh();
+        return result;
+      };
+    }
+  }
+})();
+</script>
+
 </body>
 </html>
