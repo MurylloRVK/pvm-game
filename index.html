@@ -4,8 +4,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.16.0" name="application-version"/>
-<title>PvM 5.16 • TAF e visuais especiais</title>
+<meta content="5.21.0" name="application-version"/>
+<title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
     * {
@@ -447,7 +447,7 @@
 <!-- MENU PRINCIPAL -->
 <div class="w-full max-w-5xl flex flex-col items-center" id="screen-menu">
 <div class="text-center mb-6 w-full">
-<div class="inline-block bg-amber-900/80 border-2 border-amber-400/50 px-4 py-1 rounded-full text-amber-300 text-xs sm:text-sm font-bold tracking-wider uppercase mb-2">PvM 5.16 • TAF e visuais especiais</div>
+<div class="inline-block bg-amber-900/80 border-2 border-amber-400/50 px-4 py-1 rounded-full text-amber-300 text-xs sm:text-sm font-bold tracking-wider uppercase mb-2">PvM</div>
 <h1 class="text-4xl sm:text-6xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-lime-300 via-green-400 to-emerald-600">PLANTAS vs. MONSTROS</h1>
 <p class="text-emerald-200/90 text-sm sm:text-base mt-1">Campanha aberta, laboratório livre e um jardim feito para ser quebrado pelos jogadores.</p>
 </div>
@@ -686,7 +686,7 @@
 <button class="bg-sky-800 hover:bg-sky-700 border-2 border-sky-400 rounded-xl px-3 py-2 font-display text-sm text-white cursor-pointer" id="btn-speed" onclick="toggleGameSpeed()" title="Alternar velocidade 1x / 2x">
           1x
         </button>
-<button class="bg-fuchsia-800 hover:bg-fuchsia-700 border-2 border-fuchsia-300 rounded-xl px-2.5 py-2 font-display text-xs sm:text-sm text-white cursor-pointer" id="btn-neco-midgame" onclick="pvmOpenNecoDuringGame()" title="Consultar a Loja da Temporada durante a fase">🌟 Neco</button> <button class="bg-emerald-800 hover:bg-emerald-700 border-2 border-emerald-300 rounded-xl px-2.5 py-2 font-display text-xs sm:text-sm text-white cursor-pointer" id="btn-ze-midgame" onclick="pvmOpenZeDuringGame()" title="Consultar a Loja do Seu Zé durante a fase">👨‍🌾 Seu Zé</button>
+<button class="bg-fuchsia-800 hover:bg-fuchsia-700 border-2 border-fuchsia-300 rounded-xl px-2.5 py-2 font-display text-xs sm:text-sm text-white cursor-pointer" id="btn-neco-midgame" onclick="pvmOpenNecoDuringGame()" title="Consultar a Loja da Temporada durante a fase">🌟 Neco</button>
 <button class="btn-danger px-3 py-2 rounded-xl font-bold text-xs sm:text-sm text-white cursor-pointer" onclick="pauseGame()">⏸ Menu</button>
 </div>
 </div>
@@ -997,8 +997,7 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full mb-3">
 <section class="panel-wood rounded-2xl p-3"><div class="text-lime-200 font-bold">🌻 Equipe 1 • Jardim Solar</div><div class="text-2xl font-display" id="wf51-score1">0 pontos</div><div class="text-xs text-amber-100">Jardins: <span id="wf51-hp1">300</span> HP</div></section>
 <section class="panel-wood rounded-2xl p-3 text-center"><div class="text-yellow-200 font-bold">🏡 Três jardins por equipe</div><div class="text-xl font-display" id="wf51-round">Rodada 1</div><div class="text-xs text-amber-100" id="wf51-status">Escolha um jardim para atacar</div></section>
-<section class="panel-wood rounded-2xl p-3"><div class="text-right text-sky-200 font-bold">🌼 Equipe 2 • Jardim Lunar</div><div class="text-2xl font-display text-right" id="wf51-score2">0 pontos</div><div class="text-xs text-amber-100 text-right">Jardins: <span id="wf51-hp2">300</span> HP</div></section>
-</div>
+<section class="panel-wood rounded-2xl p-3"><div class="text-right text-sky-200 font-bold">🌼 Equipe 2 • Jardim Lunar</div><div class="text-2xl font-display text-right" id="wf51-score2">0 pontos</div><div class="text-xs text-amber-100 text-right">Jardins: <span id="wf51-hp2">300</span> HP</div></section></div>
 <section class="panel-wood rounded-2xl p-3 w-full mb-3 border-2 border-sky-500/60" id="wf51-map-panel"><div class="flex flex-wrap items-center justify-between gap-2"><div><div class="text-xs uppercase tracking-widest text-sky-200">Terreno rotativo • muda a cada 5 rodadas</div><div class="text-xl font-display text-yellow-200"><span id="wf51-map-emoji">☀️</span> <span id="wf51-map-name">Campo Normal</span></div><p class="text-xs text-amber-100" id="wf51-map-effect">Campo equilibrado, sem modificadores.</p></div><div class="text-right text-xs text-sky-100">Próxima mudança<br/><b id="wf51-map-countdown">5 rodadas</b></div></div></section>
 <section class="panel-wood rounded-3xl p-3 sm:p-5 w-full">
 <div class="flex flex-wrap justify-between gap-2 mb-3"><div><h3 class="font-display text-xl text-yellow-200">🌱 Seis jardins em disputa</h3><p class="text-xs text-amber-100/75">Cada equipe protege três jardins. Comandantes escolhem uma fileira para enviar tropas.</p></div><div class="flex gap-2"><button class="btn-pvz rounded-xl px-4 py-2 font-bold text-white" onclick="wf51EndTurn()">Resolver rodada ▶</button><button class="btn-wood rounded-xl px-3 py-2 font-bold text-white" onclick="wf51Reset()">↻ Reiniciar</button></div></div>
@@ -1610,7 +1609,7 @@
     const ADVENTURE_PROGRESS_KEY='pvz_adventure_progress_v2';
     function loadAdventureProgress(){try{const v=JSON.parse(localStorage.getItem(ADVENTURE_PROGRESS_KEY)||'null')||{};const completed=Array.isArray(v.completedLevels)?v.completedLevels.filter(n=>Number.isInteger(n)&&n>=1&&n<=60):[];let p=Array.isArray(v.unlockedPlants)?v.unlockedPlants:['peashooter'];if(!p.includes('peashooter'))p.unshift('peashooter');const highestCompleted=completed.length?Math.max(...completed):0;let max=Math.min(60,Math.max(1,Number(v.maxUnlockedLevel)||1,highestCompleted+1));p=[...new Set(p.filter(id=>PLANTS[id]))];/* Preserva todo progresso salvo. Não reconstrua nem apague desbloqueios com base na quantidade de plantas. */return{maxUnlockedLevel:max,completedLevels:completed,unlockedPlants:p};}catch{return{maxUnlockedLevel:1,completedLevels:[],unlockedPlants:['peashooter']};}}
     const PVM_ALL_UNLOCKED_KEY='pvm_all_content_unlocked_v1';
-    let allContentUnlocked=(()=>{try{const value=localStorage.getItem(PVM_ALL_UNLOCKED_KEY);return value===null||value==='1';}catch{return true;}})();
+    let allContentUnlocked=(()=>{try{const value=localStorage.getItem(PVM_ALL_UNLOCKED_KEY);if(value===null){localStorage.setItem(PVM_ALL_UNLOCKED_KEY,'0');return false;}return value==='1';}catch{return false;}})();
     let adventureProgress=loadAdventureProgress(),selectedAdventureWorld=0,selectedAdventureLevel=adventureProgress.maxUnlockedLevel-1;
     adventureProgress.completedLevels.forEach(n=>{const reward=PLANT_REWARDS[n];if(reward&&!adventureProgress.unlockedPlants.includes(reward))adventureProgress.unlockedPlants.push(reward);});
     // # CUSTOM PLANTS UNLOCK — created plants stay selectable even after normal-progress restore.
@@ -1752,7 +1751,7 @@
     function openCodes(){const modal=document.getElementById('codes-modal');modal.classList.remove('hidden');modal.classList.add('flex');document.getElementById('secret-code-input').value='';document.getElementById('secret-code-feedback').textContent='';
       if(Game.running&&!Game.levelCompleted){window.__codesPaused=true;Game.running=false;}setTimeout(()=>document.getElementById('secret-code-input')?.focus(),50);}
     function closeCodes(){const modal=document.getElementById('codes-modal');modal.classList.add('hidden');modal.classList.remove('flex');
-      if(window.__codesPaused){window.__codesPaused=false;if(Game.level&&!Game.levelCompleted){Game.running=true;Game.lastTime=performance.now();requestAnimationFrame(gameLoop);}}}
+      if(window.__codesPaused){window.__codesPaused=false;if(Game.level&&!Game.levelCompleted){Game.running=true;Game.lastTime=performance.now();startGameLoop();}}}
     function openChaosConsole(){const modal=document.getElementById('chaos-modal');modal.classList.remove('hidden');modal.classList.add('flex');updateChaosLabels();}
     function closeChaosConsole(){const modal=document.getElementById('chaos-modal');modal.classList.add('hidden');modal.classList.remove('flex');}
     function updateChaosLabels(){
@@ -1997,8 +1996,7 @@
     let almanacPage = 0;
     const ALMANAC_PAGE_SIZE = 12;
     let selectedAlmanacEntry = {kind:'plant',id:'peashooter'};
-    function openAlmanac(){almanacTab='plants';almanacPage=0;showScreen('almanac');}
-    function setAlmanacTab(tab){almanacTab=tab;almanacPage=0;renderAlmanac();}
+    function openAlmanac(){almanacTab='plants';almanacPage=0;showScreen('almanac');}    function setAlmanacTab(tab){almanacTab=tab;almanacPage=0;renderAlmanac();}
     function changeAlmanacPage(delta){
       const plantMode=almanacTab==='plants';
       const total=plantMode?Object.keys(PLANTS).length:Object.keys(getAllZombieTypes()).length;
@@ -2393,7 +2391,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     function confirmSeedSelection(){if(!pendingLevel)return;if(!selectedSeedPlants.length){showToast('Escolha pelo menos uma planta.','error');return;}const level=pendingLevel,idx=pendingCampaignIndex,restart=pendingRestart;closeSeedSelection();Game.matchMode=level.matchMode||(idx>=0?'story':'custom');launchLevel(level,idx,restart);window.PVM_SETUP_VERSUS_CONTROLS?.();}
     function startLevel(levelConfig,campaignIdx=-1,isRestart=false){if(isRestart){launchLevel(levelConfig,campaignIdx,true);return;}pendingLevel=JSON.parse(JSON.stringify(levelConfig));pendingCampaignIndex=campaignIdx;pendingRestart=false;renderSeedSelection();const modal=document.getElementById('seed-select-modal');modal.classList.remove('hidden');modal.classList.add('flex');}
     function pauseGame(){if(!Game.running||Game.levelCompleted)return;Game.running=false;document.getElementById('pause-overlay').classList.remove('hidden');document.getElementById('pause-overlay').classList.add('flex');}
-    function resumeGame(){document.getElementById('pause-overlay').classList.add('hidden');document.getElementById('pause-overlay').classList.remove('flex');Game.running=true;Game.lastTime=performance.now();requestAnimationFrame(gameLoop);}
+    function resumeGame(){document.getElementById('pause-overlay').classList.add('hidden');document.getElementById('pause-overlay').classList.remove('flex');Game.running=true;Game.lastTime=performance.now();startGameLoop();}
 
     function launchLevel(levelConfig, campaignIdx = -1, isRestart = false) {
       SoundFX.init();
@@ -2495,7 +2493,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       showScreen('game');
       Game.running = true;
       Game.lastTime = performance.now();
-      requestAnimationFrame(gameLoop);
+      startGameLoop();
     }
 
     function restartCurrentLevel() {
@@ -2813,12 +2811,12 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     window.PVM_ADMIN_SPAWN_TAF=(options={})=>{
       if(!Game.level||Game.levelCompleted){showToast('Entre em qualquer fase e inicie a partida para invocar o TAF.','error');return false;}
       if(Game.boss){showToast('Já existe um chefe nesta partida. Derrote-o antes de invocar outro.','error');return false;}
-      const hp=Math.max(8000,Math.min(250000,Number(options.hp)||18000));
+      const hp=Math.max(12000,Math.min(250000,Number(options.hp)||24000));
       spawnBoss({type:'taf',name:'🐎 TAF — The Aura Farmer',hp});return true;
     };
     window.PVM_RECEIVE_TAF_BOSS=(options={})=>{
       if(!Game.level||Game.levelCompleted||Game.boss)return false;
-      const hp=Math.max(8000,Math.min(250000,Number(options.hp)||18000));
+      const hp=Math.max(12000,Math.min(250000,Number(options.hp)||24000));
       spawnBoss({type:'taf',name:'🐎 TAF — The Aura Farmer',hp});return true;
     };
 
@@ -2881,9 +2879,19 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       }
     }
 
-    // Loop Principal de Atualização e Renderização
-    function gameLoop(timestamp) {
-      if (!Game.running) return;
+    // Loop Principal de Atualização e Renderização.
+    // Um único agendador evita tanto o congelamento ao retomar quanto loops duplicados.
+    let pvmGameLoopActive = false;
+    let pvmGameLoopToken = 0;
+    function startGameLoop() {
+      if (pvmGameLoopActive) return;
+      pvmGameLoopActive = true;
+      const token = ++pvmGameLoopToken;
+      requestAnimationFrame(timestamp => gameLoop(timestamp, token));
+    }
+    function gameLoop(timestamp, token = pvmGameLoopToken) {
+      if (token !== pvmGameLoopToken) return;
+      if (!Game.running) { pvmGameLoopActive = false; return; }
       const rawDt = Math.min(0.05, (timestamp - Game.lastTime) / 1000);
       Game.lastTime = timestamp;
       const dt = rawDt * Game.speedMultiplier;
@@ -2891,7 +2899,8 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if(!Game.remoteGuest){updateGame(dt);window.PVM_VERSUS_UPDATE?.(dt);}
       renderGame();
 
-      requestAnimationFrame(gameLoop);
+      if (Game.running) requestAnimationFrame(nextTimestamp => gameLoop(nextTimestamp, token));
+      else pvmGameLoopActive = false;
     }
 
     function showWaveBanner(title,sub='') {const el=document.getElementById('wave-banner');if(!el)return;document.getElementById('wave-banner-title').textContent=title;document.getElementById('wave-banner-kicker').textContent=sub||'⚑ ZUMBI DA BANDEIRA';el.classList.remove('hidden');Game.waveBannerTimer=2.8;}
@@ -2986,8 +2995,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       }
       for (let i = Game.coinDrops.length - 1; i >= 0; i--) {
         const coin = Game.coinDrops[i];
-        coin.bob += dt * 4.5;
-        if (coin.y < coin.targetY) {
+        coin.bob += dt * 4.5;        if (coin.y < coin.targetY) {
           coin.y = Math.min(coin.targetY, coin.y + 90 * dt);
           coin.x += (coin.drift || 0) * dt;
         } else {
@@ -3577,20 +3585,20 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         // # TAF UPDATE — dança entre os três últimos quadrados e alterna três poses.
         if(b.isTAF){
           b.fx=(b.fx||[]).filter(f=>(f.age+=dt)<f.life);
-          const ratio=b.hp/b.maxHp,phase=ratio<=.10?3:(ratio<=.62?2:1);
-          // # TAF FURY — only activates at 10% HP; red tint, faster movement and shorter attack gaps.
-          b.tafRage=ratio<=.10;
-          if(phase!==b.phase){b.phase=phase;b.actionTimer=phase===3?.8:1.7;showToast(phase===3?'🔥 FÚRIA DO TAF! Ele acelera e a aura fica vermelha!':phase===2?'🐎 O TAF acelera a dança! A aura está aumentando!':'✨ O TAF recuperou o ritmo do palco!','error');}
-          b.danceTimer=(b.danceTimer||0)+dt;b.dancePose=Math.floor(b.danceTimer*(phase===3?2.25:1.15))%3;
+          const ratio=b.hp/b.maxHp,phase=ratio<=.30?3:(ratio<=.62?2:1);
+          // # TAF FURY — volta a entrar na fase final aos 30% de HP, como na versão 5.16.
+          b.tafRage=ratio<=.30;
+          if(phase!==b.phase){b.phase=phase;b.actionTimer=1.7;showToast(phase===3?'🔥 FÚRIA DO TAF! Ele acelera e a aura fica vermelha!':phase===2?'🐎 O TAF acelera a dança! A aura está aumentando!':'✨ O TAF recuperou o ritmo do palco!','error');}
+          b.danceTimer=(b.danceTimer||0)+dt;b.dancePose=Math.floor(b.danceTimer*(phase===3?1.65:1.15))%3;
           b.moveTimer-=dt;
           if(b.moveTimer<=0){
-            b.moveTimer=(phase===3?.62:1.55)+Math.random()*(phase===3?.2:.45);
+            b.moveTimer=(phase===3?1.05:1.55)+Math.random()*.45;
             const cols=[Math.max(0,GRID.cols-3),Math.max(0,GRID.cols-2),Math.max(0,GRID.cols-1)];
             b.targetCol=cols[Math.floor(Math.random()*cols.length)];b.targetRow=Math.floor(Math.random()*GRID.rows);
           }
           const targetX=GRID.offsetX+(Math.max(0,Math.min(GRID.cols-1,b.targetCol??GRID.cols-2))+.5)*GRID.cellW;
           const targetY=GRID.offsetY+b.targetRow*GRID.cellH+GRID.cellH*.5;
-          b.x+=(targetX-b.x)*Math.min(1,(phase===3?5.4:2.8)*dt);b.y+=(targetY-b.y)*Math.min(1,(phase===3?4.8:3.2)*dt);
+          b.x+=(targetX-b.x)*Math.min(1,(phase===3?3.6:2.8)*dt);b.y+=(targetY-b.y)*Math.min(1,3.2*dt);
           if(b.attackWarningTimer>0){
             b.attackWarningTimer=Math.max(0,b.attackWarningTimer-dt);
             if(b.attackWarningTimer===0){
@@ -3603,33 +3611,32 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
                 spawnZombie(type,row,spawnX);
                 const minion=Game.zombies[Game.zombies.length-1];
                 if(Game.zombies.length>before&&minion){
-                  minion.speed=Math.max(5,(Number(minion.speed)||18)*.84);
-                  minion.damage=Math.max(1,Math.ceil((Number(minion.damage)||100)*.88));
+                  // Reforços chegam de fora da tela com os atributos originais do zumbi.
                   minion.tafMinion=true;
                 }
               };
               if(b.attackType==='aura'){
-                const stun=phase===3?2.5:phase===2?2.2:1.8;
+                const stun=phase===3?4.2:3.2;
                 Game.plants.forEach(p=>{if(rows.includes(p.row)){p.tafStunTimer=Math.max(p.tafStunTimer||0,stun);spawnParticles(p.x,p.y-18,'#facc15',12);}});
                 showToast('✨ PULSO DE AURA! As plantas atingidas ficaram atordoadas!','error');
               }else if(b.attackType==='hoof'){
-                Game.plants.forEach(p=>{if(rows.includes(p.row)&&Math.abs(p.x-b.x)<GRID.cellW*2.2){p.hp-=phase===3?300:240;p.tafStunTimer=Math.max(p.tafStunTimer||0,.8);spawnParticles(p.x,p.y,'#fb923c',14);}});
+                Game.plants.forEach(p=>{if(rows.includes(p.row)&&Math.abs(p.x-b.x)<GRID.cellW*2.2){p.hp-=phase===3?520:360;p.tafStunTimer=Math.max(p.tafStunTimer||0,1.5);spawnParticles(p.x,p.y,'#fb923c',14);}});
                 Game.plants=Game.plants.filter(p=>p.hp>0);showToast('🐎 PISADA NO RITMO! O gramado tremeu!','error');
               }else if(b.attackType==='auraGone'){
                 // # TAF AURA GONE — weak support zombies arrive from behind the regular spawn line.
-                rows.forEach((row,i)=>{summonTAFMinion(i===0?'newspaper':'cone',row,i);if(phase>=2)summonTAFMinion('normal',(row+1)%GRID.rows,i+2);});
-                Game.plants.forEach(p=>{if(rows.includes(p.row)){p.tafStunTimer=Math.max(p.tafStunTimer||0,phase===3?2.0:phase===2?1.8:1.5);spawnParticles(p.x,p.y-12,'#c4b5fd',8);}});
+                rows.forEach((row,i)=>{summonTAFMinion(i===0?'sprinter':'cone',row,i);if(phase>=2)summonTAFMinion('normal',(row+1)%GRID.rows,i+2);});
+                Game.plants.forEach(p=>{if(rows.includes(p.row)){p.tafStunTimer=Math.max(p.tafStunTimer||0,phase===3?3.4:2.5);spawnParticles(p.x,p.y-12,'#c4b5fd',8);}});
                 showToast('🌟 ATAQUE: AURA DESAPARECIDA! O TAF chama a horda para tomar o palco!','error');
               }else if(b.attackType==='summon'){
                 // # TAF SUMMON ROSTER — normal, cone, rage newspaper, and dancer support zombies.
                 const r=rows[0]??b.targetRow;
                 summonTAFMinion('normal',r,0);
-                summonTAFMinion('cone',(r+2)%GRID.rows,1);
-                if(phase>=2)summonTAFMinion('newspaper',(r+1)%GRID.rows,2);
+                summonTAFMinion('sprinter',(r+2)%GRID.rows,1);
+                if(phase>=2)summonTAFMinion('cone',(r+1)%GRID.rows,2);
                 if(phase>=3)summonTAFMinion('villain_rockstar',(r+3)%GRID.rows,3);
                 showToast('🎤 O TAF chamou os dançarinos de apoio!','error');
               }
-              b.attackRows=[];b.attackType=null;b.actionTimer=phase===3?1.25+Math.random()*.45:3.6+Math.random()*1.1;
+              b.attackRows=[];b.attackType=null;b.actionTimer=phase===3?2.7+Math.random():3.6+Math.random()*1.1;
             }
           }else{
             b.actionTimer-=dt;
@@ -3639,7 +3646,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
               else if(pick<.53){b.attackType='hoof';b.attackRows=[b.targetRow];showToast(`⚠️ TAF marcou a fileira ${b.targetRow+1} para uma pisada!`,'error');}
               else if(pick<.80){b.attackType='auraGone';const a=Math.floor(Math.random()*GRID.rows);b.attackRows=[a,(a+2)%GRID.rows];showToast('⚠️ O TAF está preparando o golpe AURA DESAPARECIDA!','error');}
               else{b.attackType='summon';const a=Math.floor(Math.random()*GRID.rows);b.attackRows=[a,(a+1)%GRID.rows];showToast('⚠️ O TAF está chamando reforços para o palco!','error');}
-              b.attackWarningTimer=phase===3?.82:1.25;
+              b.attackWarningTimer=phase===3?.95:1.25;
             }
           }
         }else{
@@ -3987,8 +3994,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if (!waterRows.length) return;
       const x0 = GRID.offsetX, w = GRID.cols * GRID.cellW, ch = GRID.cellH;
       const cTop = night ? '#14566f' : '#3cc3e8', cMid = night ? '#0f4260' : '#25a7d6', cBot = night ? '#0a2e49' : '#1b86b8';
-      waterRows.forEach(r => {
-        if (r < 0 || r >= GRID.rows) return;
+      waterRows.forEach(r => {        if (r < 0 || r >= GRID.rows) return;
         const y0 = GRID.offsetY + r * ch, hasUp = waterRows.includes(r - 1), hasDown = waterRows.includes(r + 1);
         const g = ctx.createLinearGradient(0, y0, 0, y0 + ch);
         g.addColorStop(0, cTop); g.addColorStop(.5, cMid); g.addColorStop(1, cBot);
@@ -4774,7 +4780,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if(z.jumpTimer>0){c.save();c.globalAlpha=.78;c.fillStyle='#fbbf24';c.font='bold 12px Trebuchet MS';c.fillText('PULO!',10,-63-bob);c.restore();}
 
       // Escudo de porta de tela: a malha racha conforme perde 25%, 50%, 75% e 90% da resistência.
-      if (z.armorHp>0&&['paper','coffin','neoprene','float','barrel','football','wood','ladder','space'].includes(z.armorType)) {
+      if (z.armorHp>0&&['paper','folded','folded_crown','coffin','neoprene','float','barrel','football','wood','ladder','space'].includes(z.armorType)) {
         const ratio=z.maxArmorHp?z.armorHp/z.maxArmorHp:1;c.save();c.globalAlpha=.95;
         if(z.armorType==='barrel'){c.fillStyle='#92400e';c.strokeStyle='#fbbf24';c.lineWidth=2.5;c.beginPath();c.roundRect(-45,-12-bob,26,34,5);c.fill();c.stroke();c.fillStyle='#d6a36a';c.fillRect(-44,-4-bob,24,4);c.fillRect(-44,7-bob,24,4);}
         else if(z.armorType==='wood'){c.fillStyle='#92400e';c.strokeStyle='#fbbf24';c.lineWidth=2.5;c.beginPath();c.roundRect(-42,-14-bob,27,36,5);c.fill();c.stroke();c.strokeStyle='#d6a36a';c.lineWidth=3;c.beginPath();c.moveTo(-39,-5-bob);c.lineTo(-18,-5-bob);c.moveTo(-39,7-bob);c.lineTo(-18,7-bob);c.stroke();}
@@ -4782,6 +4788,21 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         else if(z.armorType==='space'){c.fillStyle='#e2e8f0';c.strokeStyle='#64748b';c.lineWidth=2.5;c.beginPath();c.roundRect(-42,-15-bob,28,34,7);c.fill();c.stroke();c.fillStyle='#38bdf8';c.fillRect(-36,-8-bob,16,8);}
         else if(z.armorType==='football'){c.fillStyle='#b91c1c';c.strokeStyle='#fef2f2';c.lineWidth=2.5;c.beginPath();c.ellipse(-4,1-bob,29,19,-.12,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f8fafc';c.fillRect(-24,-6-bob,8,15);c.fillRect(5,-8-bob,8,16);c.strokeStyle='#7f1d1d';c.lineWidth=2;c.beginPath();c.moveTo(-23,2-bob);c.lineTo(21,2-bob);c.stroke();}
         else if(z.armorType==='paper'){c.fillStyle='#fef3c7';c.strokeStyle='#a16207';c.lineWidth=2;c.beginPath();c.moveTo(-20,-16-bob);c.lineTo(-43,-10-bob);c.lineTo(-42,13-bob);c.lineTo(-19,8-bob);c.closePath();c.fill();c.stroke();c.strokeStyle='#92400e';c.lineWidth=1;c.beginPath();c.moveTo(-38,-5-bob);c.lineTo(-23,-7-bob);c.moveTo(-38,1-bob);c.lineTo(-24,-1-bob);c.stroke();}
+        else if(z.armorType==='folded'||z.armorType==='folded_crown'){
+          const royal=z.armorType==='folded_crown';
+          const paper=royal?'#fff7d6':'#f8fafc',edge=royal?'#7c3aed':'#64748b';
+          c.fillStyle=paper;c.strokeStyle=edge;c.lineWidth=2.5;c.lineJoin='round';
+          c.beginPath();c.moveTo(-18,-22-bob);c.lineTo(-43,-11-bob);c.lineTo(-39,14-bob);c.lineTo(-25,22-bob);c.lineTo(-12,11-bob);c.closePath();c.fill();c.stroke();
+          c.save();c.beginPath();c.moveTo(-18,-22-bob);c.lineTo(-43,-11-bob);c.lineTo(-39,14-bob);c.lineTo(-25,22-bob);c.lineTo(-12,11-bob);c.closePath();c.clip();
+          c.fillStyle=royal?'#ddd6fe':'#e0e7ff';c.beginPath();c.moveTo(-18,-22-bob);c.lineTo(-27,-1-bob);c.lineTo(-12,11-bob);c.closePath();c.fill();
+          c.fillStyle=royal?'#fef3c7':'#ffffff';c.beginPath();c.moveTo(-18,-22-bob);c.lineTo(-12,11-bob);c.lineTo(-25,22-bob);c.lineTo(-39,14-bob);c.closePath();c.fill();
+          c.strokeStyle=royal?'rgba(124,58,237,.72)':'rgba(100,116,139,.72)';c.lineWidth=1.35;c.beginPath();c.moveTo(-18,-22-bob);c.lineTo(-27,-1-bob);c.lineTo(-12,11-bob);c.moveTo(-27,-1-bob);c.lineTo(-39,14-bob);c.moveTo(-27,-1-bob);c.lineTo(-43,-11-bob);c.stroke();c.restore();
+          if(royal){c.fillStyle='#fbbf24';c.strokeStyle='#92400e';c.lineWidth=1;c.beginPath();c.arc(-27,-1-bob,3.2,0,Math.PI*2);c.fill();c.stroke();}
+          c.strokeStyle='#475569';c.lineWidth=1.8;
+          if(ratio<.76){c.beginPath();c.moveTo(-18,-12-bob);c.lineTo(-30,-2-bob);c.lineTo(-24,7-bob);c.stroke();}
+          if(ratio<.51){c.beginPath();c.moveTo(-38,-6-bob);c.lineTo(-31,1-bob);c.lineTo(-39,10-bob);c.stroke();}
+          if(ratio<.26){c.strokeStyle='#b91c1c';c.lineWidth=2.2;c.beginPath();c.moveTo(-22,-17-bob);c.lineTo(-17,-5-bob);c.stroke();}
+        }
         else if(z.armorType==='coffin'){c.fillStyle='#92400e';c.strokeStyle='#facc15';c.lineWidth=2;c.beginPath();c.moveTo(-18,-19-bob);c.lineTo(-44,-13-bob);c.lineTo(-42,17-bob);c.lineTo(-19,12-bob);c.closePath();c.fill();c.stroke();c.fillStyle='#fef3c7';c.font='bold 10px Trebuchet MS';c.fillText('RIP',-39,2-bob);}
         else {c.strokeStyle=z.armorType==='float'?'#fb7185':'#38bdf8';c.lineWidth=8;c.beginPath();c.ellipse(-2,7-bob,23,12,0,0,Math.PI*2);c.stroke();}
         c.restore();
@@ -4864,12 +4885,55 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           c.strokeStyle='#e2e8f0'; c.lineWidth=4; c.beginPath(); c.moveTo(-29,-70-bob); c.lineTo(-16,-66-bob); c.moveTo(29,-70-bob); c.lineTo(16,-66-bob); c.moveTo(0,-85-bob); c.lineTo(0,-78-bob); c.stroke();
           c.fillStyle=`rgba(196,181,253,${glint})`; c.beginPath(); c.arc(0,-88-bob,4,0,Math.PI*2); c.fill();
         } else if (zid === 'origami_guard') {
-          c.fillStyle='#f8fafc'; c.strokeStyle='#c4b5fd'; c.lineWidth=3; c.beginPath(); c.moveTo(-31,-37-bob); c.lineTo(-9,-56-bob); c.lineTo(5,-42-bob); c.lineTo(30,-51-bob); c.lineTo(26,7-bob); c.lineTo(-29,7-bob); c.closePath(); c.fill(); c.stroke();
-          c.strokeStyle='#7c3aed'; c.lineWidth=2; c.beginPath(); c.moveTo(-9,-56-bob); c.lineTo(-3,7-bob); c.moveTo(5,-42-bob); c.lineTo(26,7-bob); c.moveTo(-29,-8-bob); c.lineTo(26,-18-bob); c.stroke();
+          // Peitoral de papel dobrado: painéis sobrepostos, vincos e aba frontal.
+          const paperGrad=c.createLinearGradient(-28,-42,25,15);paperGrad.addColorStop(0,'#ffffff');paperGrad.addColorStop(.55,'#e2e8f0');paperGrad.addColorStop(1,'#c7d2fe');
+          c.fillStyle=paperGrad;c.strokeStyle='#64748b';c.lineWidth=2.4;c.lineJoin='round';
+          c.beginPath();c.moveTo(-23,-32-bob);c.lineTo(-5,-42-bob);c.lineTo(0,-35-bob);c.lineTo(7,-42-bob);c.lineTo(24,-31-bob);c.lineTo(20,11-bob);c.lineTo(0,20-bob);c.lineTo(-21,11-bob);c.closePath();c.fill();c.stroke();
+          c.fillStyle='#c7d2fe';c.beginPath();c.moveTo(-23,-32-bob);c.lineTo(-5,-42-bob);c.lineTo(-2,-7-bob);c.lineTo(-21,11-bob);c.closePath();c.fill();
+          c.fillStyle='#ffffff';c.beginPath();c.moveTo(-5,-42-bob);c.lineTo(7,-42-bob);c.lineTo(24,-31-bob);c.lineTo(20,11-bob);c.lineTo(-2,-7-bob);c.closePath();c.fill();
+          c.fillStyle='#ddd6fe';c.beginPath();c.moveTo(-2,-7-bob);c.lineTo(20,11-bob);c.lineTo(0,20-bob);c.closePath();c.fill();
+          c.strokeStyle='#64748b';c.lineWidth=1.35;c.beginPath();c.moveTo(-5,-42-bob);c.lineTo(-2,-7-bob);c.lineTo(0,20-bob);c.moveTo(-23,-32-bob);c.lineTo(-2,-7-bob);c.lineTo(24,-31-bob);c.moveTo(-21,11-bob);c.lineTo(0,2-bob);c.lineTo(20,11-bob);c.stroke();
+          // Capacete dobrado; substitui o antigo cone laranja.
+          c.fillStyle='#f8fafc';c.strokeStyle='#475569';c.lineWidth=2.2;c.beginPath();c.moveTo(-18,-43-bob);c.lineTo(-13,-65-bob);c.lineTo(-4,-57-bob);c.lineTo(0,-73-bob);c.lineTo(7,-57-bob);c.lineTo(15,-64-bob);c.lineTo(19,-43-bob);c.closePath();c.fill();c.stroke();
+          c.fillStyle='#c7d2fe';c.beginPath();c.moveTo(-13,-65-bob);c.lineTo(0,-73-bob);c.lineTo(-2,-44-bob);c.closePath();c.fill();
+          c.strokeStyle='#94a3b8';c.lineWidth=1.2;c.beginPath();c.moveTo(0,-73-bob);c.lineTo(-2,-44-bob);c.moveTo(7,-57-bob);c.lineTo(19,-43-bob);c.stroke();
+          c.fillStyle='#7c3aed';c.beginPath();c.arc(0,-29-bob,3.5,0,Math.PI*2);c.fill();
         } else if (zid === 'origami3_king') {
-          c.fillStyle='#fef3c7'; c.strokeStyle='#7c3aed'; c.lineWidth=3; c.beginPath(); c.moveTo(-31,-46-bob); c.lineTo(-36,-78-bob); c.lineTo(-15,-65-bob); c.lineTo(0,-92-bob); c.lineTo(15,-65-bob); c.lineTo(36,-78-bob); c.lineTo(31,-46-bob); c.closePath(); c.fill(); c.stroke();
-          c.fillStyle='#6d28d9'; c.strokeStyle='#ddd6fe'; c.beginPath(); c.moveTo(-27,-22-bob); c.lineTo(0,17-bob); c.lineTo(27,-22-bob); c.lineTo(0,-38-bob); c.closePath(); c.fill(); c.stroke();
-          c.strokeStyle=`rgba(251,191,36,${glint})`; c.lineWidth=3; c.beginPath(); c.arc(0,-35-bob,42,-.15,Math.PI+.15); c.stroke();
+          // Rei de Papel: visual inspirado na referência enviada — capa, folhas coloridas, corpo-vitrine e tesoura de papelaria.
+          c.save();
+          // Capa vermelha atrás do corpo.
+          c.fillStyle='#9f1239';c.strokeStyle='#701a35';c.lineWidth=2.4;c.beginPath();c.moveTo(14,-30-bob);c.lineTo(34,-23-bob);c.lineTo(48,24-bob);c.lineTo(34,47-bob);c.lineTo(21,39-bob);c.lineTo(13,8-bob);c.closePath();c.fill();c.stroke();
+          c.strokeStyle='rgba(251,113,133,.8)';c.lineWidth=2;c.beginPath();c.moveTo(22,-18-bob);c.lineTo(36,31-bob);c.moveTo(30,-17-bob);c.lineTo(43,20-bob);c.stroke();
+          // Corpo roxo, como uma pasta/estojo de papel.
+          const caseGrad=c.createLinearGradient(-26,-24,26,26);caseGrad.addColorStop(0,'#312e81');caseGrad.addColorStop(.45,'#6d28d9');caseGrad.addColorStop(1,'#1e1b4b');
+          c.fillStyle=caseGrad;c.strokeStyle='#a78bfa';c.lineWidth=3;c.beginPath();c.roundRect(-27,-20-bob,54,43,7);c.fill();c.stroke();
+          c.fillStyle='rgba(125,211,252,.32)';c.strokeStyle='rgba(191,219,254,.8)';c.lineWidth=1.4;c.beginPath();c.roundRect(-20,-13-bob,40,27,4);c.fill();c.stroke();
+          c.strokeStyle='rgba(224,231,255,.65)';c.lineWidth=1.5;c.beginPath();c.moveTo(-18,-4-bob);c.lineTo(18,-4-bob);c.moveTo(-18,5-bob);c.lineTo(18,5-bob);c.stroke();
+          // Bloco de folhas sobrepostas, com a folha amarela por cima.
+          const sheetColors=['#0ea5e9','#f97316','#22c55e','#a855f7','#ef4444','#facc15','#38bdf8'];
+          for(let k=0;k<sheetColors.length;k++){const yy=-23-bob+k*2.5,offset=k*.7;c.fillStyle=sheetColors[k];c.strokeStyle='#334155';c.lineWidth=.75;c.beginPath();c.moveTo(-24+offset,yy);c.lineTo(5+offset,yy-5);c.lineTo(23+offset,yy+1);c.lineTo(-4+offset,yy+7);c.closePath();c.fill();c.stroke();}
+          c.fillStyle='#fde047';c.strokeStyle='#a16207';c.lineWidth=1.5;c.beginPath();c.moveTo(-26,-27-bob);c.lineTo(4,-35-bob);c.lineTo(25,-27-bob);c.lineTo(-4,-18-bob);c.closePath();c.fill();c.stroke();
+          c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=1.2;c.beginPath();c.moveTo(-18,-25-bob);c.lineTo(2,-31-bob);c.stroke();
+          // Tentáculo verde enrolado segurando a tesoura.
+          c.strokeStyle='#059669';c.lineWidth=7;c.lineCap='round';c.beginPath();c.moveTo(20,-7-bob);c.bezierCurveTo(37,-6-bob,34,12-bob,49,9-bob);c.bezierCurveTo(59,7-bob,58,-4-bob,67,-2-bob);c.stroke();
+          c.strokeStyle='#34d399';c.lineWidth=2;c.beginPath();c.moveTo(21,-9-bob);c.bezierCurveTo(36,-8-bob,34,9-bob,49,6-bob);c.stroke();
+          // Tesoura grande com argolas roxa e verde e lâminas metálicas.
+          c.save();c.translate(49,-76-bob);c.rotate(.12+Math.sin(walkPhase*1.2)*.025);
+          c.strokeStyle='#94a3b8';c.lineWidth=7;c.lineCap='round';c.beginPath();c.moveTo(-5,8);c.lineTo(-26,62);c.moveTo(5,8);c.lineTo(30,60);c.stroke();
+          c.strokeStyle='#e2e8f0';c.lineWidth=2;c.beginPath();c.moveTo(-7,13);c.lineTo(-25,59);c.moveTo(7,13);c.lineTo(28,57);c.stroke();
+          c.fillStyle='#7c3aed';c.strokeStyle='#4c1d95';c.lineWidth=3;c.beginPath();c.ellipse(-12,-27,12,24,-.18,0,Math.PI*2);c.fill();c.stroke();
+          c.fillStyle='#ffffff';c.beginPath();c.ellipse(-12,-27,6.2,14,-.18,0,Math.PI*2);c.fill();
+          c.fillStyle='#10b981';c.strokeStyle='#047857';c.lineWidth=3;c.beginPath();c.ellipse(18,-27,12,24,.22,0,Math.PI*2);c.fill();c.stroke();
+          c.fillStyle='#ffffff';c.beginPath();c.ellipse(18,-27,6.2,14,.22,0,Math.PI*2);c.fill();
+          c.fillStyle='#2563eb';c.strokeStyle='#1e40af';c.lineWidth=2;c.beginPath();c.roundRect(-25,-9,50,8,4);c.fill();c.stroke();
+          c.fillStyle='#a855f7';c.strokeStyle='#312e81';c.lineWidth=2.5;c.beginPath();c.arc(0,5,7.5,0,Math.PI*2);c.fill();c.stroke();
+          c.fillStyle='#1e293b';c.beginPath();c.arc(0,5,3,0,Math.PI*2);c.fill();c.restore();
+          // Coroa amarela de papel, com três pontas e uma joia central.
+          c.fillStyle='#facc15';c.strokeStyle='#a16207';c.lineWidth=2.2;c.beginPath();c.moveTo(-22,-45-bob);c.lineTo(-26,-70-bob);c.lineTo(-10,-58-bob);c.lineTo(0,-84-bob);c.lineTo(10,-58-bob);c.lineTo(26,-70-bob);c.lineTo(22,-45-bob);c.closePath();c.fill();c.stroke();
+          c.fillStyle='#fef08a';c.beginPath();c.moveTo(-10,-58-bob);c.lineTo(0,-84-bob);c.lineTo(10,-58-bob);c.lineTo(0,-50-bob);c.closePath();c.fill();
+          c.fillStyle='#7c3aed';c.strokeStyle='#f5d0fe';c.lineWidth=1.2;c.beginPath();c.arc(0,-60-bob,3.5,0,Math.PI*2);c.fill();c.stroke();
+          c.strokeStyle=`rgba(251,191,36,${glint})`;c.lineWidth=3;c.beginPath();c.arc(0,-25-bob,42,-.15,Math.PI+.15);c.stroke();
+          c.restore();
         }
         c.restore();
       }
@@ -4929,8 +4993,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           c.fillStyle='#64748b';c.strokeStyle='#e2e8f0';c.lineWidth=3;c.beginPath();c.roundRect(-24,-48,48,43,8);c.fill();c.stroke();c.fillStyle='#cbd5e1';c.fillRect(-5,-44,10,34);
         }else if(z.pvmMutation==='phantom'){
           c.globalAlpha=.32+.14*pulse;c.fillStyle='#c4b5fd';c.shadowColor='#a78bfa';c.shadowBlur=18;c.beginPath();c.ellipse(0,-19,34,45,0,0,Math.PI*2);c.fill();
-        }else if(z.pvmMutation==='spore'){
-          c.fillStyle='rgba(74,222,128,.65)';c.shadowColor='#4ade80';c.shadowBlur=12;for(let i=0;i<9;i++){const a=t*.7+i*Math.PI*2/9;c.beginPath();c.arc(Math.cos(a)*34,-25+Math.sin(a)*25,3+(i%2),0,Math.PI*2);c.fill()}
+        }else if(z.pvmMutation==='spore'){          c.fillStyle='rgba(74,222,128,.65)';c.shadowColor='#4ade80';c.shadowBlur=12;for(let i=0;i<9;i++){const a=t*.7+i*Math.PI*2/9;c.beginPath();c.arc(Math.cos(a)*34,-25+Math.sin(a)*25,3+(i%2),0,Math.PI*2);c.fill()}
         }else if(z.pvmMutation==='cosmic'){
           c.strokeStyle=`rgba(196,181,253,${pulse})`;c.fillStyle='#e9d5ff';c.shadowColor='#a78bfa';c.shadowBlur=14;c.lineWidth=2;for(let i=0;i<5;i++){const a=t*.5+i*Math.PI*2/5,x=Math.cos(a)*38,y=-25+Math.sin(a)*28;c.beginPath();c.moveTo(x,y-5);c.lineTo(x+2,y-2);c.lineTo(x+5,y);c.lineTo(x+2,y+2);c.lineTo(x,y+5);c.lineTo(x-2,y+2);c.lineTo(x-5,y);c.lineTo(x-2,y-2);c.closePath();c.fill();c.stroke()}
         }else if(z.pvmMutation==='tafAura'){
@@ -5929,8 +5992,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       const HAMMER_ACTIVE_SECONDS = 8;
       const HAMMER_HIT_DAMAGE = 28;
       const HAMMER_HIT_GAP = 0.28;
-      const VS_ZOMBIES = [
-        {id:'normal', label:'Comum', emoji:'🧟', cost:75},
+      const VS_ZOMBIES = [        {id:'normal', label:'Comum', emoji:'🧟', cost:75},
         {id:'cone', label:'Cone', emoji:'🚧', cost:125},
         {id:'bucket', label:'Balde', emoji:'🪣', cost:220},
         {id:'sprinter', label:'Corredor', emoji:'🏃', cost:175},
@@ -6274,6 +6336,13 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         toast: (message, type='success') => showToast(message, type),
         showScreen: name => showScreen(name),
         getGame: () => Game,
+        resumeGameLoop: () => {
+          if (!Game.level || Game.levelCompleted) return false;
+          Game.running = true;
+          Game.lastTime = performance.now();
+          startGameLoop();
+          return true;
+        },
         getUnlockedSeedIds: () => getUnlockedSeedIds(),
         getRemoteStartPacket: () => ({level:JSON.parse(JSON.stringify(Game.level||{})),loadout:selectedSeedPlants.slice(),grid:{rows:GRID.rows,cols:GRID.cols,offsetX:GRID.offsetX,offsetY:GRID.offsetY,cellW:GRID.cellW,cellH:GRID.cellH}}),
         startRemoteClient: packet => {
@@ -6286,7 +6355,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           Game.vsBrains=125;Game.vsSelectedZombie='normal';Game.vsMatchTimer=180;Game.vsHasSpawned=false;
           if(packet.grid)Object.assign(GRID,packet.grid);
           window.PVM_SETUP_VERSUS_CONTROLS?.();
-          Game.running=true;Game.lastTime=performance.now();requestAnimationFrame(gameLoop);
+          Game.running=true;Game.lastTime=performance.now();startGameLoop();
           return true;
         },
         getRemoteSnapshot: () => {
@@ -6301,7 +6370,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           if(snap.boss!==undefined)Game.boss=snap.boss;
           if(snap.grid)Object.assign(GRID,snap.grid);
           Game.running=!!snap.running;Game.lastTime=performance.now();
-          if(Game.running&&!wasRunning)requestAnimationFrame(gameLoop);
+          if(Game.running&&!wasRunning)startGameLoop();
           const overlay=document.getElementById('game-over-overlay');
           if(Game.levelCompleted&&overlay){overlay.classList.remove('hidden');overlay.classList.add('flex');const title=document.getElementById('game-over-title'),desc=document.getElementById('game-over-desc');if(title)title.textContent=snap.resultTitle||'PARTIDA ENCERRADA';if(desc)desc.textContent=snap.resultDesc||'O resultado foi sincronizado pelo Jogador 1.';}
           window.PVM_UPDATE_VERSUS_STATUS?.();
@@ -6754,7 +6823,7 @@ function authModeSet(mode){authMode=mode;$('pvm-auth-confirm-wrap').classList.to
 $('pvm-auth-tab-login').onclick=()=>authModeSet('login');$('pvm-auth-tab-create').onclick=()=>authModeSet('create');
 function accountKey(name){return name.trim().toLocaleLowerCase('pt-BR')}
 function defaultsProgress(){return {passXp:0,claimed:[],unlocked:[],boosters:{xp:0,coins:0},spinCount:0,pass50Claimed:[],upgrades:{damage:0,speed:0,sun:0},shiny:{},plantFragments:{},plantLevels:{},seasonCoins:0}}
-async function enterAccount(key,record){activeAccount=key;const profile=record.profile||{name:record.name,xp:0,level:1,joined:Date.now(),games:0,kills:0};profile.name=record.name;bridge.setProfile(profile);bridge.setProgress({...defaultsProgress(),...(record.progress||{}),boosters:{...defaultsProgress().boosters,...(record.progress?.boosters||{})},upgrades:{...defaultsProgress().upgrades,...(record.progress?.upgrades||{})},shiny:{...(record.progress?.shiny||{})},plantFragments:{...(record.progress?.plantFragments||{})},plantLevels:{...(record.progress?.plantLevels||{})}});window.PVMAuthSaveSnapshot(getProfile(),getProgress());setNameOnMenu();auth.style.display='none';auth.dataset.authenticated='1';adminTrack=null;isAdmin=false;applyPermanentUpgrades();window.PVM_APPLY_SEASONAL_LEVELS?.();window.PVMBridge?.toast?.(`Bem-vindo, ${record.name}!`,'success')}
+async function enterAccount(key,record){activeAccount=key;const profile=record.profile||{name:record.name,xp:0,level:1,joined:Date.now(),games:0,kills:0};profile.name=record.name;bridge.setProfile(profile);bridge.setProgress({...defaultsProgress(),...(record.progress||{}),boosters:{...defaultsProgress().boosters,...(record.progress?.boosters||{})},upgrades:{...defaultsProgress().upgrades,...(record.progress?.upgrades||{})},shiny:{...(record.progress?.shiny||{})},plantFragments:{...(record.progress?.plantFragments||{})},plantLevels:{...(record.progress?.plantLevels||{})}});window.PVM_REFRESH_SHINY?.();window.PVMAuthSaveSnapshot(getProfile(),getProgress());setNameOnMenu();auth.style.display='none';auth.dataset.authenticated='1';adminTrack=null;isAdmin=false;applyPermanentUpgrades();window.PVM_APPLY_SEASONAL_LEVELS?.();window.PVMBridge?.toast?.(`Bem-vindo, ${record.name}!`,'success')}
 $('pvm-auth-submit').onclick=async()=>{const name=$('pvm-auth-name').value.trim(),key=accountKey(name),pass=$('pvm-auth-password').value,feedback=$('pvm-auth-feedback');if(!/^[\p{L}0-9_-]{3,18}$/u.test(name)){feedback.textContent='Use de 3 a 18 letras, números, _ ou -.';return}if(pass.length<8){feedback.textContent='A senha precisa ter pelo menos 8 caracteres.';return}const btn=$('pvm-auth-submit');btn.disabled=true;btn.textContent='Verificando...';try{
  if(authMode==='create'){
   if(accountStore[key])throw new Error('Esse nome já está cadastrado neste navegador.');if(pass!==$('pvm-auth-confirm').value)throw new Error('As senhas não coincidem.');
@@ -6803,7 +6872,7 @@ for(const p of plantCatalog){if(!game.plants[p.id])game.plants[p.id]={id:p.id,na
 const progressNow=()=>getProgress();
 window.PVM_IS_PRIZE_UNLOCKED=id=>progressNow().unlocked.includes(id);
 window.PVM_IS_SHINY=id=>!!progressNow().shiny?.[id];
-function unlockPlant(id,shiny=false){const p=progressNow();if(!p.unlocked.includes(id))p.unlocked.push(id);game.unlockPlant?.(id);if(shiny){p.shiny=p.shiny||{};p.shiny[id]=true}bridge.setProgress(p)}
+function unlockPlant(id,shiny=false){const p=progressNow();if(!p.unlocked.includes(id))p.unlocked.push(id);game.unlockPlant?.(id);if(shiny){p.shiny=p.shiny||{};p.shiny[id]=true}bridge.setProgress(p);bridge.save?.();if(shiny)window.PVM_REFRESH_SHINY?.()}
 
 function applyPermanentUpgrades(){const p=progressNow(),u={damage:0,speed:0,sun:0,...(p.upgrades||{})};const timed=p.timedBoosters||{};game.plantLabSettings.damageMultiplier=(1+Math.min(.45,u.damage*.03))*(Number(timed.damageUntil)>Date.now()?1.2:1);game.plantLabSettings.attackSpeedMultiplier=(1+Math.min(.30,u.speed*.02))*(Number(timed.speedUntil)>Date.now()?1.15:1);localStorage.setItem('pvm_perm_damage_level_v53',String(u.damage));localStorage.setItem('pvm_perm_speed_level_v53',String(u.speed));localStorage.setItem('pvm_perm_sun_level_v53',String(u.sun));}window.PVM_REFRESH_TIMED_BOOSTS=()=>applyPermanentUpgrades();setInterval(()=>applyPermanentUpgrades(),15000);
 window.PVM_GRANT_UPGRADE=(kind,amount=1)=>{const p=progressNow();p.upgrades=p.upgrades||{damage:0,speed:0,sun:0};if(!['damage','speed','sun'].includes(kind))return;p.upgrades[kind]=Math.min(15,(p.upgrades[kind]||0)+amount);bridge.setProgress(p);applyPermanentUpgrades()};
@@ -6912,19 +6981,19 @@ window.PVM_SECRET_CODES={
  'CAVALO MAROMBA':{coins:1000,message:'+1.000 moedas.'}
 };
 
-window.pvmTestTAFFromSettings=()=>{if(!isAdmin){game.toast('Ative o Painel de Administrador antes de usar /TAF.','error');return false}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp:18000});if(ok)game.toast('🐎 TAF invocado para teste!','success');return !!ok};
+window.pvmTestTAFFromSettings=()=>{if(!isAdmin){game.toast('Ative o Painel de Administrador antes de usar /TAF.','error');return false}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp:24000});if(ok)game.toast('🐎 TAF invocado para teste!','success');return !!ok};
 
 // Admin panel. Passphrase is deliberately client-side; it is a convenience gate, not secure server authorization.
 const ADMIN_PHRASE='CG5, GOAT';
 window.pvmTogglePassword=(id,button)=>{const input=$(id);if(!input)return;const showing=input.type==='password';input.type=showing?'text':'password';if(button){button.textContent=showing?'🙈':'👁️';button.setAttribute('aria-label',showing?'Ocultar senha':'Mostrar senha')}};
 window.openPvmAdmin=()=>{if(isAdmin){renderAdminPanel();return}showModal('👑 Painel de administrador',`<div class="space-y-3"><p class="pvm-muted">Ative a opção para revelar o campo de autorização.</p><label class="flex items-center gap-2 font-bold"><input id="pvm-admin-enable" type="checkbox" onchange="pvmRevealAdminCode(this.checked)"> Ativar modo administrador</label><div id="pvm-admin-code-wrap" class="hidden space-y-2"><label class="block text-sm">Senha secreta<div class="relative flex items-center"><input id="pvm-admin-code" class="pvm-input pr-12" type="password" placeholder="Digite a senha secreta" autocomplete="off"><button type="button" class="absolute right-2 text-xl px-2" aria-label="Mostrar ou ocultar senha do administrador" onclick="pvmTogglePassword('pvm-admin-code',this)">👁️</button></div></label><button class="pvm-btn w-full" onclick="pvmCheckAdminCode()">Acessar painel</button></div><p id="pvm-admin-feedback" class="pvm-muted"></p><p class="text-xs text-amber-200/70">O código fica no HTML local e pode ser visto por quem tiver acesso ao arquivo. Para proteção real, a autorização precisa de um servidor privado.</p></div>`)};
 window.pvmRevealAdminCode=v=>$('pvm-admin-code-wrap').classList.toggle('hidden',!v);
-window.pvmCheckAdminCode=()=>{const value=$('pvm-admin-code').value.trim().toUpperCase();if(value!==ADMIN_PHRASE){$('pvm-admin-feedback').textContent='Código incorreto.';return}isAdmin=true;$('pvm-admin-feedback').textContent='Acesso concedido.';renderAdminPanel()};
+window.pvmCheckAdminCode=()=>{const value=$('pvm-admin-code').value.trim().toUpperCase();if(value!==ADMIN_PHRASE){$('pvm-admin-feedback').textContent='Código incorreto.';return}isAdmin=true;$('pvm-admin-feedback').textContent='Acesso concedido.';window.PVM_GLOBAL_ADMIN?.startHost?.();renderAdminPanel()};
 function renderAdminPanel(){
  const bp=getProgress().boosters||{xp:0,coins:0};
- const accountOptions=Object.entries(accountStore).map(([k,a])=>`<option value="${esc(k)}" ${k===activeAccount?'selected':''}>${esc(a.name||k)}</option>`).join('');
- showModal('👑 Administração do PvM',`<div class="space-y-4">
- <div class="pvm-reward"><b>✅ Modo administrador ativado nesta sessão</b><p class="pvm-muted">Boosters são aplicados à conta selecionada neste navegador. Eventos com alcance global ainda precisam do servidor online para atingir outros computadores.</p></div>
+ const accountOptions=Object.entries(accountStore).map(([k,a])=>`<option value="${esc(k)}" ${k===activeAccount?'selected':''}>${esc(a.name||k)}</option>`).join(''); showModal('👑 Administração do PvM',`<div class="space-y-4">
+ <div class="pvm-reward"><b>✅ Modo administrador ativado nesta sessão</b><p class="pvm-muted">Boosters são aplicados à conta selecionada neste navegador. Eventos e comunicados podem ser enviados aos jogadores conectados ao hub global enquanto esta aba do administrador permanecer aberta.</p></div>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-cyan-200">📡 Central global de jogadores</h3><p class="pvm-muted">O administrador mantém a central aberta e os outros jogadores se conectam automaticamente ao entrar no PvM. Assim, eventos, comunicados e o TAF chegam aos jogadores online.</p><p id="pvm-global-admin-status" class="pvm-muted">Iniciando central global…</p><button class="pvm-btn w-full" onclick="PVM_GLOBAL_ADMIN?.startHost?.()">🔄 Iniciar / reconectar central global</button></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-lime-200">🎁 Distribuir boosters temporários</h3>
  <label class="block text-sm">Conta que receberá<select id="pvm-admin-booster-account" class="pvm-input" onchange="pvmAdminRefreshBoostInfo(this.value)">${accountOptions}</select></label>
  <p id="pvm-admin-target-boosts" class="pvm-muted">Boosters da conta selecionada: XP ×${bp.xp||0} • Moedas ×${bp.coins||0}</p>
@@ -6932,33 +7001,33 @@ function renderAdminPanel(){
  <label class="block text-sm">Duração escolhida por você (minutos)<input id="pvm-admin-booster-duration" class="pvm-input" type="number" min="1" max="10080" step="1" required placeholder="Digite a duração em minutos"></label>
  <button class="pvm-btn w-full" onclick="pvmAdminGrantBoosters()">Conceder booster</button></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🔐 Registro privado de códigos secretos</h3><p class="pvm-muted">Esta lista aparece somente depois da senha de administrador. Compartilhe os códigos individualmente quando decidir.</p><div class="space-y-2">${Object.entries(window.PVM_SECRET_CODES||{}).map(([code,reward])=>`<div class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/25 p-2"><div><b class="text-yellow-100 tracking-wide">${esc(code)}</b><div class="pvm-muted">${esc(reward.message)}</div></div><button class="pvm-btn" type="button" onclick="navigator.clipboard?.writeText('${esc(code)}')">Copiar</button></div>`).join('')}</div><p class="pvm-muted">Códigos antigos continuam disponíveis. Como o jogo atual é HTML local, alguém com acesso ao código-fonte pode inspecioná-los; segredo real exige validação no servidor.</p></section>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🐎 TAF — The Aura Farmer</h3><p class="pvm-muted">Invocação manual em qualquer modo de jogo com uma fase ativa. O chefe tem barra de vida própria, dança entre as três últimas colunas, chama zumbis e atordoa plantas.</p><label class="block text-sm">Vida do TAF (HP)<input id="pvm-admin-taf-hp" class="pvm-input" type="number" min="8000" max="250000" step="1000" value="18000"></label><label class="block text-sm">Alcance<select id="pvm-admin-taf-scope" class="pvm-input"><option value="local">Somente minha partida</option><option value="room">Jogador 1 + Jogador 2 da sala VS</option></select></label><label class="block text-sm">Música alternativa do TAF (opcional; até 15 MB)<input id="pvm-admin-taf-audio" class="pvm-input" type="file" accept="audio/*"></label><p class="pvm-muted">Padrão: procura o MP3 “The Aura Farmer - Horror Skunx (official song)_128k.mp3” na mesma pasta do index.html. Se selecionar outro áudio aqui, ele substitui o arquivo padrão nesta sessão. A música fica em loop até o TAF morrer.</p><button class="pvm-btn w-full" onclick="pvmAdminSpawnTAF()">🐎 INVOCAR TAF</button><p id="pvm-admin-taf-status" class="pvm-muted">Entre em uma partida para invocar o chefe.</p></section>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🐎 TAF — The Aura Farmer</h3><p class="pvm-muted">Invocação manual em qualquer modo de jogo com uma fase ativa. O chefe tem barra de vida própria, dança entre as três últimas colunas, chama zumbis e atordoa plantas.</p><label class="block text-sm">Vida do TAF (HP)<input id="pvm-admin-taf-hp" class="pvm-input" type="number" min="12000" max="250000" step="1000" value="24000"></label><label class="block text-sm">Alcance<select id="pvm-admin-taf-scope" class="pvm-input"><option value="global" selected>🌍 Todos os jogadores online no PvM</option><option value="room">Jogador 1 + Jogador 2 da sala VS</option><option value="local">Somente minha partida</option></select></label><label class="block text-sm">Música alternativa do TAF (opcional; até 15 MB)<input id="pvm-admin-taf-audio" class="pvm-input" type="file" accept="audio/*"></label><p class="pvm-muted">Padrão: procura o MP3 “The Aura Farmer - Horror Skunx (official song)_128k.mp3” na mesma pasta do index.html. Se selecionar outro áudio aqui, ele substitui o arquivo padrão nesta sessão. A música fica em loop até o TAF morrer.</p><button class="pvm-btn w-full" onclick="pvmAdminSpawnTAF()">🐎 INVOCAR TAF</button><p id="pvm-admin-taf-status" class="pvm-muted">Entre em uma partida para invocar o chefe.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🌩️ Evento / mutação da partida</h3>
  <label class="block text-sm">Efeito<select id="pvm-admin-world-event" class="pvm-input">
  <option value="taco">🌮 Chuva de Tacos — taco na cabeça</option><option value="shock">⚡ Tempestade — raio e choque azul</option><option value="leprechaun">🍀 Leprechaun — chapéu e arco-íris</option><option value="eclipse">🌑 Eclipse — remove os sóis do céu</option><option value="chorume">☣️ Chorume — mutação muito forte</option><option value="frost">❄️ Geada — armadura gelada</option><option value="flame">🔥 Incandescente — aura de fogo</option><option value="armored">🛡️ Blindado — armadura extra</option><option value="phantom">👻 Espectral — aspecto fantasma</option><option value="spore">🍄 Esporos — nuvem de fungos</option><option value="cosmic">🌌 Cósmica — brilho estelar</option><option value="tafAura">✨ Aura do TAF — pressão e força extras</option>
  </select></label>
- <label class="block text-sm">Abrangência<select id="pvm-admin-world-scope" class="pvm-input"><option value="global">🌍 Global — abas e sala VS conectada (todos do site exigem servidor)</option><option value="local">🖥️ Apenas este navegador</option></select></label>
+ <label class="block text-sm">Abrangência<select id="pvm-admin-world-scope" class="pvm-input"><option value="global" selected>🌍 Todos os jogadores online no PvM</option><option value="room">👥 Jogadores da sala VS</option><option value="local">🖥️ Apenas este navegador</option></select></label>
  <label class="block text-sm">Duração do evento / mutação (minutos)<input id="pvm-admin-world-duration" class="pvm-input" type="number" min="1" max="10080" step="1" required placeholder="Digite quantos minutos deve durar"></label>
  <label class="block text-sm">Áudio opcional da Chuva de Tacos (mínimo 30 segundos)<input id="pvm-admin-taco-audio" class="pvm-input" type="file" accept="audio/*"></label>
- <p class="pvm-muted">Para usar “It’s Raining Tacos”, selecione um arquivo de áudio que você tenha autorização para utilizar. O jogo não inclui a gravação.</p>
+ <p class="pvm-muted">Para usar “It’s Raining Tacos”, selecione um arquivo de áudio que você tenha autorização para utilizar. O jogo não inclui a gravação. O evento global é enviado aos jogadores conectados à central do administrador.</p>
  <div class="grid grid-cols-2 gap-2"><button class="pvm-btn" onclick="pvmAdminStartWorldEvent()">▶ Iniciar evento</button><button class="pvm-btn" onclick="pvmAdminStopWorldEvent()">■ Encerrar evento</button></div><p id="pvm-admin-world-status" class="pvm-muted">Nenhum evento ativo.</p></section>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">📣 Enviar carta / atualização</h3><input id="pvm-admin-mail-title" class="pvm-input" maxlength="70" placeholder="Título da carta ou evento"><textarea id="pvm-admin-mail-body" class="pvm-input" rows="4" maxlength="1200" placeholder="Escreva a mensagem para os jogadores"></textarea><button class="pvm-btn w-full" onclick="pvmAdminSendMail()">Enviar para os jogadores locais</button></section>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">📣 Enviar carta / atualização</h3><input id="pvm-admin-mail-title" class="pvm-input" maxlength="70" placeholder="Título da carta ou evento"><textarea id="pvm-admin-mail-body" class="pvm-input" rows="4" maxlength="1200" placeholder="Escreva a mensagem para os jogadores"></textarea><button class="pvm-btn w-full" onclick="pvmAdminSendMail()">📣 Enviar comunicado aos jogadores online</button></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🎉 Evento da Frente de Guerra</h3><button class="pvm-btn w-full" onclick="pvmAdminOpenWarfront()">⚔️ Abrir controle de eventos da Frente de Guerra</button></section>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🎵 Música compartilhada</h3><input id="pvm-admin-audio" class="pvm-input" type="file" accept="audio/*"><p class="pvm-muted">A duração escolhida vale para o evento e sua mutação. A opção global fica preparada na interface, mas só alcança outros computadores quando o PvM estiver ligado a um servidor.</p><p class="pvm-muted">O áudio compartilhado funciona entre abas abertas do PvM na mesma origem, não entre computadores diferentes sem servidor.</p><button class="pvm-btn w-full" onclick="pvmAdminSendMusic()">Enviar música para jogadores locais</button><button class="pvm-btn w-full" onclick="pvmAdminStopMusic()">⏹ Parar música compartilhada</button><p id="pvm-admin-music-status" class="pvm-muted"></p></section>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🎵 Música compartilhada</h3><input id="pvm-admin-audio" class="pvm-input" type="file" accept="audio/*"><p class="pvm-muted">A duração vale para o evento e sua mutação. O áudio compartilhado continua limitado às abas abertas no mesmo navegador.</p><button class="pvm-btn w-full" onclick="pvmAdminSendMusic()">Enviar música para jogadores locais</button><button class="pvm-btn w-full" onclick="pvmAdminStopMusic()">⏹ Parar música compartilhada</button><p id="pvm-admin-music-status" class="pvm-muted"></p></section>
  <button class="pvm-btn w-full" onclick="pvmAdminLogout()">Desativar modo administrador</button></div>`);
- const status=$('pvm-admin-world-status'),active=window.PVM_GET_WORLD_EVENTS?.()||[];if(status)status.textContent=active.length?active.map(e=>`${e.label||e.type} • ${Math.max(0,Math.ceil((e.endsAt-Date.now())/60000))} min restantes`).join(' | '):'Nenhum evento ou mutação ativo.'
+ const status=$('pvm-admin-world-status'),active=window.PVM_GET_WORLD_EVENTS?.()||[];if(status)status.textContent=active.length?active.map(e=>`${e.label||e.type} • ${Math.max(0,Math.ceil((e.endsAt-Date.now())/60000))} min restantes`).join(' | '):'Nenhum evento ou mutação ativo.';const hubStatus=$('pvm-global-admin-status');if(hubStatus)hubStatus.textContent=window.PVM_GLOBAL_ADMIN?.getStatus?.()||'Central global será iniciada ao acessar o painel.'
 }
 window.pvmAdminRefreshBoostInfo=target=>{if(!isAdmin)return;const rec=accountStore[target],b=rec?.progress?.boosters||{xp:0,coins:0},el=$('pvm-admin-target-boosts');if(el)el.textContent=`Boosters da conta selecionada: XP ×${Number(b.xp)||0} • Moedas ×${Number(b.coins)||0}`};
 window.pvmAdminGrantBoosters=()=>{if(!isAdmin)return;const kind=$('pvm-admin-booster-type')?.value,target=$('pvm-admin-booster-account')?.value||activeAccount,duration=Number($('pvm-admin-booster-duration')?.value);if(!Number.isFinite(duration)||duration<1||duration>10080){game.toast('Digite a duração do booster em minutos (1 a 10080).','error');return}const record=accountStore[target];if(!record){game.toast('Essa conta não foi encontrada neste navegador.','error');return}record.progress=record.progress||defaultsProgress();record.progress.boosters={xp:0,coins:0,...(record.progress.boosters||{})};record.progress.timedBoosters=record.progress.timedBoosters||{};const key={xp:'xpUntil',coins:'coinsUntil',damage:'damageUntil',speed:'speedUntil'}[kind];if(!key){game.toast('Escolha um booster válido.','error');return}record.progress.timedBoosters[key]=Date.now()+duration*60000;persistAccounts();if(target===activeAccount){bridge.setProgress(record.progress);bridge.save();window.PVM_REFRESH_TIMED_BOOSTS?.()}game.toast(`🎁 Booster ${kind} aplicado por ${duration} minutos à conta ${record.name}.`,'success');renderAdminPanel()};
-window.pvmAdminSendMail=()=>{if(!isAdmin)return;const title=$('pvm-admin-mail-title').value.trim(),body=$('pvm-admin-mail-body').value.trim();if(!title||!body){game.toast('Preencha título e mensagem.','error');return}const item={from:'Administração',title,body,time:Date.now()};addMail(item,true);game.toast('Carta enviada.','success');renderAdminPanel()};
+window.pvmAdminSendMail=()=>{if(!isAdmin)return;const title=$('pvm-admin-mail-title').value.trim(),body=$('pvm-admin-mail-body').value.trim();if(!title||!body){game.toast('Preencha título e mensagem.','error');return}const item={from:'Administração',title,body,time:Date.now()};addMail(item,true);const delivered=window.PVM_GLOBAL_ADMIN?.broadcastNotice?.(title,body)||0;game.toast(`📣 Comunicado salvo aqui e enviado para ${delivered} jogador(es) online.`,'success');renderAdminPanel()};
 window.pvmAdminPublishEvent=()=>{if(!isAdmin)return;const title=$('pvm-admin-event-title').value.trim(),body=$('pvm-admin-event-body').value.trim();if(!title||!body){game.toast('Preencha nome e descrição do evento.','error');return}const msg={type:'event',title,body};receiveBus(msg);bus?.postMessage(msg);game.toast('Evento anunciado nas sessões locais.','success');renderAdminPanel()};
 window.pvmAdminOpenWarfront=()=>{if(!isAdmin)return;const f=window.wfOpenAdmin;if(f)f();else game.toast('Painel de eventos da Frente não encontrado.','error')};
 window.pvmAdminSendMusic=async()=>{if(!isAdmin)return;const file=$('pvm-admin-audio').files?.[0];if(!file){$('pvm-admin-music-status').textContent='Escolha um arquivo de áudio primeiro.';return}if(file.size>15*1024*1024){$('pvm-admin-music-status').textContent='O arquivo precisa ter até 15 MB.';return}const msg={type:'track',title:file.name,file};playAdminAudio(file,file.name);bus?.postMessage(msg);$('pvm-admin-music-status').textContent=`Enviada: ${file.name}. Outros jogadores precisam estar com o PvM aberto na mesma origem.`};
 window.pvmAdminStopMusic=()=>{if(!isAdmin)return;if(customAudio)customAudio.pause();adminTrack=null;pendingAudio=null;bus?.postMessage({type:'track-stop'});$('pvm-admin-music-status').textContent='Reprodução compartilhada interrompida.'};
 // # ADMIN TAF INVOCATION — independent from campaign mode or level number.
-window.pvmAdminSpawnTAF=async()=>{if(!isAdmin)return;const status=$('pvm-admin-taf-status'),hp=Number($('pvm-admin-taf-hp')?.value)||18000,scope=$('pvm-admin-taf-scope')?.value||'local',file=$('pvm-admin-taf-audio')?.files?.[0]||null;if(!Number.isFinite(hp)||hp<8000||hp>250000){if(status)status.textContent='A vida precisa ficar entre 8.000 e 250.000 HP.';return}if(file&&!window.PVM_SET_TAF_MUSIC_FILE?.(file)){if(status)status.textContent='Escolha um áudio válido de até 15 MB.';return}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp});if(!ok){if(status)status.textContent='Não invocou: inicie uma fase e confira se já existe outro chefe.';return}let sent=false;if(scope==='room')sent=!!window.PVMOnlineVersus?.broadcastBoss?.({hp});if(status)status.textContent=scope==='room'?(sent?'TAF invocado para os dois jogadores conectados.':'TAF invocado nesta partida. Nenhum Jogador 2 está conectado na sala VS.'):'TAF invocado somente na sua partida.';game.toast('🐎 TAF entrou no gramado!','success')};
-window.pvmAdminStartWorldEvent=async()=>{if(!isAdmin)return;const type=$('pvm-admin-world-event')?.value,scope=$('pvm-admin-world-scope')?.value||'local',minutes=Number($('pvm-admin-world-duration')?.value);if(!Number.isFinite(minutes)||minutes<1||minutes>10080){$('pvm-admin-world-status').textContent='Digite a duração em minutos (1 a 10080) antes de iniciar.';return}const labels={taco:'Chuva de Tacos',shock:'Tempestade Elétrica',leprechaun:'Leprechaun',eclipse:'Eclipse',chorume:'Chorume',frost:'Geada',flame:'Incandescente',armored:'Blindado',phantom:'Espectral',spore:'Esporos',cosmic:'Cósmica',tafAura:'Aura do TAF'};if(!labels[type])return;let audioFile=$('pvm-admin-taco-audio')?.files?.[0]||null;if(type==='taco'&&audioFile){try{const url=URL.createObjectURL(audioFile),audio=new Audio();const duration=await new Promise(resolve=>{audio.onloadedmetadata=()=>resolve(audio.duration);audio.onerror=()=>resolve(0);audio.src=url});URL.revokeObjectURL(url);if(!Number.isFinite(duration)||duration<30){$('pvm-admin-world-status').textContent='O áudio escolhido precisa ter pelo menos 30 segundos. Evento não iniciado.';return}playAdminAudio(audioFile,audioFile.name);bus?.postMessage({type:'track',title:audioFile.name,file:audioFile})}catch{$('pvm-admin-world-status').textContent='Não foi possível validar o áudio. O evento pode ser iniciado sem música.'}}const event={id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),type,scope,label:labels[type],startsAt:Date.now(),endsAt:Date.now()+minutes*60000};window.PVM_ADD_WORLD_EVENT?.(event);bus?.postMessage({type:'pvm-world-event',event});let roomSent=false;if(scope==='global')roomSent=!!window.PVMOnlineVersus?.broadcastEvent?.(event);$('pvm-admin-world-status').textContent=scope==='global'?`${labels[type]} ativo por ${minutes} min neste navegador, nas abas abertas e no Jogador 2 desta sala VS quando conectado. Outros servidores/salas exigem backend global.`:`${labels[type]} ativo por ${minutes} min neste navegador.`;game.toast(`🌩️ ${labels[type]} iniciado!`,'success')};
-window.pvmAdminStopWorldEvent=()=>{if(!isAdmin)return;window.PVM_SET_WORLD_EVENT?.(null);bus?.postMessage({type:'pvm-world-event',event:null});window.PVMOnlineVersus?.broadcastEventClearAll?.();$('pvm-admin-world-status').textContent='Todos os eventos e mutações acumulados foram encerrados.';game.toast('Eventos e mutações encerrados.','info')};
+window.pvmAdminSpawnTAF=async()=>{if(!isAdmin)return;const status=$('pvm-admin-taf-status'),hp=Number($('pvm-admin-taf-hp')?.value)||24000,scope=$('pvm-admin-taf-scope')?.value||'global',file=$('pvm-admin-taf-audio')?.files?.[0]||null;if(!Number.isFinite(hp)||hp<12000||hp>250000){if(status)status.textContent='A vida precisa ficar entre 12.000 e 250.000 HP.';return}if(file&&!window.PVM_SET_TAF_MUSIC_FILE?.(file)){if(status)status.textContent='Escolha um áudio válido de até 15 MB.';return}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp});if(!ok){if(status)status.textContent='Não invocou: inicie uma fase e confira se já existe outro chefe.';return}let sent=0;if(scope==='global')sent=window.PVM_GLOBAL_ADMIN?.broadcastTAF?.({hp})||0;else if(scope==='room')sent=window.PVMOnlineVersus?.broadcastBoss?.({hp})?1:0;if(status)status.textContent=scope==='global'?`TAF invocado aqui e enviado para ${sent} jogador(es) conectados. Mantenha a central do administrador aberta.`:scope==='room'?(sent?'TAF invocado para os dois jogadores conectados.':'TAF invocado nesta partida. Nenhum Jogador 2 está conectado na sala VS.'):'TAF invocado somente na sua partida.';game.toast('🐎 TAF entrou no gramado!','success')};
+window.pvmAdminStartWorldEvent=async()=>{if(!isAdmin)return;const type=$('pvm-admin-world-event')?.value,scope=$('pvm-admin-world-scope')?.value||'local',minutes=Number($('pvm-admin-world-duration')?.value);if(!Number.isFinite(minutes)||minutes<1||minutes>10080){$('pvm-admin-world-status').textContent='Digite a duração em minutos (1 a 10080) antes de iniciar.';return}const labels={taco:'Chuva de Tacos',shock:'Tempestade Elétrica',leprechaun:'Leprechaun',eclipse:'Eclipse',chorume:'Chorume',frost:'Geada',flame:'Incandescente',armored:'Blindado',phantom:'Espectral',spore:'Esporos',cosmic:'Cósmica',tafAura:'Aura do TAF'};if(!labels[type])return;let audioFile=$('pvm-admin-taco-audio')?.files?.[0]||null;if(type==='taco'&&audioFile){try{const url=URL.createObjectURL(audioFile),audio=new Audio();const duration=await new Promise(resolve=>{audio.onloadedmetadata=()=>resolve(audio.duration);audio.onerror=()=>resolve(0);audio.src=url});URL.revokeObjectURL(url);if(!Number.isFinite(duration)||duration<30){$('pvm-admin-world-status').textContent='O áudio escolhido precisa ter pelo menos 30 segundos. Evento não iniciado.';return}playAdminAudio(audioFile,audioFile.name);bus?.postMessage({type:'track',title:audioFile.name,file:audioFile})}catch{$('pvm-admin-world-status').textContent='Não foi possível validar o áudio. O evento pode ser iniciado sem música.'}}const event={id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),type,scope,label:labels[type],source:scope==='global'?'admin-hub':'admin-local',startsAt:Date.now(),endsAt:Date.now()+minutes*60000};window.PVM_ADD_WORLD_EVENT?.(event);bus?.postMessage({type:'pvm-world-event',event});let delivered=0;if(scope==='global')delivered=window.PVM_GLOBAL_ADMIN?.broadcastEvent?.(event)||0;else if(scope==='room')delivered=window.PVMOnlineVersus?.broadcastEvent?.(event)?1:0;$('pvm-admin-world-status').textContent=scope==='global'?`${labels[type]} ativo por ${minutes} min e enviado para ${delivered} jogador(es) online. Deixe a central do administrador aberta.`:scope==='room'?`${labels[type]} enviado para ${delivered} jogador(es) da sala VS.`:`${labels[type]} ativo por ${minutes} min neste navegador.`;game.toast(`🌩️ ${labels[type]} iniciado!`,'success')};
+window.pvmAdminStopWorldEvent=()=>{if(!isAdmin)return;window.PVM_SET_WORLD_EVENT?.(null);bus?.postMessage({type:'pvm-world-event',event:null});window.PVMOnlineVersus?.broadcastEventClearAll?.();const delivered=window.PVM_GLOBAL_ADMIN?.broadcastClear?.()||0;$('pvm-admin-world-status').textContent=`Eventos encerrados aqui e enviados para ${delivered} jogador(es) online.`;game.toast('Eventos e mutações encerrados.','info')};
 window.pvmAdminLogout=()=>{isAdmin=false;showModal('👑 Administrador','<p class="pvm-muted">Modo administrador desativado.</p>')};
 const oldWfAdmin=window.wfOpenAdmin;window.wfOpenAdmin=()=>{if(!isAdmin){window.openPvmAdmin();return}oldWfAdmin?.()};
 
@@ -7318,7 +7387,6 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
   invasion:{title:'Invasão dos Vilões',icon:'🎭',action:'startPvmVillainRaid',what:'Enfrente a formação de vilões do espetáculo em uma sequência especial de ondas.',context:'O grupo reúne figuras originais do PvM: Mestre de Cerimônias, Holofote, Fantasma de Neon e Roqueiro do Caos.',weak:'Mestre de Cerimônias: elimine o suporte antes que a horda se acumule. Holofote: interrompa o reforço. Fantasma de Neon: mantenha cobertura em mais de uma fileira. Roqueiro do Caos: concentre dano quando terminar a arrancada.'},
   villainGuide:{title:'Guia dos Vilões',icon:'🎭',action:'openVillainZombieGuide',what:'Consulte a ficha dos vilões, habilidades e dicas de enfrentamento.',context:'O guia reúne os inimigos especiais criados para o arco do espetáculo.',weak:'Use as fraquezas específicas exibidas em cada ficha; não tente enfrentar todos com a mesma formação.'},
   zombies:{title:'Almanaque de Zumbis',icon:'🧟',action:'openZombieGuide',what:'Abra a lista de zumbis e confira como cada tipo se comporta.',context:'Os inimigos possuem funções diferentes: avanço básico, armadura, suporte e habilidades especiais.',weak:'A ficha de cada um indica o melhor contra-jogo e o tipo de defesa recomendado.'},
-  shop:{title:'Loja do Seu Zé',icon:'🧢',action:'openShop',what:'Use moedas comuns para comprar itens de uso no jogo e melhorias permanentes.',context:'Seu Zé vende equipamentos e conversa sobre novidades do jardim.',weak:'Compare o benefício da melhoria com o preço e o nível atual antes de comprar.'},
   seasonShop:{title:'Loja da Temporada do Neco',icon:'🌟',action:'openSeasonShop',what:'Neco, primo do Seu Zé, traz 15 sementes exclusivas em um estoque aleatório. O estoque muda a cada cinco minutos e cada semente tem chance própria de aparecer.',context:'Sementes comuns aparecem com mais frequência e em maior quantidade. As mais raras aparecem pouco e normalmente têm apenas uma unidade. A rotação é calculada pelo relógio local deste navegador; não é um estoque global online.',weak:'As sementes usam Moedas do Passe. Confira o saldo e a quantidade disponível antes de comprar; a loja não tem reposição instantânea paga.'},
   wheel:{title:'Roleta',icon:'🎡',action:'openPlantWheel',what:'Escolha entre Roleta de Plantas e Roleta de Melhorias. A roleta de plantas sorteia por raridade; a outra entrega bônus permanentes.',context:'O índice mostra quais plantas pertencem à roleta e sua raridade. Plantas exclusivas da temporada não entram nesse sorteio.',weak:'As probabilidades são apresentadas antes de girar. Um prêmio raro não é garantido em uma quantidade pequena de tentativas.'},
   pass:{title:'Passe do Jardim',icon:'🎟️',action:'openPass',what:'Ganhe XP jogando, avance pelos 50 níveis e resgate as recompensas liberadas.',context:'Alguns níveis concedem Moedas do Passe, usadas exclusivamente na Loja da Temporada do Neco.',weak:'Não precisa gastar moedas comuns para subir níveis: o progresso depende do XP do passe.'},
@@ -7339,7 +7407,7 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
   battle:{title:'⚔️ Batalhas',desc:'Escolha a forma de jogar e disputar os jardins.',items:['warfront','pvb','localvs','onlinevs']},
   villains:{title:'🎭 Vilões e inimigos',desc:'Entre na invasão ou estude os inimigos antes de jogar.',items:['invasion','villainGuide','zombies']},
   collection:{title:'📚 Coleção e progresso',desc:'Desbloqueie plantas, consulte dados e evolua.',items:['pass','wheel','almanac','plantLab','zombieLab']},
-  shops:{title:'🛍️ Lojas do jardim',desc:'Duas lojas, duas moedas diferentes.',items:['shop','seasonShop']},
+  shops:{title:'🛍️ Loja do jardim',desc:'A Loja da Temporada do Neco: sementes exclusivas, estoque rotativo e Moedas do Passe.',items:['seasonShop']},
   more:{title:'☰ Mais opções',desc:'Recursos de conta, mensagens, códigos e administração.',items:['profile','mailbox','options','codes','chaos','admin','launch']}
  };
  window.pvmOpenGroup=key=>{const g=groups[key];if(!g)return;const cards=g.items.map(id=>{const m=modes[id];return `<button class="pvm-hub-card" onclick="pvmOpenModeHub('${id}')"><span class="text-3xl">${m.icon}</span><span class="min-w-0"><b>${esc(m.title)}</b><small>${esc(m.what)}</small></span><span class="text-yellow-200">›</span></button>`}).join('');show(g.title,`<p class="pvm-muted mb-3">${esc(g.desc)}</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${cards}</div>`)};
@@ -7442,7 +7510,26 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
      box.appendChild(card);
    }
  }
- window.openSeasonShop=()=>{show('🌟 Loja da Temporada — Neco, primo do Zé',`<div class="space-y-3"><div class="pvm-reward flex flex-wrap items-center justify-between gap-3"><div><b class="text-yellow-100">🌱 O estoque do Neco muda em</b><div id="pvm-neco-timer" class="text-3xl font-black text-lime-200 tabular-nums">5:00</div><p class="pvm-muted">Compre fragmentos. Com 6 você libera a planta; com mais 6 chega ao nível 2; e com mais 6 ao nível 3. Plantas raras aparecem menos e em menor quantidade.</p></div><div class="text-right"><div class="pvm-muted">Seu saldo</div><b class="text-2xl text-yellow-200">🌟 <span id="pvm-neco-coins">${currentProgress().seasonCoins||0}</span></b><div class="pvm-muted">Moedas do Passe</div></div></div><div class="flex items-center justify-between gap-2"><b class="text-lime-200">Fragmentos de plantas exclusivas</b><span class="text-[10px] text-amber-100/65">15 plantas • rotação de 5 minutos</span></div><div id="pvm-neco-stock-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div><p class="text-[11px] text-amber-100/60">O estoque é rotativo e guardado neste navegador. Os fragmentos e níveis são salvos na sua conta local.</p></div>`);renderSeasonShop();if(storeTicker)clearInterval(storeTicker);storeTicker=setInterval(()=>{if(!$('pvm-neco-stock-grid')){clearInterval(storeTicker);storeTicker=null;return}const newPeriod=Math.floor(Date.now()/PERIOD);const d=loadStock();if(d.period!==newPeriod)loadStock();renderSeasonShop()},1000)};
+ const stopNecoStoreTicker=()=>{if(storeTicker){clearInterval(storeTicker);storeTicker=null;}};
+ let storeDisplayedPeriod=0;
+ window.openSeasonShop=()=>{
+   stopNecoStoreTicker();
+   show('🌟 Loja da Temporada — Neco, primo do Zé',`<div class="space-y-3"><div class="pvm-reward flex flex-wrap items-center justify-between gap-3"><div><b class="text-yellow-100">🌱 O estoque do Neco muda em</b><div id="pvm-neco-timer" class="text-3xl font-black text-lime-200 tabular-nums">5:00</div><p class="pvm-muted">Compre fragmentos. Com 6 você libera a planta; com mais 6 chega ao nível 2; e com mais 6 ao nível 3. Plantas raras aparecem menos e em menor quantidade.</p></div><div class="text-right"><div class="pvm-muted">Seu saldo</div><b class="text-2xl text-yellow-200">🌟 <span id="pvm-neco-coins">${currentProgress().seasonCoins||0}</span></b><div class="pvm-muted">Moedas do Passe</div></div></div><div class="flex items-center justify-between gap-2"><b class="text-lime-200">Fragmentos de plantas exclusivas</b><span class="text-[10px] text-amber-100/65">15 plantas • rotação de 5 minutos</span></div><div id="pvm-neco-stock-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div><p class="text-[11px] text-amber-100/60">O estoque é rotativo e guardado neste navegador. Os fragmentos e níveis são salvos na sua conta local.</p></div>`);
+   renderSeasonShop();
+   storeDisplayedPeriod=Math.floor(Date.now()/PERIOD);
+   storeTicker=setInterval(()=>{
+     const root=$('pvm-modal'),title=$('pvm-modal-title'),timer=$('pvm-neco-timer');
+     const necoIsVisible=!!(root?.classList.contains('open')&&title?.textContent.includes('Neco')&&timer);
+     if(!necoIsVisible){stopNecoStoreTicker();return;}
+     const currentPeriod=Math.floor(Date.now()/PERIOD);
+     if(currentPeriod!==storeDisplayedPeriod){storeDisplayedPeriod=currentPeriod;renderSeasonShop();}
+     const liveTimer=$('pvm-neco-timer');
+     if(liveTimer)liveTimer.textContent=formatTimer(secondsUntilRestock());
+   },1000);
+ };
+ const previousClosePvmModal=window.closePvmModal;
+ window.closePvmModal=()=>{stopNecoStoreTicker();return previousClosePvmModal?.();};
+
  window.pvmBuySeasonSeed=id=>{
    const p=seasonalSeeds.find(x=>x.id===id);if(!p)return;const state=loadStock(),count=Number(state.stock[id])||0,data=currentProgress();
    const fragments=Math.max(0,Math.min(18,Number(data.plantFragments?.[id])||0)),price=seasonalFragmentPrice(p);
@@ -7543,8 +7630,8 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
   lady_mist:{name:'Dama da Névoa',hp:510,speed:32,damage:90,skin:'#a7f3d0',outfit:'#172554',hat:'none',scale:.96,ability:'skater',role:'Infiltradora',abilityText:'Alterna caminhada e arrancadas curtas.',weak:'As arrancadas têm intervalo. Use plantas que cubram toda a fileira.'},
   dave_excavator:{name:'D.A.V.E. — Escavador Mecânico',hp:770,armorHp:190,armorType:'scrap',speed:17,damage:112,skin:'#fde047',outfit:'#334155',hat:'cone',scale:1.04,ability:'miner',role:'Escavador',abilityText:'Some sob a terra por um instante e reaparece mais perto da casa.',weak:'O solo treme antes de reaparecer. Proteja a retaguarda e observe o sinal no chão.'},
   bone_drone:{name:'Drone de Ossos',hp:320,speed:27,damage:67,skin:'#e2e8f0',outfit:'#4c1d95',hat:'none',scale:.78,ability:'summoner',role:'Batedor aéreo',abilityText:'Ao ficar enfraquecido, chama um zumbi comum de reforço.',weak:'É frágil. Não deixe o batedor alcançar o fim da fileira.'},
-  origami_guard:{name:'Guarda de Origami',hp:620,armorHp:270,armorType:'folded',speed:14,damage:105,skin:'#f1f5f9',outfit:'#6d28d9',hat:'cone',scale:1.05,ability:'rage',role:'Guardião dobrado',abilityText:'Quando perde a proteção de papel, avança com mais velocidade.',weak:'Fica mais rápido após perder a armadura. Concentre dano antes que isso aconteça.'},
-  origami3_king:{name:'Imperador do Planeta Origami-3',hp:1600,armorHp:1080,armorType:'folded_crown',speed:7.4,damage:215,skin:'#fef3c7',outfit:'#7c3aed',hat:'none',scale:1.27,ability:'summoner',role:'Elite de suporte',abilityText:'Ao ficar enfraquecido, convoca um Guarda de Origami e um Drone de Ossos.',weak:'É muito lento e depende da armadura dobrada. Ataques pesados abrem espaço.'}
+  origami_guard:{name:'Guarda de Origami',hp:620,armorHp:270,armorType:'folded',speed:14,damage:105,skin:'#f1f5f9',outfit:'#6d28d9',hat:'none',scale:1.05,ability:'rage',role:'Guardião dobrado',abilityText:'Quando perde a proteção de papel, avança com mais velocidade.',weak:'Fica mais rápido após perder a armadura. Concentre dano antes que isso aconteça.'},
+  origami3_king:{name:'Rei de Papel',hp:1600,armorHp:1080,armorType:'folded_crown',speed:7.4,damage:215,skin:'#fef3c7',outfit:'#7c3aed',hat:'none',scale:1.27,ability:'summoner',role:'Elite de suporte',abilityText:'Ao ficar enfraquecido, convoca um Guarda de Origami e um Drone de Ossos.',weak:'É muito lento e depende da armadura dobrada. Ataques pesados abrem espaço.'}
  };
  for(const [id,data] of Object.entries(cast)){
    try{bridge()?.addZombie?.(id,{...data,id,builtin:true})}catch(err){console.error('Não foi possível registrar '+id,err)}
@@ -7597,19 +7684,42 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
  const oldGameOver=window.PVM_ON_GAME_OVER;
  window.PVM_ON_GAME_OVER=function(victory){oldGameOver?.(victory);renderCommunityMountain()};
 
- // Botão do Neco durante a partida; pausa o tabuleiro enquanto a loja está aberta e retoma ao fechar.
+ // Loja do Neco durante a partida: pausa o tabuleiro e reinicia o loop ao fechar.
  window.pvmOpenNecoDuringGame=()=>{
    const game=bridge()?.getGame?.(),wasRunning=!!game?.running;
    if(wasRunning)game.running=false;
-   if(typeof window.openSeasonShop!=='function'){if(wasRunning)game.running=true;bridge()?.toast?.('A Loja da Temporada ainda não carregou.','error');return}
-   window.openSeasonShop();
+   const resumeIfNeeded=()=>{
+     if(wasRunning && $('screen-game')?.classList.contains('flex')){
+       const api=bridge();
+       if(typeof api?.resumeGameLoop==='function') api.resumeGameLoop();
+       else { game.running=true; game.lastTime=performance.now(); }
+     }
+   };
+   if(typeof window.openSeasonShop!=='function'){
+     resumeIfNeeded();
+     bridge()?.toast?.('A Loja da Temporada ainda não carregou.','error');
+     return;
+   }
+   try { window.openSeasonShop(); }
+   catch(error) {
+     resumeIfNeeded();
+     bridge()?.toast?.('Não foi possível abrir a loja do Neco. A partida foi retomada.','error');
+     console.error('Falha ao abrir a Loja do Neco:',error);
+     return;
+   }
    const modal=$('pvm-modal');
-   if(!modal)return;
-   let resumed=false;
-   const resume=()=>{if(resumed)return;resumed=true;observer.disconnect();if(wasRunning&&$('screen-game')?.classList.contains('flex'))game.running=true};
-   const observer=new MutationObserver(()=>{if(!modal.classList.contains('open'))resume()});
+   if(!modal){resumeIfNeeded();return;}
+   let resumed=false,observer=null;
+   const resume=()=>{
+     if(resumed)return;
+     resumed=true;
+     observer?.disconnect();
+     resumeIfNeeded();
+   };
+   observer=new MutationObserver(()=>{if(!modal.classList.contains('open'))resume()});
    observer.observe(modal,{attributes:true,attributeFilter:['class']});
-   const closeButtons=modal.querySelectorAll('button');closeButtons.forEach(btn=>btn.addEventListener('click',()=>setTimeout(()=>{if(!modal.classList.contains('open'))resume()},0),{once:false}));
+   // Protege também contra um modal que tenha sido fechado durante a abertura.
+   if(!modal.classList.contains('open'))resume();
  };
 
  renderCommunityMountain();
@@ -7733,7 +7843,7 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
 // ZUMBI dave_excavator — D.A.V.E. — Escavador Mecânico: deve Some sob a terra por um instante e reaparece mais perto da casa. Animação: acessórios e silhueta próprios no bloco visual de drawZombieCharacter().
 // ZUMBI bone_drone — Drone de Ossos: deve Ao ficar enfraquecido, chama um zumbi comum de reforço. Animação: acessórios e silhueta próprios no bloco visual de drawZombieCharacter().
 // ZUMBI origami_guard — Guarda de Origami: deve Quando perde a proteção de papel, avança com mais velocidade. Animação: acessórios e silhueta próprios no bloco visual de drawZombieCharacter().
-// ZUMBI origami3_king — Imperador do Planeta Origami-3: deve Ao ficar enfraquecido, convoca um Guarda de Origami e um Drone de Ossos. Animação: acessórios e silhueta próprios no bloco visual de drawZombieCharacter().
+// ZUMBI origami3_king — Rei de Papel: deve Ao ficar enfraquecido, convoca um Guarda de Origami e um Drone de Ossos. Animação: acessórios e silhueta próprios no bloco visual de drawZombieCharacter().
 
 /* Catálogo adicional de plantas do Passe e da roleta. */
 // PLANTA prismpea — Ervilha Prismática: deve Dispara uma ervilha prismática de dano elevado. Animação: animação de espera e ação no ramo de peashooter.
@@ -7880,8 +7990,7 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
  window.startPvmExtremeChallenge=()=>{
    const b=bridge();if(!b?.campaignLevels?.length){b?.toast?.('A campanha ainda não carregou.','error');return;}
    const levels=b.campaignLevels;const world=Math.floor(Math.random()*6),base=levels[world*10+Math.floor(Math.random()*10)];
-   const plants=b.getUnlockedSeedIds?.()||Object.keys(b.plants||{});
-   const excluded=new Set(['imitater','cobcannon','waterpot']);
+   const plants=b.getUnlockedSeedIds?.()||Object.keys(b.plants||{});   const excluded=new Set(['imitater','cobcannon','waterpot']);
    const pool=[...new Set(plants)].filter(id=>!excluded.has(id)&&b.plants?.[id]);
    // Não banir plantas estruturais da fase: economia inicial, vasos no telhado
    // e vitórias aquáticas na piscina. Respeita também dependências declaradas.
@@ -7987,23 +8096,23 @@ window.pvmShowShinyPanel=()=>{
  const options=ids.map(id=>`<option value="${id}">${bridge().plants[id].emoji||'🌱'} ${bridge().plants[id].name||id}</option>`).join('');
  const p=getProgress(),used=Math.max(0,Number(p.shinyAttempts)||0),free=Math.max(0,3-used),cost=75;
  const table=mutations.map(m=>`<div class="pvm-reward"><b>${m.name}</b><div class="pvm-muted">${m.desc}</div></div>`).join('');
- setModal('✨ Invocação SHINY',`<div class="space-y-3"><button class="pvm-btn" onclick="openPlantWheel()">← Voltar à roleta</button>${done?`<div class="pvm-reward pvm-shiny-silver"><b>Invocação liberada!</b><p class="pvm-muted">Chance SHINY: 5% por tentativa. Uma falha também remove a mutação SHINY anterior desta planta.</p><label class="block text-sm mt-2">Planta que receberá a tentativa<select id="pvm-shiny-target" class="pvm-input">${options}</select></label><p class="pvm-muted mt-2">Tentativas gratuitas restantes: <b>${free}</b> • Depois: ${cost} moedas por tentativa.</p><div id="pvm-shiny-result" class="text-center text-lg font-bold text-slate-100 py-2">Escolha uma planta e tente a sorte.</div><button class="pvm-btn w-full pvm-shiny-silver" onclick="pvmShinyRoll()">✨ ${free?'Invocar SHINY grátis':'Tentar SHINY • '+cost+' moedas'}</button><button id="pvm-shiny-confirm" class="pvm-btn w-full" style="display:none" onclick="pvmShinyConfirm()">Confirmar mutação</button><p id="pvm-shiny-old-note" class="pvm-muted"></p></div><div><h3 class="font-bold text-slate-100 mb-2">Tabela de mutações possíveis</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${table}</div></div>`:`<div class="pvm-reward"><b>🔒 Invocação SHINY bloqueada</b><p class="pvm-muted">Conclua as 10 fases do Dia 1 para liberar o botão de invocação na Roleta.</p><p class="pvm-muted">Progresso: ${(()=>{const a=(()=>{try{return JSON.parse(localStorage.getItem('pvz_adventure_progress_v2')||'{}')}catch{return {}}})();return DAY1_LEVELS.filter(n=>(a.completedLevels||[]).includes(n)).length})()}/10 fases concluídas.</p></div>`}</div>`);
+ setModal('✨ Invocação SHINY',`<div class="space-y-3"><button class="pvm-btn" onclick="openPlantWheel()">← Voltar à roleta</button>${done?`<div class="pvm-reward pvm-shiny-silver"><b>Invocação liberada!</b><p class="pvm-muted">Chance SHINY: 5% por tentativa. A mutação atual permanece ativa até você confirmar uma nova.</p><label class="block text-sm mt-2">Planta que receberá a tentativa<select id="pvm-shiny-target" class="pvm-input">${options}</select></label><p class="pvm-muted mt-2">Tentativas gratuitas restantes: <b>${free}</b> • Depois: ${cost} moedas por tentativa.</p><div id="pvm-shiny-result" class="text-center text-lg font-bold text-slate-100 py-2">Escolha uma planta e tente a sorte.</div><button class="pvm-btn w-full pvm-shiny-silver" onclick="pvmShinyRoll()">✨ ${free?'Invocar SHINY grátis':'Tentar SHINY • '+cost+' moedas'}</button><button id="pvm-shiny-confirm" class="pvm-btn w-full" style="display:none" onclick="pvmShinyConfirm()">Confirmar mutação</button><p id="pvm-shiny-old-note" class="pvm-muted"></p></div><div><h3 class="font-bold text-slate-100 mb-2">Tabela de mutações possíveis</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${table}</div></div>`:`<div class="pvm-reward"><b>🔒 Invocação SHINY bloqueada</b><p class="pvm-muted">Conclua as 10 fases do Dia 1 para liberar o botão de invocação na Roleta.</p><p class="pvm-muted">Progresso: ${(()=>{const a=(()=>{try{return JSON.parse(localStorage.getItem('pvz_adventure_progress_v2')||'{}')}catch{return {}}})();return DAY1_LEVELS.filter(n=>(a.completedLevels||[]).includes(n)).length})()}/10 fases concluídas.</p></div>`}</div>`);
 };
 window.pvmShinyRoll=()=>{
  if(!day1Done()){notify('Conclua as 10 fases do Dia 1 primeiro.','error');return}
  const target=$('pvm-shiny-target')?.value;if(!target||!bridge()?.plants?.[target]){notify('Escolha uma planta liberada.','error');return}
  let p=getProgress();p.shiny=p.shiny||{};const used=Math.max(0,Number(p.shinyAttempts)||0);
  if(used>=3&&!bridge()?.spendCoins?.(75)){notify('Você precisa de 75 moedas para tentar novamente.','error');return}
- const old=p.shiny[target];if(old){delete p.shiny[target];$('pvm-shiny-old-note').textContent='A mutação anterior foi removida antes do novo sorteio. Ela não volta se você perder.';refreshShinyStats()}
+ const old=p.shiny[target];
  p.shinyAttempts=used+1;p.shiny=p.shiny||{};saveProgress(p);
  const result=$('pvm-shiny-result'),confirm=$('pvm-shiny-confirm');confirm.style.display='none';window.PVM_PENDING_SHINY=null;
- if(Math.random()<.05){const m=mutations[Math.floor(Math.random()*mutations.length)];window.PVM_PENDING_SHINY={target,mutation:m.id};result.innerHTML=`<span class="pvm-shiny-silver inline-block rounded-xl p-3">✨ SHINY! ${bridge().plants[target].name}<br><small>${m.name}: ${m.desc}</small></span>`;confirm.style.display='block';confirm.textContent='Confirmar '+m.name}
- else{result.textContent='❌ Perdeu, tente de novo! Não saiu SHINY.';notify('Não saiu SHINY desta vez.','info')}
+ if(Math.random()<.05){const m=mutations[Math.floor(Math.random()*mutations.length)];window.PVM_PENDING_SHINY={target,mutation:m.id};result.innerHTML=`<span class="pvm-shiny-silver inline-block rounded-xl p-3">✨ SHINY! ${bridge().plants[target].name}<br><small>${m.name}: ${m.desc}</small></span>`;confirm.style.display='block';confirm.textContent='Confirmar '+m.name;if($('pvm-shiny-old-note'))$('pvm-shiny-old-note').textContent=old?'A mutação atual continua ativa até você confirmar a nova.':'Esta será a primeira mutação SHINY da planta.'}
+ else{result.textContent='❌ Não saiu uma nova SHINY. Sua mutação anterior continua intacta.';notify('Não saiu SHINY desta vez; a mutação anterior foi preservada.','info')}
  const remain=Math.max(0,3-(p.shinyAttempts||0));const button=document.querySelector('#pvm-modal-content button[onclick="pvmShinyRoll()"]');if(button)button.textContent=remain?`✨ Invocar SHINY grátis (${remain})`:'Tentar SHINY • 75 moedas';
 };
 window.pvmShinyConfirm=()=>{const pending=window.PVM_PENDING_SHINY;if(!pending)return;const p=getProgress();p.shiny=p.shiny||{};p.shiny[pending.target]={id:pending.mutation};saveProgress(p);refreshShinyStats();window.PVM_PENDING_SHINY=null;notify(`✨ ${bridge().plants[pending.target].name} recebeu a mutação SHINY!`,'success');window.pvmShowShinyPanel()};
 // Open the Seu Zé's normal store from inside a running phase and resume it on close.
-window.pvmOpenZeDuringGame=()=>{const g=bridge()?.getGame?.(),wasRunning=!!g?.running;if(wasRunning)g.running=false;const opener=window.openShop;if(typeof opener!=='function'){if(wasRunning)g.running=true;notify('A loja do Seu Zé não carregou. Atualize o arquivo do jogo.','error');return}try{opener();const m=$('shop-modal');if(!m)throw new Error('Janela da loja não encontrada');let resumed=false;const resume=()=>{if(resumed)return;resumed=true;observer.disconnect();if(wasRunning&&$('screen-game')?.classList.contains('flex'))g.running=true};const observer=new MutationObserver(()=>{if(m.classList.contains('hidden'))resume()});observer.observe(m,{attributes:true,attributeFilter:['class']});}catch(err){if(wasRunning)g.running=true;console.error('Falha ao abrir a loja do Seu Zé:',err);notify('Não foi possível abrir a loja do Seu Zé.','error')}};
+window.pvmOpenZeDuringGame=()=>window.pvmOpenNecoDuringGame?.();
 // # STACKABLE WORLD EVENTS — concurrent events and mutations multiply their effects and expire independently.
 const EVENT_KEY='pvm_world_events_v2',LEGACY_EVENT_KEY='pvm_world_event_v1';
 let activeEvents=[],previousNoSky=null;
@@ -8041,7 +8150,7 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 </script>
 
 
-<!-- PvM 5.17: Fúria do TAF em 10% HP, zumbis de reforço atrasados, dano e plantas de laboratório corrigidos; Render-ready. -->
+<!-- PvM 5.21: SHINY reaplica atributos ao entrar na conta e ao receber planta na roleta; rerrolagem falha preserva mutação antiga; armaduras dobradas têm renderização própria; nome público atualizado para Rei de Papel. IDs internos preservados. -->
 <!--
 # MAPA DO CÓDIGO PvM 5.16
 # TAF (chefe): procure por "# BOSS SPAWNER", "# ADMIN SUMMON" e "# TAF UPDATE".
@@ -8310,7 +8419,7 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 </script>
 
 <!--
-# MAPA DO CÓDIGO PvM 5.17
+# MAPA DO CÓDIGO PvM 5.20
 # Códigos secretos (texto neutro na tela): procure por "function openCodes".
 # TAF: procura por "# TAF FURY", "# TAF MINIONS", "# TAF SUMMON ROSTER" e "# TAF VISUAL v2".
 # Vida padrão do TAF e limite: procure por "pvm-admin-taf-hp" e "PVM_ADMIN_SPAWN_TAF".
@@ -8318,5 +8427,121 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 # Plantas criadas no laboratório: procure por "# CUSTOM PLANTS LOAD", "# CUSTOM PLANTS UNLOCK", "# SEED UNLOCK LIST" e "# CUSTOM PLANT TO LOADOUT".
 # Configuração de publicação no Render: render.yaml na raiz do pacote.
 -->
+
+
+<!-- PvM Global Admin Hub: relay de eventos/comunicados/TAF entre jogadores online. -->
+<script>
+(()=>{
+ 'use strict';
+ const HUB_ID='pvm-global-admin-hub-2026-pvm';
+ const SOURCES=['https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js','https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js'];
+ let peer=null,role='client',connections=new Set(),retryTimer=null,loading=null,status='Conectando à central global…',lastAttempt=0;
+ const $=id=>document.getElementById(id);
+ const setStatus=value=>{status=value;const el=$('pvm-global-admin-status');if(el)el.textContent=value;};
+ const toast=(message,type='info')=>window.PVMBridge?.toast?.(message,type);
+ function loadPeer(){
+  if(window.Peer)return Promise.resolve(window.Peer);
+  if(loading)return loading;
+  loading=new Promise((resolve,reject)=>{let i=0;const next=()=>{if(window.Peer){resolve(window.Peer);return;}if(i>=SOURCES.length){reject(new Error('Não foi possível carregar o serviço de conexão.'));return;}const script=document.createElement('script');script.src=SOURCES[i++];script.async=true;script.onload=()=>window.Peer?resolve(window.Peer):next();script.onerror=next;document.head.appendChild(script);};next();});
+  return loading;
+ }
+ function activeGlobalEvents(){return (window.PVM_GET_WORLD_EVENTS?.()||[]).filter(e=>e&&e.source==='admin-hub'&&Number(e.endsAt)>Date.now());}
+ function send(conn,message){try{if(conn?.open){conn.send({pvmGlobalAdmin:'v1',...message});return true;}}catch(e){console.warn('PvM global relay send failed',e);}return false;}
+ function sendSnapshot(conn){send(conn,{type:'snapshot',events:activeGlobalEvents()});}
+ function removeConnection(conn){connections.delete(conn);updateHostStatus();}
+ function updateHostStatus(){if(role==='host')setStatus(`Central global ativa • ${connections.size} jogador(es) conectado(s). Mantenha esta aba aberta.`);}
+ function broadcast(message){let sent=0;for(const conn of [...connections])if(send(conn,message))sent++;return sent;}
+ function receive(message){
+  if(!message||message.pvmGlobalAdmin!=='v1')return;
+  if(message.type==='snapshot'){
+   const existing=(window.PVM_GET_WORLD_EVENTS?.()||[]).filter(e=>e?.source==='admin-hub');
+   existing.forEach(e=>window.PVM_REMOVE_WORLD_EVENT?.(e.id));
+   (Array.isArray(message.events)?message.events:[]).forEach(e=>window.PVM_ADD_WORLD_EVENT?.({...e,source:'admin-hub'}));
+  }else if(message.type==='event'&&message.event){window.PVM_ADD_WORLD_EVENT?.({...message.event,source:'admin-hub'});}
+  else if(message.type==='clear-global-events'){
+   (window.PVM_GET_WORLD_EVENTS?.()||[]).filter(e=>e?.source==='admin-hub').forEach(e=>window.PVM_REMOVE_WORLD_EVENT?.(e.id));
+  }else if(message.type==='taf'){
+   const ok=window.PVM_RECEIVE_TAF_BOSS?.(message.options||{});
+   if(!ok)toast('🐎 O administrador anunciou o TAF. Entre em uma partida sem outro chefe para recebê-lo.','info');
+  }else if(message.type==='notice'){
+   const title=String(message.title||'Comunicado da Administração').slice(0,90),body=String(message.body||'').slice(0,260);
+   toast(`📣 ${title}: ${body}`,'success');
+  }
+ }
+ function destroyPeer(){
+  for(const c of [...connections]){try{c.close();}catch{}}
+  connections.clear();try{peer?.destroy();}catch{}peer=null;
+ }
+ function scheduleReconnect(){
+  if(role==='host'||retryTimer)return;
+  retryTimer=setTimeout(()=>{retryTimer=null;connectAsPlayer();},9000);
+ }
+ async function connectAsPlayer(){
+  if(role==='host'||peer)return;
+  lastAttempt=Date.now();
+  try{
+   const PeerClass=await loadPeer();
+   if(role==='host'||peer)return;
+   const p=new PeerClass();peer=p;role='client';
+   p.on('open',()=>{
+    if(peer!==p||role==='host')return;
+    const conn=p.connect(HUB_ID,{reliable:true});let opened=false;
+    const timeout=setTimeout(()=>{if(!opened&&peer===p){try{p.destroy();}catch{}peer=null;setStatus('Central global ainda offline. Nova tentativa automática em instantes.');scheduleReconnect();}},8000);
+    conn.on('open',()=>{opened=true;clearTimeout(timeout);connections.add(conn);setStatus('Conectado à central global do PvM.');send(conn,{type:'hello'});});
+    conn.on('data',receive);
+    conn.on('close',()=>{clearTimeout(timeout);removeConnection(conn);if(peer===p&&role!=='host'){try{p.destroy();}catch{}peer=null;setStatus('Central global desconectada. Reconectando…');scheduleReconnect();}});
+    conn.on('error',()=>{clearTimeout(timeout);if(peer===p&&role!=='host'){try{p.destroy();}catch{}peer=null;scheduleReconnect();}});
+   });
+   p.on('error',()=>{if(peer===p&&role!=='host'){try{p.destroy();}catch{}peer=null;setStatus('Central global não encontrada. Nova tentativa automática em instantes.');scheduleReconnect();}});
+  }catch(e){setStatus(e.message+' Tentando novamente…');scheduleReconnect();}
+ }
+ async function startHost(){
+  if(role==='host'&&peer){updateHostStatus();return true;}
+  if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}
+  destroyPeer();role='starting';setStatus('Iniciando central global…');
+  try{
+   const PeerClass=await loadPeer();
+   const p=new PeerClass(HUB_ID);peer=p;
+   p.on('open',()=>{if(peer!==p)return;role='host';setStatus('Central global ativa • aguardando jogadores. Mantenha esta aba aberta.');toast('📡 Central global do PvM ativada.','success');});
+   p.on('connection',conn=>{
+    conn.on('open',()=>{connections.add(conn);sendSnapshot(conn);updateHostStatus();});
+    conn.on('data',message=>{if(message?.pvmGlobalAdmin==='v1'&&message.type==='hello')sendSnapshot(conn);});
+    conn.on('close',()=>removeConnection(conn));conn.on('error',()=>removeConnection(conn));
+   });
+   p.on('error',err=>{
+    if(peer!==p)return;
+    const msg=err?.type==='unavailable-id'?'A central já está aberta em outra sessão. Feche a outra aba de administrador.':`Falha na central global (${err?.type||'rede'}).`;
+    setStatus(msg);if(role==='starting'){try{p.destroy();}catch{}peer=null;role='client';scheduleReconnect();}
+   });
+   return true;
+  }catch(e){role='client';peer=null;setStatus('Não foi possível iniciar a central: '+e.message);scheduleReconnect();return false;}
+ }
+ window.PVM_GLOBAL_ADMIN={
+  startHost,
+  getStatus:()=>status,
+  getConnectedCount:()=>connections.size,
+  broadcastEvent:event=>broadcast({type:'event',event:{...event,source:'admin-hub'}}),
+  broadcastClear:()=>broadcast({type:'clear-global-events'}),
+  broadcastTAF:options=>broadcast({type:'taf',options}),
+  broadcastNotice:(title,body)=>broadcast({type:'notice',title,body})
+ };
+ setTimeout(()=>{if(role!=='host')connectAsPlayer();},1800);
+})();
+</script>
+
+
+<script>
+/* PvM 5.20 — Compatibilidade: toda chamada antiga à loja do Seu Zé abre apenas a loja do Neco. */
+(()=>{
+  'use strict';
+  window.openShop=()=>{
+    if(typeof window.openSeasonShop==='function')return window.openSeasonShop();
+    window.PVMBridge?.toast?.('A Loja do Neco ainda não carregou.','error');
+  };
+  window.pvmOpenZeDuringGame=()=>window.pvmOpenNecoDuringGame?.();
+  document.getElementById('btn-ze-midgame')?.remove();
+})();
+</script>
+
 </body>
 </html>
