@@ -8940,12 +8940,16 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
       return result;
     };
   }
-  wrap('damageZombie',(args)=>{
-    const zombie=args[0],before=Number(zombie?.hp);
-    if(!zombie||!(before>0))return;
-    const after=Number(zombie.hp);
-    if(after<=0)record('kills',1);
-  });
+  const originalDamageZombie=window.damageZombie;
+  if(typeof originalDamageZombie==='function'){
+    window.damageZombie=function(...args){
+      const zombie=args[0],before=Number(zombie?.hp);
+      const result=originalDamageZombie.apply(this,args);
+      const after=Number(zombie?.hp);
+      if(zombie&&before>0&&after<=0)record('kills',1);
+      return result;
+    };
+  }
   wrap('updateGame',()=>{
     const game=window.PVMBridge?.getGame?.();
     if(!game?.level||game.levelCompleted){lastTick=0;playBuffer=0;return;}
