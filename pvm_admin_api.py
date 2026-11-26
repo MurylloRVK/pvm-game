@@ -128,6 +128,11 @@ def _append_event_locked(kind: str, payload: dict[str, Any], origin_client_id: s
     return event_id
 
 
+@app.get("/")
+def index():
+    return jsonify({"ok": True, "service": "PvM Admin API", "health": "/health"})
+
+
 @app.get("/health")
 def health():
     # Não revela a senha nem o token; só informa se o servidor foi configurado.
