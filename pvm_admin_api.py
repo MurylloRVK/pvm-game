@@ -48,7 +48,6 @@ PROMO_CODE_SPECS = [
     {"id":"neco_treasury","label":"Tesouro do Neco","tier":"Épico","coins":3000,"xp":700,"action":"reward","message":"+3.000 moedas e +700 XP."},
     {"id":"garden_awakened","label":"Jardim Desperto","tier":"Lendário","coins":0,"xp":0,"action":"unlock_all","message":"Todo o conteúdo foi liberado neste navegador."},
     {"id":"chaos_authority","label":"Autoridade do Caos","tier":"Mítico","coins":0,"xp":0,"action":"chaos_mode","message":"Modo de caos extremo ativado."},
-    {"id":"aurafarmer_call","label":"Chamado do Aura Farmer","tier":"Mítico","coins":0,"xp":0,"action":"taf","message":"O Aura Farmer foi invocado."},
     {"id":"cosmic_mutation","label":"Ruptura Cósmica","tier":"Lendário","coins":900,"xp":350,"action":"mutation_event","eventType":"cosmic","durationSeconds":600,"message":"Evento Cósmico iniciado por 10 minutos: +900 moedas e +350 XP."},
 ]
 PROMO_CODE_PREFIX = "PVM-"
