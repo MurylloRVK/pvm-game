@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.24.0" name="application-version"/>
+<meta content="5.25.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -2459,7 +2459,14 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         const rarity=rarityName[seedRarityLabel(p,id)]||String(seedRarityLabel(p,id));
         const roleName={attack:'Ataque',defense:'Defesa',economy:'Economia',support:'Suporte'}[seedRole(id,p)];
         const damage=Number(p.damage)||0,hp=Number(p.hp)||300;
-        card.innerHTML=`<div class="flex items-center gap-2"><span class="text-3xl">${safe(p.emoji||'🌱')}</span><span class="min-w-0"><b class="block text-yellow-100 text-sm">${safe(p.name||id)}</b><small class="text-[10px] text-amber-200/80">${rarity} • ${roleName}</small></span></div><div class="mt-2 text-[10px] text-amber-100/80">☀️ ${Math.max(0,Number(p.cost)||0)} • ❤️ ${hp}${damage?` • ⚔️ ${damage}`:''}</div><div class="mt-1 text-[11px] font-bold ${on?'text-lime-200':'text-amber-200'}">${on?'✓ Selecionada':'＋ Adicionar'}</div>`;
+        card.innerHTML=`<div class="flex items-center gap-2"><canvas class="seed-card-preview shrink-0 rounded-lg bg-emerald-950/70 border border-emerald-700/40" width="92" height="72" aria-hidden="true"></canvas><span class="min-w-0"><b class="block text-yellow-100 text-sm">${safe(p.name||id)}</b><small class="text-[10px] text-amber-200/80">${rarity} • ${roleName}</small></span></div><div class="mt-2 text-[10px] text-amber-100/80">☀️ ${Math.max(0,Number(p.cost)||0)} • ❤️ ${hp}${damage?` • ⚔️ ${damage}`:''}</div><div class="mt-1 text-[11px] font-bold ${on?'text-lime-200':'text-amber-200'}">${on?'✓ Selecionada':'＋ Adicionar'}</div>`;
+        const plantCanvas=card.querySelector('canvas.seed-card-preview');
+        if(plantCanvas){
+          plantCanvas.dataset.noAnim='1';
+          drawAlmanacSprite(plantCanvas,'plant',id,0,.78);
+        }
+        card.setAttribute('aria-pressed',String(on));
+        card.setAttribute('aria-label',`${p.name||id} • ${on?'selecionada':'não selecionada'} • ${rarity}`);
         card.title=p.desc||p.name||id;card.disabled=!on&&selectedSeedPlants.length>=max;
         card.onclick=()=>{selectedSeedPreviewId=id;if(on)selectedSeedPlants=selectedSeedPlants.filter(x=>x!==id);else if(selectedSeedPlants.length<max)selectedSeedPlants.push(id);try{localStorage.setItem(SEED_LOADOUT_KEY,JSON.stringify(selectedSeedPlants));}catch{}renderSeedSelection();};
         grid.appendChild(card);
