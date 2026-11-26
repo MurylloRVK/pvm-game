@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.21.0" name="application-version"/>
+<meta content="5.22.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -7387,6 +7387,7 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
   invasion:{title:'Invasão dos Vilões',icon:'🎭',action:'startPvmVillainRaid',what:'Enfrente a formação de vilões do espetáculo em uma sequência especial de ondas.',context:'O grupo reúne figuras originais do PvM: Mestre de Cerimônias, Holofote, Fantasma de Neon e Roqueiro do Caos.',weak:'Mestre de Cerimônias: elimine o suporte antes que a horda se acumule. Holofote: interrompa o reforço. Fantasma de Neon: mantenha cobertura em mais de uma fileira. Roqueiro do Caos: concentre dano quando terminar a arrancada.'},
   villainGuide:{title:'Guia dos Vilões',icon:'🎭',action:'openVillainZombieGuide',what:'Consulte a ficha dos vilões, habilidades e dicas de enfrentamento.',context:'O guia reúne os inimigos especiais criados para o arco do espetáculo.',weak:'Use as fraquezas específicas exibidas em cada ficha; não tente enfrentar todos com a mesma formação.'},
   zombies:{title:'Almanaque de Zumbis',icon:'🧟',action:'openZombieGuide',what:'Abra a lista de zumbis e confira como cada tipo se comporta.',context:'Os inimigos possuem funções diferentes: avanço básico, armadura, suporte e habilidades especiais.',weak:'A ficha de cada um indica o melhor contra-jogo e o tipo de defesa recomendado.'},
+  zeShop:{title:'Loja do Seu Zé',icon:'🧢',action:'openShop',what:'A loja principal do Seu Zé oferece melhorias permanentes, cargas de martelo, espaços extras no pacote e plantas especiais.',context:'Use moedas comuns para comprar melhorias e liberar plantas para as próximas fases. O Seu Zé continua sendo o vendedor principal do jardim.',weak:'As compras e melhorias ficam salvas no navegador atual. Durante as partidas, o atalho de loja disponível é o do Neco.'},
   seasonShop:{title:'Loja da Temporada do Neco',icon:'🌟',action:'openSeasonShop',what:'Neco, primo do Seu Zé, traz 15 sementes exclusivas em um estoque aleatório. O estoque muda a cada cinco minutos e cada semente tem chance própria de aparecer.',context:'Sementes comuns aparecem com mais frequência e em maior quantidade. As mais raras aparecem pouco e normalmente têm apenas uma unidade. A rotação é calculada pelo relógio local deste navegador; não é um estoque global online.',weak:'As sementes usam Moedas do Passe. Confira o saldo e a quantidade disponível antes de comprar; a loja não tem reposição instantânea paga.'},
   wheel:{title:'Roleta',icon:'🎡',action:'openPlantWheel',what:'Escolha entre Roleta de Plantas e Roleta de Melhorias. A roleta de plantas sorteia por raridade; a outra entrega bônus permanentes.',context:'O índice mostra quais plantas pertencem à roleta e sua raridade. Plantas exclusivas da temporada não entram nesse sorteio.',weak:'As probabilidades são apresentadas antes de girar. Um prêmio raro não é garantido em uma quantidade pequena de tentativas.'},
   pass:{title:'Passe do Jardim',icon:'🎟️',action:'openPass',what:'Ganhe XP jogando, avance pelos 50 níveis e resgate as recompensas liberadas.',context:'Alguns níveis concedem Moedas do Passe, usadas exclusivamente na Loja da Temporada do Neco.',weak:'Não precisa gastar moedas comuns para subir níveis: o progresso depende do XP do passe.'},
@@ -7407,7 +7408,7 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
   battle:{title:'⚔️ Batalhas',desc:'Escolha a forma de jogar e disputar os jardins.',items:['warfront','pvb','localvs','onlinevs']},
   villains:{title:'🎭 Vilões e inimigos',desc:'Entre na invasão ou estude os inimigos antes de jogar.',items:['invasion','villainGuide','zombies']},
   collection:{title:'📚 Coleção e progresso',desc:'Desbloqueie plantas, consulte dados e evolua.',items:['pass','wheel','almanac','plantLab','zombieLab']},
-  shops:{title:'🛍️ Loja do jardim',desc:'A Loja da Temporada do Neco: sementes exclusivas, estoque rotativo e Moedas do Passe.',items:['seasonShop']},
+  shops:{title:'🛍️ Lojas',desc:'As duas lojas ficam disponíveis no menu antes da partida. Durante uma fase, somente o atalho do Neco aparece.',items:['zeShop','seasonShop']},
   more:{title:'☰ Mais opções',desc:'Recursos de conta, mensagens, códigos e administração.',items:['profile','mailbox','options','codes','chaos','admin','launch']}
  };
  window.pvmOpenGroup=key=>{const g=groups[key];if(!g)return;const cards=g.items.map(id=>{const m=modes[id];return `<button class="pvm-hub-card" onclick="pvmOpenModeHub('${id}')"><span class="text-3xl">${m.icon}</span><span class="min-w-0"><b>${esc(m.title)}</b><small>${esc(m.what)}</small></span><span class="text-yellow-200">›</span></button>`}).join('');show(g.title,`<p class="pvm-muted mb-3">${esc(g.desc)}</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${cards}</div>`)};
@@ -8150,7 +8151,7 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 </script>
 
 
-<!-- PvM 5.21: SHINY reaplica atributos ao entrar na conta e ao receber planta na roleta; rerrolagem falha preserva mutação antiga; armaduras dobradas têm renderização própria; nome público atualizado para Rei de Papel. IDs internos preservados. -->
+<!-- PvM 5.22: Seu Zé permanece acessível no menu e fica fora dos atalhos durante a partida; SHINY reaplica atributos ao entrar na conta e ao receber planta na roleta; rerrolagem falha preserva mutação antiga; armaduras dobradas têm renderização própria; nome público atualizado para Rei de Papel. IDs internos preservados. -->
 <!--
 # MAPA DO CÓDIGO PvM 5.16
 # TAF (chefe): procure por "# BOSS SPAWNER", "# ADMIN SUMMON" e "# TAF UPDATE".
@@ -8531,14 +8532,23 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
 
 
 <script>
-/* PvM 5.20 — Compatibilidade: toda chamada antiga à loja do Seu Zé abre apenas a loja do Neco. */
+/* PvM 5.22 — Seu Zé permanece na área Lojas do menu; durante a partida, o atalho de loja é somente o do Neco. */
 (()=>{
   'use strict';
-  window.openShop=()=>{
-    if(typeof window.openSeasonShop==='function')return window.openSeasonShop();
-    window.PVMBridge?.toast?.('A Loja do Neco ainda não carregou.','error');
+  const openZesMainShop=window.openShop;
+  window.openShop=function(...args){
+    const inMatch=document.getElementById('screen-game')?.classList.contains('flex');
+    if(inMatch){
+      if(typeof window.pvmOpenNecoDuringGame==='function')return window.pvmOpenNecoDuringGame();
+      window.PVMBridge?.toast?.('Durante a partida, a loja disponível é a do Neco.','info');
+      return;
+    }
+    if(typeof openZesMainShop==='function')return openZesMainShop.apply(this,args);
+    window.PVMBridge?.toast?.('A Loja do Seu Zé ainda não carregou.','error');
   };
+  // Compatibilidade com chamadas antigas: na partida, este atalho abre o Neco.
   window.pvmOpenZeDuringGame=()=>window.pvmOpenNecoDuringGame?.();
+  // Não exiba um segundo atalho de loja dentro do gramado.
   document.getElementById('btn-ze-midgame')?.remove();
 })();
 </script>
