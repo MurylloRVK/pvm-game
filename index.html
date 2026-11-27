@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.33.0" name="application-version"/>
+<meta content="5.34.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -1501,7 +1501,11 @@
       clockwork: { id:'clockwork', name:'Zumbi Autômato', hp:410, speed:16, damage:120, skin:'#a7f3d0', outfit:'#475569', hat:'clockwork', scale:1.06, ability:'skater', builtin:true },
       roof_herald: {id:'roof_herald',name:'Arauto das Antenas',hp:360,speed:14.5,damage:95,skin:'#a7f3d0',outfit:'#1e3a5f',hat:'none',scale:1.04,ability:'none',builtin:true},
       paper_warden: {id:'paper_warden',name:'Guardião de Dobradura',hp:320,armorHp:520,armorType:'paper',speed:13.2,damage:115,skin:'#ddd6fe',outfit:'#6d28d9',hat:'none',scale:1.13,ability:'none',builtin:true},
-      eclipse_sentinel: {id:'eclipse_sentinel',name:'Sentinela do Eclipse',hp:610,speed:10.8,damage:145,skin:'#c4b5fd',outfit:'#312e81',hat:'none',scale:1.22,ability:'none',builtin:true}
+      eclipse_sentinel: {id:'eclipse_sentinel',name:'Sentinela do Eclipse',hp:610,speed:10.8,damage:145,skin:'#c4b5fd',outfit:'#312e81',hat:'none',scale:1.22,ability:'none',builtin:true},
+      // Novos inimigos da Fábrica Subterrânea.
+      welder: {id:'welder',name:'Zumbi Soldador',hp:350,speed:15.5,damage:105,skin:'#a7f3d0',outfit:'#334155',hat:'welding',scale:1.02,ability:'welder',builtin:true},
+      forklift: {id:'forklift',name:'Zumbi Empilhadeira',hp:560,armorHp:680,armorType:'wood',speed:15.5,damage:155,skin:'#86efac',outfit:'#ca8a04',hat:'forklift',scale:1.18,ability:'forklift',builtin:true},
+      scrapdrone: {id:'scrapdrone',name:'Zumbi Drone de Sucata',hp:260,speed:16.5,damage:115,skin:'#a5f3fc',outfit:'#0f766e',hat:'drone',scale:.98,ability:'drone',builtin:true}
     };
 
     const ADVENTURE_WORLDS = [
@@ -1592,6 +1596,11 @@
           const roofNew=['disco','chef','beekeeper','painter','astronaut','plumber','magician','courier','lighthouse','clockwork'];
           roofNew.forEach((id,idx)=>{ if(canUse(id) && levelNo >= 5+Math.floor(idx/2)) addFromEnd(id, Math.min(2,1+Math.floor((levelNo-(5+Math.floor(idx/2)))/3)), 1); });
         }
+        if (worldIndex === 6) {
+          if(canUse('welder')&&levelNo>=3)addFromEnd('welder',Math.min(3,1+Math.floor((levelNo-3)/3)),1);
+          if(canUse('forklift')&&levelNo>=5)addFromEnd('forklift',Math.min(2,1+Math.floor((levelNo-5)/3)),1);
+          if(canUse('scrapdrone')&&levelNo>=6)addFromEnd('scrapdrone',Math.min(3,1+Math.floor((levelNo-6)/2)),1);
+        }
       }
       return plans;
     }
@@ -1623,9 +1632,9 @@
       else if(wi===3) enemies=['normal','cone','bucket','sprinter','newspaper','swimmer','snorkel',...(n>=4?['jumper']:[]),...(n>=6?['armored','healer','lifeguard','barrel']:[]),...(n>=8?['mechanic']:[]),...(n>=6?['cartomancer']:[])];
       else if(wi===4) enemies=['normal','cone','bucket','sprinter','armored','healer','newspaper','coffin','snorkel','jumper','barrel',...(n>=2?['ladder']:[]),...(n>=3?['bungee']:[]),...(n>=4?['catapult']:[]),...(n>=4?['mechanic']:[]),...(n>=5?['allstar','disco','chef']:[]),...(n>=6?['cartomancer','gong','beekeeper','painter']:[]),...(n>=7?['astronaut','plumber','magician']:[]),...(n>=8?['courier','lighthouse','clockwork']:[]),...(n>=7?['gargantuar']:[])];
       else if(wi===5) enemies=['normal',...(n>=2?['roof_herald']:[]),...(n>=4?['paper_warden']:[]),...(n>=6?['cone','jumper']:[]),...(n>=7?['eclipse_sentinel']:[]),...(n>=8?['gargantuar']:[])];
-      else enemies=['normal',...(n>=2?['mechanic','cone']:[]),...(n>=3?['clockwork','sprinter']:[]),...(n>=4?['lighthouse','bucket']:[]),...(n>=5?['magician','bungee']:[]),...(n>=6?['astronaut','plumber']:[]),...(n>=7?['catapult','gargantuar']:[]),...(n>=8?['courier','painter']:[])];
+      else enemies=['normal',...(n>=2?['mechanic','cone']:[]),...(n>=3?['clockwork','sprinter','welder']:[]),...(n>=4?['lighthouse','bucket']:[]),...(n>=5?['magician','bungee','forklift']:[]),...(n>=6?['astronaut','plumber','scrapdrone']:[]),...(n>=7?['catapult','gargantuar']:[]),...(n>=8?['courier','painter']:[])];
       const reward=PLANT_REWARDS[index+1]||null;
-      const subtitle=regentBoss?'O confronto final do Telhado Noturno: derrote o Regente do Eclipse em três etapas.':factoryBoss?'O Diretor NÉCRO-0 assumiu o controle da fábrica. Espere a abertura do núcleo para causar dano e sobreviva às máquinas de montagem.':wi===6?`Fábrica Subterrânea: bobinas, esteiras e prensas. ${factoryBeltRows.length} linha(s) podem acelerar os zumbis.${factoryPressEnabled? ` A prensa marca ${factoryPressRowCount} linha(s) e ${factoryPressColumnCount} coluna(s) antes de esmagar as plantas.`:' A prensa ainda está desligada nesta fase.'}`:wi===5?'Telhado Noturno: não caem sóis do céu. Vasos são obrigatórios e a Blood Moon pode reforçar a horda.':earlyDay?`Aprenda a defender ${rows} ${rows===1?'linha':'linhas'} do jardim. Os ataques aumentam aos poucos.`:wi===0?'Aprenda a posicionar suas defesas e administrar os sóis.':wi===1?'A noite chegou: não haverá sóis caindo do céu.':wi===2?'Use Vitória-régia para apoiar suas plantas nas casas de água.':wi===3?'A neblina cobre o gramado e a piscina. Observe cada linha.':'Use Vasos para apoiar suas plantas nas telhas inclinadas.';
+      const subtitle=regentBoss?'O confronto final do Telhado Noturno: derrote o Regente do Eclipse em três etapas.':factoryBoss?'O Diretor NÉCRO-0 assumiu o controle da fábrica. Espere a abertura do núcleo para causar dano e sobreviva às máquinas de montagem.':wi===6?`Fábrica Subterrânea: bobinas, esteiras, prensas e três novos funcionários zumbis. ${factoryBeltRows.length} linha(s) podem acelerar os zumbis.${factoryPressEnabled? ` A prensa marca ${factoryPressRowCount} linha(s) e ${factoryPressColumnCount} coluna(s) antes de esmagar as plantas.`:' A prensa ainda está desligada nesta fase.'}`:wi===5?'Telhado Noturno: não caem sóis do céu. Vasos são obrigatórios e a Blood Moon pode reforçar a horda.':earlyDay?`Aprenda a defender ${rows} ${rows===1?'linha':'linhas'} do jardim. Os ataques aumentam aos poucos.`:wi===0?'Aprenda a posicionar suas defesas e administrar os sóis.':wi===1?'A noite chegou: não haverá sóis caindo do céu.':wi===2?'Use Vitória-régia para apoiar suas plantas nas casas de água.':wi===3?'A neblina cobre o gramado e a piscina. Observe cada linha.':'Use Vasos para apoiar suas plantas nas telhas inclinadas.';
       let waves, waveEnemyCounts;
       if (wi === 0) {
         waveEnemyCounts = FIRST_WORLD_WAVES[n].slice();
@@ -2993,7 +3002,10 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         skateBurst: 0,
         minerBurrowTimer: 2.2 + Math.random() * 1.5,
         minerBurrowed: false,
-        minerHasEmerged: false
+        minerHasEmerged: false,
+        welderTimer:3.8+Math.random()*1.2,welderFlash:0,
+        forkliftCooldown:2.8+Math.random()*1.3,forkliftWindup:0,forkliftDash:0,
+        droneTimer:3.5+Math.random()*1.2,droneFlash:0
       });
     }
 
@@ -3792,6 +3804,36 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
             if (healedAny) spawnParticles(z.x, z.y - 36, '#86efac', 12);
           }
         }
+        // O Soldador recupera armadura, mas não cura a vida-base dos aliados.
+        if(z.ability==='welder'){
+          z.welderTimer-=dt;
+          if(z.welderFlash>0)z.welderFlash=Math.max(0,z.welderFlash-dt);
+          if(z.welderTimer<=0){
+            z.welderTimer=6.2;let repaired=0;
+            Game.zombies.forEach(ally=>{
+              if(ally===z||ally.friendly!==z.friendly||ally.isDying||ally.hp<=0||ally.maxArmorHp<=0||ally.armorHp>=ally.maxArmorHp)return;
+              if(ally.row===z.row&&Math.abs(ally.x-z.x)<=165){
+                const before=ally.armorHp;ally.armorHp=Math.min(ally.maxArmorHp,ally.armorHp+95);
+                if(ally.armorHp>before){repaired++;spawnParticles(ally.x-18,ally.y-24,'#fbbf24',8);}
+              }
+            });
+            if(repaired){z.welderFlash=.85;spawnParticles(z.x-20,z.y-32,'#fde68a',14);}
+          }
+        }
+        // O Drone de Sucata voa sobre as defesas e lança uma peça contra a planta mais próxima.
+        if(z.ability==='drone'){
+          z.droneTimer-=dt;
+          if(z.droneFlash>0)z.droneFlash=Math.max(0,z.droneFlash-dt);
+          if(z.droneTimer<=0){
+            z.droneTimer=5.8;
+            const target=Game.plants.filter(pl=>pl.row===z.row&&pl.x<z.x&&z.x-pl.x<GRID.cellW*5&&!PLANTS[pl.type]?.platform).sort((a,b)=>b.x-a.x)[0];
+            if(target){
+              target.hp-=125;z.droneFlash=.72;
+              spawnParticles(target.x,target.y-14,'#38bdf8',13);spawnParticles(z.x-8,z.y-44,'#67e8f9',8);
+              if(target.hp<=0)Game.plants=Game.plants.filter(pl=>pl!==target);
+            }
+          }
+        }
 
         if (z.slowTimer > 0) z.slowTimer = Math.max(0, z.slowTimer - dt);
         if (z.hasteTimer > 0) z.hasteTimer = Math.max(0, z.hasteTimer - dt);
@@ -3812,6 +3854,33 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         const factoryLaneBoost=Game.level?.theme==='factory'&&Game.factoryActiveTimer>0&&Game.factoryActiveRows?.includes(z.row)?1.28:1;
         const strongestBoost=Math.max(z.rage?1.62:1,z.hasteTimer>0?1.30:1,z.ability==='swimmer'&&inWater?1.36:1,z.ability==='allstar'&&z.armorHp>0?1.08:1,z.ability==='skater'&&z.skateBurst>0?1.85:1,factoryLaneBoost);
         const speedMod=(z.slowTimer>0?0.52:1)*strongestBoost*(z.id==='gargantuar'?0.48:1);
+
+        // A Empilhadeira avisa, avança em linha reta e atinge uma única planta por investida.
+        if(z.ability==='forklift'){
+          if(z.forkliftDash>0){
+            z.forkliftDash=Math.max(0,z.forkliftDash-dt);z.isWalking=true;z.walkPhase+=dt*15;
+            z.x-=z.speed*3.25*speedMod*dt;
+            const hitPlant=Game.plants.filter(pl=>pl.row===z.row&&z.x-pl.x>=3&&z.x-pl.x<48).sort((a,b)=>b.x-a.x)[0];
+            if(hitPlant){
+              hitPlant.hp-=285;hitPlant.tafStunTimer=Math.max(hitPlant.tafStunTimer||0,.75);
+              spawnParticles(hitPlant.x,hitPlant.y-8,'#f59e0b',17);spawnParticles(z.x-18,z.y-25,'#fde68a',12);
+              if(hitPlant.hp<=0)Game.plants=Game.plants.filter(pl=>pl!==hitPlant);
+              z.forkliftDash=0;z.forkliftCooldown=5.8;
+            }else if(z.forkliftDash===0)z.forkliftCooldown=5.8;
+            continue;
+          }
+          if(z.forkliftWindup>0){
+            z.forkliftWindup=Math.max(0,z.forkliftWindup-dt);z.isWalking=false;
+            if(z.forkliftWindup===0){z.forkliftDash=1.05;spawnParticles(z.x-18,z.y-22,'#fbbf24',10);}
+            continue;
+          }
+          z.forkliftCooldown-=dt;
+          if(z.forkliftCooldown<=0){
+            z.forkliftWindup=.85;z.isWalking=false;z.attackTimer=0;
+            showToast('⚠️ EMPILHADEIRA CARREGANDO! Ela vai avançar pela fileira '+(z.row+1)+'!','error');
+            spawnParticles(z.x-18,z.y-26,'#fbbf24',9);continue;
+          }
+        }
 
         // O Mineiro cava uma única vez e reaparece mais perto da casa, criando uma ameaça de retaguarda.
         // A pausa e os efeitos de terra dão ao jogador um aviso para reagir.
@@ -3837,7 +3906,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         const blockingCandidates = Game.plants.filter(p => p.row === z.row && (PLANTS[p.type]?.baseType||p.type) !== 'cherrybomb' && (PLANTS[p.type]?.baseType||p.type) !== 'potatomine' && z.x - p.x > 5 && z.x - p.x < 46);
         // A Abóbora recebe a mordida antes da planta guardada embaixo dela.
         const pumpkinShell = blockingCandidates.find(p => (PLANTS[p.type]?.baseType||p.type) === 'pumpkin');
-        const blockingPlant = z.ability === 'balloon' ? null : (pumpkinShell || blockingCandidates.find(p => !PLANTS[p.type]?.platform) || blockingCandidates[blockingCandidates.length - 1] || null);
+        const blockingPlant = (z.ability === 'balloon'||z.ability==='drone') ? null : (pumpkinShell || blockingCandidates.find(p => !PLANTS[p.type]?.platform) || blockingCandidates[blockingCandidates.length - 1] || null);
 
         // O Saltador ignora a primeira defesa uma única vez, com arco visível.
         if (blockingPlant && (z.ability === 'jumper' || (z.ability === 'allstar' && z.id === 'ladder' && pumpkinShell)) && !z.hasJumped && z.jumpTimer <= 0) {
@@ -5088,7 +5157,16 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       c.strokeStyle = '#0f172a';
       c.lineWidth = 2;
       const zid=z.id||'normal';
-      if(zid==='chef'){
+      if(zid==='welder'){
+        c.beginPath();c.moveTo(-17,-18-bob);c.lineTo(15,-18-bob);c.lineTo(19,18-bob);c.lineTo(-19,18-bob);c.closePath();c.fill();c.stroke();
+        c.fillStyle='#facc15';c.fillRect(-15,-5-bob,30,5);c.fillStyle='#64748b';c.fillRect(-12,4-bob,24,10);
+      }else if(zid==='forklift'){
+        c.beginPath();c.moveTo(-18,-18-bob);c.lineTo(18,-18-bob);c.lineTo(22,18-bob);c.lineTo(-22,18-bob);c.closePath();c.fill();c.stroke();
+        c.fillStyle='#fef08a';c.fillRect(-16,-9-bob,32,5);c.fillRect(-16,4-bob,32,5);c.fillStyle='#78350f';c.fillRect(-6,-17-bob,12,8);
+      }else if(zid==='scrapdrone'){
+        c.beginPath();c.roundRect(-16,-18-bob,32,33,9);c.fill();c.stroke();
+        c.fillStyle='#0e7490';c.fillRect(-20,-9-bob,7,20);c.fillRect(13,-9-bob,7,20);c.fillStyle='#67e8f9';c.fillRect(-8,-9-bob,16,5);
+      }else if(zid==='chef'){
         c.beginPath();c.moveTo(-13,-17-bob);c.lineTo(13,-17-bob);c.lineTo(21,14-bob);c.lineTo(11,20-bob);c.lineTo(-11,20-bob);c.lineTo(-21,14-bob);c.closePath();c.fill();c.stroke();
         c.fillStyle='#f8fafc';c.fillRect(-9,-10-bob,18,3);c.fillRect(-9,-2-bob,18,3);c.fillRect(-9,6-bob,18,3);
       }else if(zid==='beekeeper'){
@@ -5155,7 +5233,17 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
 
       // Acessórios / Armaduras de Cabeça
       const hat = z.hat || 'none';
-      if (hat === 'cone' && z.armorHp > 0) {
+      if(hat==='welding'){
+        c.fillStyle='#64748b';c.strokeStyle='#0f172a';c.lineWidth=2;c.beginPath();c.roundRect(-17,-55-bob,34,15,5);c.fill();c.stroke();
+        c.fillStyle='#facc15';c.fillRect(-13,-52-bob,26,5);c.fillStyle='#1e293b';c.fillRect(-9,-43-bob,18,6);
+      }else if(hat==='forklift'){
+        c.fillStyle='#eab308';c.strokeStyle='#713f12';c.lineWidth=2.5;c.beginPath();c.roundRect(-19,-56-bob,38,13,5);c.fill();c.stroke();
+        c.fillStyle='#fef3c7';c.fillRect(-8,-53-bob,16,4);c.strokeStyle='#facc15';c.lineWidth=4;c.beginPath();c.moveTo(-17,-8-bob);c.lineTo(-35,-8-bob);c.lineTo(-35,15-bob);c.lineTo(-49,15-bob);c.moveTo(-35,7-bob);c.lineTo(-49,7-bob);c.stroke();
+      }else if(hat==='drone'){
+        c.save();c.strokeStyle='#334155';c.lineWidth=3;c.beginPath();c.moveTo(-22,-53-bob);c.lineTo(22,-53-bob);c.moveTo(0,-60-bob);c.lineTo(0,-47-bob);c.stroke();
+        c.fillStyle='#38bdf8';c.strokeStyle='#0c4a6e';c.lineWidth=2;c.beginPath();c.arc(0,-56-bob,8,0,Math.PI*2);c.fill();c.stroke();
+        c.strokeStyle='#67e8f9';c.lineWidth=3;c.beginPath();c.moveTo(-31,-57-bob);c.lineTo(-13,-57-bob);c.moveTo(13,-57-bob);c.lineTo(31,-57-bob);c.stroke();c.restore();
+      }else if (hat === 'cone' && z.armorHp > 0) {
         const ratio=z.maxArmorHp?z.armorHp/z.maxArmorHp:1;
         c.fillStyle = '#f97316';c.beginPath();c.moveTo(-14,-42-bob);c.lineTo(14,-42-bob);c.lineTo(0,-70-bob);c.closePath();c.fill();c.stroke();
         c.strokeStyle='#7c2d12';c.lineWidth=2;
@@ -5266,6 +5354,9 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       }
 
       if(z.ability==='rage'&&z.rage){c.save();c.fillStyle='#fb923c';c.font='bold 16px Trebuchet MS';c.fillText('‼',13,-58-bob);c.restore();}
+      if(z.welderFlash>0){c.save();c.globalAlpha=Math.min(1,z.welderFlash*1.5);c.strokeStyle='#fde68a';c.lineWidth=2;for(let k=0;k<5;k++){const a=performance.now()/115+k*Math.PI*2/5,px=-22+Math.cos(a)*13,py=-27+Math.sin(a)*12;c.beginPath();c.moveTo(px-3,py-4);c.lineTo(px+3,py+4);c.moveTo(px+3,py-4);c.lineTo(px-3,py+4);c.stroke();}c.restore();}
+      if(z.droneFlash>0){c.save();c.globalAlpha=Math.min(1,z.droneFlash*1.5);c.strokeStyle='#67e8f9';c.lineWidth=3;c.beginPath();c.moveTo(0,-51-bob);c.lineTo(-10,-70-bob);c.stroke();c.fillStyle='#e0f2fe';c.beginPath();c.arc(-10,-70-bob,4,0,Math.PI*2);c.fill();c.restore();}
+      if(z.forkliftWindup>0||z.forkliftDash>0){c.save();c.globalAlpha=.7;c.strokeStyle='#facc15';c.lineWidth=3;c.setLineDash(z.forkliftDash>0?[]:[5,4]);c.beginPath();c.moveTo(-39,18);c.lineTo(-66,18);c.stroke();c.fillStyle='#fef08a';c.font='bold 9px Trebuchet MS';c.fillText(z.forkliftDash>0?'AVANÇO!':'CARREGANDO',-29,-70-bob);c.restore();}
       if(z.id==='bungee'&&z.bungeeTarget&&z.bungeeDropTimer>0){c.save();const pulse=.5+.5*Math.sin((1.35-z.bungeeDropTimer)*15);c.strokeStyle=`rgba(216,180,254,${.45+pulse*.45})`;c.lineWidth=3;c.setLineDash([5,4]);c.beginPath();c.moveTo(z.x+12,z.y-44);c.lineTo(z.bungeeTarget.x,z.bungeeTarget.y-20);c.stroke();c.setLineDash([]);c.strokeStyle='#e9d5ff';c.beginPath();c.arc(z.bungeeTarget.x,z.bungeeTarget.y-22,17+pulse*5,0,Math.PI*2);c.stroke();c.restore();}
       if(z.id==='catapult'&&z.catapultFlash>0){c.save();c.globalAlpha=Math.min(1,z.catapultFlash*2);c.fillStyle='#a3e635';c.beginPath();c.arc(18,-62-bob,6+Math.sin(walkPhase*5)*2,0,Math.PI*2);c.fill();c.strokeStyle='#ecfccb';c.lineWidth=2;c.beginPath();c.moveTo(15,-58-bob);c.lineTo(29,-42-bob);c.stroke();c.restore();}
       if(z.ability==='diver'&&z.diving){c.save();c.globalAlpha=.7;c.fillStyle='#bae6fd';c.font='bold 13px Trebuchet MS';c.fillText('◦',-19,-57-bob);c.fillText('◦',15,-65-bob);c.restore();}
@@ -7169,6 +7260,9 @@ magician:['Usa truques para confundir e trocar a posição dos zumbis.','Dano em
 courier:['Faz entregas em alta velocidade e atravessa a linha rapidamente.','Lentidão e dano de área.'],
 lighthouse:['Ilumina a linha e auxilia os zumbis próximos.','Priorize eliminá-lo para impedir suporte aos aliados.'],
 clockwork:['Autômato que alterna passos e arrancadas mecânicas.','Lentidão, congelamento e ataques fortes.'],
+welder:['Conserta a armadura de zumbis aliados próximos, mas não recupera a vida deles.','Elimine o Soldador antes que ele recupere a proteção dos inimigos resistentes.'],
+forklift:['Para por um instante, avisa a fileira e dispara em uma investida que causa dano alto a uma planta.','Observe o aviso amarelo e mantenha a defesa da fileira pronta para receber o impacto.'],
+scrapdrone:['Voa sobre as defesas terrestres e lança peças de sucata contra plantas da mesma fileira.','Ataques de longo alcance e plantas que acertam inimigos aéreos são boas respostas.'],
 ladder:['Carrega uma escada para passar por cima de defesas baixas.','Quebre a escada com dano concentrado.'],
 catapult:['Arremessa bolas contra plantas da mesma fileira.','A Folha-Guarda-Chuva bloqueia os projéteis nas casas cobertas; fora da área 3×3, use atacantes de longo alcance e dano rápido.'],
 bungee:['Marca uma planta antes de removê-la do gramado e pode soltar reforços na última onda do Telhado.','A Folha-Guarda-Chuva repele o ataque dentro da área 3×3; dano rápido também pode eliminar o Bungee antes do fim da marcação.']
