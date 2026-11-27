@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.32.0" name="application-version"/>
+<meta content="5.33.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -1313,7 +1313,7 @@
       cobcannon: { id:'cobcannon', name:'Canhão de Milho', cost:500, cooldown:50, hp:300, emoji:'🌽💣', color:'#eab308', damage:500, splashDamage:350, lobbed:true, attackInterval:8, desc:'Dispara um enorme projétil explosivo em arco.' },
       // Clássicas que faltavam no catálogo original. Cada uma recebe uma função própria no motor abaixo.
       cabbagepult: { id:'cabbagepult', name:'Repolhadora', cost:100, cooldown:7.5, hp:300, emoji:'🥬', color:'#65a30d', damage:40, attackInterval:2.45, lobbed:true, desc:'Arremessa repolhos em arco, ignorando obstáculos baixos. Uma das defesas principais do telhado.' },
-      umbrellaleaf: { id:'umbrellaleaf', name:'Folha-Guarda-Chuva', cost:100, cooldown:7.5, hp:300, emoji:'☂️', color:'#16a34a', support:true, desc:'Abre suas folhas para proteger plantas próximas e reduzir o dano recebido.' },
+      umbrellaleaf: { id:'umbrellaleaf', name:'Folha-Guarda-Chuva', cost:100, cooldown:7.5, hp:300, emoji:'☂️', color:'#16a34a', support:true, desc:'Protege a si mesma e até 8 plantas em uma área 3×3. Repele Bungees, bloqueia bolas da Catapulta e o impacto da Prensa; não detém Diabinhos lançados por Gargantuas.' },
       chomper: { id:'chomper', name:'Carnívora', cost:150, cooldown:7.5, hp:300, emoji:'🪴', color:'#a3e635', damage:1800, desc:'Engole um zumbi próximo de sua linha, mas precisa de um tempo para mastigar antes de atacar novamente.' },
       cactus: { id:'cactus', name:'Cacto', cost:125, cooldown:7.5, hp:300, emoji:'🌵', color:'#15803d', damage:20, range:7, attackInterval:1.65, desc:'Dispara espinhos retos e também consegue atingir inimigos que voam.' },
       splitpea: { id:'splitpea', name:'Ervilha-Dividida', cost:125, cooldown:7.5, hp:300, emoji:'🫛', color:'#22c55e', damage:20, range:7, attackInterval:1.65, desc:'Atira para a frente e, quando um inimigo se aproxima por trás, dispara uma ervilha na direção contrária.' },
@@ -2444,6 +2444,19 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       factoryPressCycleTimer:18,factoryPressWarningTimer:0,factoryPressWarningRows:[],factoryPressWarningCols:[]
     };
 
+    // Folha-Guarda-Chuva: cobertura ortogonal 3x3 (ela mesma + até oito casas vizinhas).
+    function getPlantGridColumn(plant){
+      if(Number.isFinite(plant?.col))return plant.col;
+      return Math.max(0,Math.min(GRID.cols-1,Math.floor(((Number(plant?.x)||GRID.offsetX)-GRID.offsetX)/GRID.cellW)));
+    }
+    function findUmbrellaCover(row,col){
+      return Game.plants.find(guard=>{
+        if((PLANTS[guard.type]?.baseType||guard.type)!=='umbrellaleaf')return false;
+        return Math.abs(Number(guard.row)-Number(row))<=1&&Math.abs(getPlantGridColumn(guard)-Number(col))<=1;
+      })||null;
+    }
+    function umbrellaCoveringPlant(plant){return plant?findUmbrellaCover(plant.row,getPlantGridColumn(plant)):null;}
+
     const SEED_LOADOUT_KEY='pvz_seed_loadout_v1';
     let pendingLevel=null, pendingCampaignIndex=-1, pendingRestart=false;
     let selectedSeedPlants=(()=>{try{return JSON.parse(localStorage.getItem(SEED_LOADOUT_KEY)||'[]').filter(id=>PLANTS[id]);}catch{return [];}})();
@@ -2895,6 +2908,19 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         const delay = (baseDelay + aquaticEntryDelay) * 1.28; // Entradas 28% mais espaçadas na atualização 5.4.
         Game.spawnQueue.push({ typeId, row, delay, flagCarrier:i===0 });
       }
+      // No Telhado, cada Bungee da última onda solta um pequeno par de zumbis sobre o gramado.
+      // A Folha-Guarda-Chuva rebate o grupo se a casa de chegada estiver dentro da cobertura 3x3.
+      if(waveNum===Game.level.waves&&(Game.level.worldIndex===4||Game.level.theme==='roof')){
+        const bungeeDrops=sequence.filter(id=>id==='bungee').length;
+        const dropTargets=Game.plants.filter(p=>!(PLANTS[p.type]?.platform)&&((PLANTS[p.type]?.baseType||p.type)!=='flowerpot')).slice();
+        for(let i=0;i<bungeeDrops;i++){
+          const pick=dropTargets.length?dropTargets.splice(Math.floor(Math.random()*dropTargets.length),1)[0]:null;
+          const row=pick?pick.row:Math.floor(Math.random()*GRID.rows);
+          const col=pick?getPlantGridColumn(pick):Math.floor(Math.random()*GRID.cols);
+          const x=pick?pick.x+32:GRID.offsetX+col*GRID.cellW+GRID.cellW*.5+32;
+          Game.spawnQueue.push({typeId:'normal',row,customX:x,delay:4.5+i*2.2,bungeeDrop:true,bungeeDropCol:col,bungeeDropCount:2});
+        }
+      }
       // Na última onda da Noite, as lápides ainda existentes revelam zumbis.
       if(waveNum===Game.level.waves && isNightTheme(Game.level.theme) && Game.level.theme!=='nightRoof' && Game.graves.length){
         Game.graves.forEach((grave,index)=>Game.spawnQueue.push({typeId:Game.level.zombies?.includes('gravewalker')?'gravewalker':'normal',row:grave.row,delay:(5+index*2)*1.28,graveKey:grave.key}));
@@ -3150,10 +3176,17 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           if(Game.factoryPressWarningTimer===0){
             const rows=Game.factoryPressWarningRows.slice();
             const cols=Game.factoryPressWarningCols.slice();
-            let hitCount=0;
+            let hitCount=0,shieldedCount=0;
             Game.plants.forEach(p=>{
-              const col=Number.isFinite(p.col)?p.col:Math.floor((p.x-GRID.offsetX)/GRID.cellW);
+              const col=getPlantGridColumn(p);
               if(rows.includes(p.row)&&cols.includes(col)){
+                const umbrella=findUmbrellaCover(p.row,col);
+                if(umbrella){
+                  shieldedCount++;
+                  spawnParticles(p.x,p.y,'#86efac',11);
+                  if(umbrella!==p)spawnParticles(umbrella.x,umbrella.y-20,'#bbf7d0',8);
+                  return;
+                }
                 p.hp=Math.max(0,(Number(p.hp)||0)-480);
                 p.tafStunTimer=Math.max(p.tafStunTimer||0,.65);
                 spawnParticles(p.x,p.y,'#f59e0b',12);
@@ -3162,10 +3195,14 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
             });
             Game.plants=Game.plants.filter(p=>p.hp>0);
             SoundFX.explosion();
-            showToast(hitCount
-              ?'🔩 PRENSA DE MONTAGEM! O setor marcado foi esmagado. As plantas atingidas perderam vida e ficaram brevemente travadas.'
-              :'🔩 A prensa atingiu o setor vazio. As casas marcadas ficaram livres.',
-              hitCount?'error':'info');
+            const pressMessage=hitCount&&shieldedCount
+              ?`🔩 A prensa atingiu o setor: ${shieldedCount} planta(s) protegida(s) pela Folha-Guarda-Chuva; ${hitCount} sofreu(ram) o impacto.`
+              :shieldedCount
+                ?`☂️ Folha-Guarda-Chuva! Protegeu ${shieldedCount} planta(s) do impacto da prensa.`
+                :hitCount
+                  ?'🔩 PRENSA DE MONTAGEM! As plantas atingidas perderam 480 de vida e ficaram brevemente travadas.'
+                  :'🔩 A prensa atingiu o setor vazio. As casas marcadas ficaram livres.';
+            showToast(pressMessage,hitCount?'error':shieldedCount?'success':'info');
             Game.factoryPressWarningRows=[];
             Game.factoryPressWarningCols=[];
             Game.factoryPressCycleTimer=(Game.level.levelNo||1)>=7?14.5:18;
@@ -3233,7 +3270,19 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           const next = Game.spawnQueue.shift();
           Game.spawnTimer = 0;
           if (!Game.waveSpawnCuePlayed) { SoundFX.zombiesApproach(); Game.waveSpawnCuePlayed = true; showWaveBanner(Game.currentWave===1?'OS ZUMBIS ESTÃO CHEGANDO!':`ONDA ${Game.currentWave}!`,'⚑ ZUMBI DA BANDEIRA'); }
-          if(next.graveKey){const grave=Game.graves.find(g=>g.key===next.graveKey);if(grave){const x=GRID.offsetX+grave.col*GRID.cellW+GRID.cellW/2;spawnZombie(next.typeId,next.row,x,next.flagCarrier);Game.graves=Game.graves.filter(g=>g!==grave);spawnParticles(x,GRID.offsetY+next.row*GRID.cellH+GRID.cellH*.55,'#94a3b8',12);}else spawnZombie(next.typeId,next.row,next.customX??LOGICAL_W+30,next.flagCarrier);}else spawnZombie(next.typeId, next.row,LOGICAL_W+30,next.flagCarrier);
+          if(next.bungeeDrop){
+            const x=next.customX??(GRID.offsetX+next.bungeeDropCol*GRID.cellW+GRID.cellW/2),y=GRID.offsetY+next.row*GRID.cellH+GRID.cellH*.55;
+            const umbrella=findUmbrellaCover(next.row,next.bungeeDropCol);
+            if(umbrella){
+              spawnParticles(x,y-28,'#86efac',22);spawnParticles(umbrella.x,umbrella.y-25,'#bbf7d0',14);
+              showToast('☂️ A Folha-Guarda-Chuva rebateu os zumbis soltos pelos Bungees!','success');
+            }else{
+              const amount=Math.max(1,Math.min(3,Number(next.bungeeDropCount)||2));
+              for(let i=0;i<amount;i++)spawnZombie(next.typeId,next.row,x+i*39,false);
+              spawnParticles(x,y-32,'#c084fc',17);
+              showToast('🪝 Os Bungees soltaram reforços no telhado!','error');
+            }
+          }else if(next.graveKey){const grave=Game.graves.find(g=>g.key===next.graveKey);if(grave){const x=GRID.offsetX+grave.col*GRID.cellW+GRID.cellW/2;spawnZombie(next.typeId,next.row,x,next.flagCarrier);Game.graves=Game.graves.filter(g=>g!==grave);spawnParticles(x,GRID.offsetY+next.row*GRID.cellH+GRID.cellH*.55,'#94a3b8',12);}else spawnZombie(next.typeId,next.row,next.customX??LOGICAL_W+30,next.flagCarrier);}else spawnZombie(next.typeId, next.row,LOGICAL_W+30,next.flagCarrier);
         }
       } else if (Game.zombies.length === 0 && !Game.boss) {
         if (Game.currentWave < Game.level.waves) {
@@ -3665,9 +3714,16 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           if (z.bungeeDropTimer > 0) {
             z.bungeeDropTimer = Math.max(0, z.bungeeDropTimer - dt);
             if (z.bungeeDropTimer === 0 && z.bungeeTarget && Game.plants.includes(z.bungeeTarget)) {
-              const target=z.bungeeTarget;Game.plants=Game.plants.filter(pl=>pl!==target);
-              spawnParticles(target.x,target.y-18,'#c084fc',18);spawnParticles(target.x,target.y-38,'#e9d5ff',10);
-              showToast('🪝 O Zumbi Bungee levou uma planta!', 'error');
+              const target=z.bungeeTarget,umbrella=umbrellaCoveringPlant(target);
+              if(umbrella){
+                spawnParticles(target.x,target.y-18,'#86efac',16);
+                spawnParticles(umbrella.x,umbrella.y-24,'#bbf7d0',12);
+                showToast('☂️ Folha-Guarda-Chuva! O Zumbi Bungee foi repelido.','success');
+              }else{
+                Game.plants=Game.plants.filter(pl=>pl!==target);
+                spawnParticles(target.x,target.y-18,'#c084fc',18);spawnParticles(target.x,target.y-38,'#e9d5ff',10);
+                showToast('🪝 O Zumbi Bungee levou uma planta!', 'error');
+              }
             }
             if (z.bungeeDropTimer === 0) { z.bungeeTarget=null;z.bungeeTimer=9.5; }
           } else {
@@ -3686,7 +3742,17 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           if (z.catapultTimer <= 0) {
             z.catapultTimer=4.8;z.catapultFlash=.55;
             const target=Game.plants.filter(pl=>pl.row===z.row && pl.x<z.x && z.x-pl.x<GRID.cellW*4).sort((a,b)=>b.x-a.x)[0];
-            if(target){target.hp-=78;spawnParticles(target.x,target.y-16,'#84cc16',10);spawnParticles(z.x-8,z.y-42,'#a3e635',7);}
+            if(target){
+              const umbrella=umbrellaCoveringPlant(target);
+              if(umbrella){
+                spawnParticles(target.x,target.y-15,'#86efac',14);
+                spawnParticles(umbrella.x,umbrella.y-24,'#bbf7d0',10);
+              }else{
+                target.hp-=78;spawnParticles(target.x,target.y-16,'#84cc16',10);
+                if(target.hp<=0)Game.plants=Game.plants.filter(pl=>pl!==target);
+              }
+              spawnParticles(z.x-8,z.y-42,umbrella?'#bbf7d0':'#a3e635',7);
+            }
           }
         }
         if (z.catapultFlash > 0) z.catapultFlash=Math.max(0,z.catapultFlash-dt);
@@ -6759,7 +6825,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         gatlingpea:['Uma evolução experimental que aumenta a quantidade de projéteis sem mudar o princípio da ervilha.','Aproveita melhor linhas longas e deve ficar atrás de uma defesa resistente.','O protótipo original disparava tão rápido que esvaziava o próprio saco de sementes.'],
         cabbagepult:['Foi desenvolvida para o telhado, onde disparos retos encontram obstáculos e diferenças de altura.','Arremessa repolhos em arco e pode atacar sem depender de uma trajetória rente ao chão.','Seu Zé afirma que cada repolho é pesado antes de entrar no lançador.'],
         kernelpult:['Nasceu de testes com espigas selecionadas no quintal e virou uma das primeiras lançadoras de projéteis em arco.','O milho causa dano direto; a manteiga pode interromper o avanço do alvo por um momento.','A equipe ainda discute se o estoque de manteiga deve ficar no laboratório ou na geladeira.'],
-        umbrellaleaf:['Foi catalogada depois que objetos começaram a cair sobre as plantas durante os testes no telhado.','Mantém uma cobertura protetora sobre plantas próximas.','Em dias de chuva, Seu Zé insiste que também serve como guarda-chuva de verdade.'],
+        umbrellaleaf:['Foi catalogada depois que objetos começaram a cair sobre as plantas durante os testes no telhado.','Abre uma cobertura 3×3: protege a si mesma e até oito plantas vizinhas contra Bungees, projéteis da Catapulta e o impacto das prensas.','Na última onda do Telhado, também rebate os reforços soltos pelos Bungees. Não consegue deter Diabinhos lançados por Gargantuas.'],
         flowerpot:['Um vaso reforçado permite cultivar plantas em telhados inclinados sem que deslizem.','É uma plataforma: precisa ser colocada antes da planta que ficará apoiada nele.','Cada vaso tem uma marca de giz indicando qual lado deve ficar voltado para a rua.'],
         imitater:['A Imitadora surgiu de um experimento de camuflagem botânica. Ela observa outra planta e reproduz sua forma e função.','Escolha uma planta do pacote para copiar. Depois de usada, a Imitadora tem uma recarga de transformação maior.','Os registros dizem que ela tentou copiar uma Noz-Muralha e ficou imóvel por quase uma hora.']
       };
@@ -7104,8 +7170,8 @@ courier:['Faz entregas em alta velocidade e atravessa a linha rapidamente.','Len
 lighthouse:['Ilumina a linha e auxilia os zumbis próximos.','Priorize eliminá-lo para impedir suporte aos aliados.'],
 clockwork:['Autômato que alterna passos e arrancadas mecânicas.','Lentidão, congelamento e ataques fortes.'],
 ladder:['Carrega uma escada para passar por cima de defesas baixas.','Quebre a escada com dano concentrado.'],
-catapult:['Arremessa projéteis contra plantas na mesma fileira.','Atacantes de longo alcance e dano rápido.'],
-bungee:['Marca uma planta antes de removê-la do gramado.','Guarda-chuva e dano rápido antes do fim da marcação.']
+catapult:['Arremessa bolas contra plantas da mesma fileira.','A Folha-Guarda-Chuva bloqueia os projéteis nas casas cobertas; fora da área 3×3, use atacantes de longo alcance e dano rápido.'],
+bungee:['Marca uma planta antes de removê-la do gramado e pode soltar reforços na última onda do Telhado.','A Folha-Guarda-Chuva repele o ataque dentro da área 3×3; dano rápido também pode eliminar o Bungee antes do fim da marcação.']
 };
 window.openZombieGuide=()=>{const entries=Object.values(window.PVMBridge?.allZombies?.()||window.PVMBridge?.zombies||{});const html=entries.map(z=>{const t=zombieTips[z.id]||['Tem uma habilidade própria descrita no Almanaque.','Observe o equipamento e ataque a fraqueza correspondente.'];return `<div class="pvm-reward"><b>${escapeHtml(z.name)}</b><div class="pvm-muted mt-1">${escapeHtml(t[0])}</div><div class="text-xs text-lime-200 mt-1"><b>Fraqueza:</b> ${escapeHtml(t[1])}</div></div>`}).join('');modal('📚 Almanaque dos Zumbis',`<p class="pvm-muted mb-3">Lista de zumbis nativos, suas habilidades e formas de enfrentá-los. Novos inimigos do telhado também aparecem aqui quando registrados.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-2">${html}</div>`)};
 
