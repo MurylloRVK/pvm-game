@@ -1658,7 +1658,7 @@
     function completeAdventureLevel(i){if(i<0||i>=70)return;const n=i+1;if(!adventureProgress.completedLevels.includes(n))adventureProgress.completedLevels.push(n);adventureProgress.maxUnlockedLevel=Math.min(70,Math.max(adventureProgress.maxUnlockedLevel,n+1));const reward=CAMPAIGN_LEVELS[i].rewardPlant;if(reward&&!adventureProgress.unlockedPlants.includes(reward)){adventureProgress.unlockedPlants.push(reward);showToast(`🌱 Nova planta liberada: ${PLANTS[reward].name}!`,'success');}saveAdventureProgress();}
     function isCampaignLevelUnlocked(i){return i>=0&&i<70&&(allContentUnlocked||i<adventureProgress.maxUnlockedLevel);}
 
-    function isNightTheme(theme) { return ['night','fog','fogNight','nightRoof'].includes(theme); }
+    function isNightTheme(theme) { return ['night','fog','fogNight','nightRoof','factory'].includes(theme); }
     function isMushroomSleeping(plant) { return !!PLANTS[plant.type]?.mushroom && !isNightTheme(Game.level?.theme) && !plant.awake; }
     const PlantLabSettings = { damageMultiplier: 1, attackSpeedMultiplier: 1, freePlants: false };
     const PLANT_LAB_KEY='pvz_plant_lab_designs_v1';
@@ -4043,7 +4043,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
 
       // Desenha o Tabuleiro de Gramado 5x9; cada aventura altera o clima do jardim.
       const theme = Game.level?.theme || 'day';
-      const lawnPalettes = { day:['#4ade80','#22c55e'],sunset:['#82c95b','#68ad45'],night:['#315b43','#244735'],mist:['#6eaa72','#558f62'],pool:['#55c76b','#3fae56'],fog:['#527c69','#3b6657'],roof:['#a65c35','#87452c'],nightRoof:['#553d46','#3c2c3c'],fogNight:['#3d5b5d','#294547'] };
+      const lawnPalettes = { day:['#4ade80','#22c55e'],sunset:['#82c95b','#68ad45'],night:['#315b43','#244735'],mist:['#6eaa72','#558f62'],pool:['#55c76b','#3fae56'],fog:['#527c69','#3b6657'],roof:['#a65c35','#87452c'],nightRoof:['#553d46','#3c2c3c'],fogNight:['#3d5b5d','#294547'],factory:['#4b5563','#374151'] };
       const lawn = lawnPalettes[theme] || lawnPalettes.day;
       const waterRows = Array.isArray(Game.level?.waterRows) ? Game.level.waterRows : [];
       for (let r = 0; r < GRID.rows; r++) {
@@ -6783,7 +6783,8 @@ const prizePlants={
   prismpea:{id:'prismpea',name:'Ervilha Prismática',baseType:'peashooter',cost:125,cooldown:7.5,hp:330,damage:48,emoji:'💠',color:'#67e8f9',desc:'Dispara uma ervilha prismática de dano elevado.'},
   sunflare:{id:'sunflare',name:'Girassol Solar',baseType:'sunflower',cost:100,cooldown:8,hp:340,sunInterval:6.8,emoji:'🌞',color:'#fbbf24',desc:'Produz sóis com intervalo menor.'},
   ironwall:{id:'ironwall',name:'Noz de Ferro',baseType:'wallnut',cost:125,cooldown:18,hp:4200,emoji:'🛡️',color:'#94a3b8',desc:'Uma defesa muito resistente.'},
-  echoShroom:{id:'echoShroom',name:'Cogumelo Eco',baseType:'fumeshroom',cost:125,cooldown:9,hp:320,damage:42,emoji:'🍄',color:'#c084fc',desc:'Libera uma nuvem de esporos reforçada.'}
+  echoShroom:{id:'echoShroom',name:'Cogumelo Eco',baseType:'fumeshroom',cost:125,cooldown:9,hp:320,damage:42,emoji:'🍄',color:'#c084fc',desc:'Libera uma nuvem de esporos reforçada.'},
+  cosmobarrage:{id:'cosmobarrage',name:'Cosmo-Bombardeira',baseType:'cabbagepult',cost:275,cooldown:8,hp:460,damage:84,emoji:'☄️',color:'#67e8f9',desc:'Projéteis celestiais de alto impacto.'}
 };
 Object.assign(window.PVMBridge.plants,prizePlants);
 
