@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.29.0" name="application-version"/>
+<meta content="5.30.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -1601,8 +1601,15 @@
       6:[4,4,3], 7:[4,4,4], 8:[4,5,4], 9:[5,5,5], 10:[5,5,6]
     };
 
+    // Esteiras da Fábrica: linhas indexadas de 0 a 4 (de cima para baixo).
+    // Fases 61-65: até três linhas; 66-68: uma ou duas; 69-70: as cinco.
+    const FACTORY_BELT_ROWS = {
+      1:[2], 2:[1,3], 3:[0,2,4], 4:[0,1,3], 5:[0,2,4],
+      6:[2], 7:[0,4], 8:[1,3], 9:[0,1,2,3,4], 10:[0,1,2,3,4]
+    };
     const CAMPAIGN_LEVELS = ADVENTURE_WORLDS.flatMap((world,wi)=>Array.from({length:10},(_,li)=>{
       const n=li+1, index=wi*10+li, regentBoss=wi===5&&n===10, factoryBoss=wi===6&&n===10, finalBoss=regentBoss||factoryBoss;
+      const factoryBeltRows=wi===6?(FACTORY_BELT_ROWS[n]||[]).slice():[];
       const theme=wi===5?'nightRoof':(wi===3&&n===5?'fogNight':world.theme);
       const earlyDay = wi===0 && n<=3;
       const rows = wi===0 ? (n===1 ? 1 : (n<=3 ? 3 : 5)) : (world.waterRows.length ? 6 : 5);
@@ -1615,7 +1622,7 @@
       else if(wi===5) enemies=['normal',...(n>=2?['roof_herald']:[]),...(n>=4?['paper_warden']:[]),...(n>=6?['cone','jumper']:[]),...(n>=7?['eclipse_sentinel']:[]),...(n>=8?['gargantuar']:[])];
       else enemies=['normal',...(n>=2?['mechanic','cone']:[]),...(n>=3?['clockwork','sprinter']:[]),...(n>=4?['lighthouse','bucket']:[]),...(n>=5?['magician','bungee']:[]),...(n>=6?['astronaut','plumber']:[]),...(n>=7?['catapult','gargantuar']:[]),...(n>=8?['courier','painter']:[])];
       const reward=PLANT_REWARDS[index+1]||null;
-      const subtitle=regentBoss?'O confronto final do Telhado Noturno: derrote o Regente do Eclipse em três etapas.':factoryBoss?'O Diretor NÉCRO-0 assumiu o controle da fábrica. Espere a abertura do núcleo para causar dano e sobreviva às máquinas de montagem.':wi===6?'Fábrica Subterrânea: bobinas energizadas, esteiras e máquinas de montagem reforçam a horda.':wi===5?'Telhado Noturno: não caem sóis do céu. Vasos são obrigatórios e a Blood Moon pode reforçar a horda.':earlyDay?`Aprenda a defender ${rows} ${rows===1?'linha':'linhas'} do jardim. Os ataques aumentam aos poucos.`:wi===0?'Aprenda a posicionar suas defesas e administrar os sóis.':wi===1?'A noite chegou: não haverá sóis caindo do céu.':wi===2?'Use Vitória-régia para apoiar suas plantas nas casas de água.':wi===3?'A neblina cobre o gramado e a piscina. Observe cada linha.':'Use Vasos para apoiar suas plantas nas telhas inclinadas.';
+      const subtitle=regentBoss?'O confronto final do Telhado Noturno: derrote o Regente do Eclipse em três etapas.':factoryBoss?'O Diretor NÉCRO-0 assumiu o controle da fábrica. Espere a abertura do núcleo para causar dano e sobreviva às máquinas de montagem.':wi===6?`Fábrica Subterrânea: bobinas energizadas e esteiras móveis. Nesta fase, ${factoryBeltRows.length} de 5 linhas podem acelerar os zumbis; as demais ficam normais.`:wi===5?'Telhado Noturno: não caem sóis do céu. Vasos são obrigatórios e a Blood Moon pode reforçar a horda.':earlyDay?`Aprenda a defender ${rows} ${rows===1?'linha':'linhas'} do jardim. Os ataques aumentam aos poucos.`:wi===0?'Aprenda a posicionar suas defesas e administrar os sóis.':wi===1?'A noite chegou: não haverá sóis caindo do céu.':wi===2?'Use Vitória-régia para apoiar suas plantas nas casas de água.':wi===3?'A neblina cobre o gramado e a piscina. Observe cada linha.':'Use Vasos para apoiar suas plantas nas telhas inclinadas.';
       let waves, waveEnemyCounts;
       if (wi === 0) {
         waveEnemyCounts = FIRST_WORLD_WAVES[n].slice();
@@ -1634,7 +1641,7 @@
         sunInterval:(world.noSkySun||theme==='fogNight'||theme==='nightRoof')?0:9.5,
         skySunFirstDelay:3.5, firstSpawnDelay, spawnIntervalMin, spawnIntervalMax, waveBreak:8,
         noSkySun:world.noSkySun||theme==='fogNight'||theme==='nightRoof'||theme==='factory',waves,waveEnemyCounts,wavePlans,enemiesPerWave:Math.max(...waveEnemyCounts),zombies:enemies,hasBoss:finalBoss,bossType:regentBoss?'regent':factoryBoss?'factory':undefined,bossName:regentBoss?'🎼 O Regente do Eclipse':factoryBoss?'⚙️ DIRETOR NÉCRO-0':undefined,bossHp:regentBoss?8200:factoryBoss?22000:undefined,
-        theme,rows,waterRows:world.waterRows.slice(),fogStartCol:(theme==='fog'||theme==='fogNight')?(n<=1?6:(n<=3?5:(n<=6?4:3))):null,requiresPot:!!world.requiresPot,rewardPlant:reward,rewardPlantName:reward?(PLANTS[reward]?.name||({prismpea:'Ervilha Prismática',cosmobarrage:'Cosmo-Bombardeira'}[reward]||reward)):null,
+        theme,rows,waterRows:world.waterRows.slice(),factoryBeltRows,fogStartCol:(theme==='fog'||theme==='fogNight')?(n<=1?6:(n<=3?5:(n<=6?4:3))):null,requiresPot:!!world.requiresPot,rewardPlant:reward,rewardPlantName:reward?(PLANTS[reward]?.name||({prismpea:'Ervilha Prismática',cosmobarrage:'Cosmo-Bombardeira'}[reward]||reward)):null,
         previewEmoji:regentBoss?'🎼':factoryBoss?'⚙️':wi===0?'🧟':wi===1?'🌙🧟':wi===2?'🧟🏊':wi===3?'🌫️🧟':wi===5?'🌙🏠🧟':wi===6?'⚙️🧟':'🧟🏠'};
     }));
 
@@ -2305,6 +2312,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       47:[['Seu Zé','O Telhado Noturno está ficando perigoso. Repare no medidor da Blood Moon.','👨‍🌾'],['Seu Zé','Quando o aviso aparecer, fortaleça as linhas frágeis. A lua pode trazer reforços extras.','👨‍🌾']],
       49:[['Seu Zé','O Regente do Eclipse está preparando o palco. Não ataque sem observar o aviso de cada movimento.','👨‍🌾'],['Seu Zé','Espere a abertura depois de cada ataque para contra-atacar. Boa sorte!','👨‍🌾']],
       60:[['Seu Zé','Encontramos a entrada de uma fábrica subterrânea. Os zumbis estão usando máquinas para reforçar a horda.','👨‍🌾'],['Seu Zé','As bobinas soltam pulsos e as esteiras mudam o ritmo das ondas. Observe o gramado antes de gastar todos os sóis.','👨‍🌾']],
+      68:[['Seu Zé','As cinco esteiras foram ligadas ao mesmo tempo. Agora qualquer linha pode acelerar os zumbis.','👨‍🌾'],['Seu Zé','A próxima máquina está no núcleo. Repare nos avisos: quando todas as faixas ficarem vermelhas, prepare as cinco linhas!','👨‍🌾']],
       69:[['Seu Zé','O Diretor NÉCRO-0 está no núcleo da fábrica. O escudo dele fecha depois de cada sequência de ataques.','👨‍🌾'],['Seu Zé','Aproveite o momento em que o núcleo fica exposto para atacar. Se a máquina começar a carregar, prepare as linhas marcadas!','👨‍🌾']]
     };
     function showStoryDialogue(levelIndex,onFinish){activeStoryLines=STORY_DIALOGUES[levelIndex]||[];activeStoryIndex=0;activeStoryLevel=levelIndex;if(!activeStoryLines.length){onFinish?.();return;}window.storyDialogueFinish=onFinish;renderStoryDialogue();const m=document.getElementById('story-dialogue-modal');m.classList.remove('hidden');m.classList.add('flex');}
@@ -2374,7 +2382,8 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       levelCompleted: false,
       cobCannonAim: null,
       hoverCell: null,
-      bloodMoonMeter:0,bloodMoonWarning:0,bloodMoonActiveTimer:0,bloodMoonSpawnTimer:0,bloodMoonDone:false
+      bloodMoonMeter:0,bloodMoonWarning:0,bloodMoonActiveTimer:0,bloodMoonSpawnTimer:0,bloodMoonDone:false,
+      factoryBeltCycleTimer:6.5,factoryBeltWarningTimer:0,factoryBeltWarningRow:-1,factoryBeltLastRow:-1,factoryActiveTimer:0,factoryActiveRows:[]
     };
 
     const SEED_LOADOUT_KEY='pvz_seed_loadout_v1';
@@ -2525,6 +2534,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if(Game.matchMode==='localvs'||Game.matchMode==='onlinevs'){Game.vsBrains=125;Game.vsSelectedZombie='normal';Game.vsSelectedLane=2;Game.vsMatchTimer=180;Game.vsHasSpawned=false;}
       if(Game.matchMode==='pvb'){Game.pvbBotBrains=95;Game.pvbBotTimer=7;Game.pvbBotElapsed=0;}
       Game.bloodMoonMeter=0;Game.bloodMoonWarning=0;Game.bloodMoonActiveTimer=0;Game.bloodMoonSpawnTimer=5;Game.bloodMoonDone=false;document.body.classList.remove('pvm-blood-moon-active');
+      Game.factoryBeltCycleTimer=6.5;Game.factoryBeltWarningTimer=0;Game.factoryBeltWarningRow=-1;Game.factoryBeltLastRow=-1;Game.factoryActiveTimer=0;Game.factoryActiveRows=[];
       Game.cobCannonAim = null;
       document.getElementById('pause-overlay')?.classList.add('hidden');document.getElementById('pause-overlay')?.classList.remove('flex');
       Game.campaignIndex = campaignIdx;
@@ -3040,6 +3050,38 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if (Game.levelCompleted) return;
       if(ChaosLab.infiniteSun){Game.sun=999999;}
       if(Game.waveBannerTimer>0){Game.waveBannerTimer=Math.max(0,Game.waveBannerTimer-dt);if(Game.waveBannerTimer===0)document.getElementById('wave-banner')?.classList.add('hidden');}
+      // ESTEIRAS DA FÁBRICA — aviso, ativação temporária e rotação sem repetir a mesma linha.
+      if(Game.level?.theme==='factory'){
+        const lanePool=(Array.isArray(Game.level.factoryBeltRows)&&Game.level.factoryBeltRows.length)
+          ?Game.level.factoryBeltRows.filter(row=>row>=0&&row<GRID.rows)
+          :Array.from({length:GRID.rows},(_,row)=>row);
+        if(Game.factoryBeltWarningTimer>0){
+          Game.factoryBeltWarningTimer=Math.max(0,Game.factoryBeltWarningTimer-dt);
+          if(Game.factoryBeltWarningTimer===0){
+            const row=Game.factoryBeltWarningRow;
+            Game.factoryActiveRows=row>=0?[row]:[];
+            Game.factoryActiveTimer=3.25;
+            Game.factoryBeltCycleTimer=8.5;
+            showToast(`🏭 ESTEIRA ATIVA — linha ${row+1}! Zumbis nesta linha avançam mais rápido.`,'error');
+          }
+        }else if(Game.factoryActiveTimer>0){
+          Game.factoryActiveTimer=Math.max(0,Game.factoryActiveTimer-dt);
+          if(Game.factoryActiveTimer===0)Game.factoryActiveRows=[];
+        }else if(lanePool.length){
+          Game.factoryBeltCycleTimer=Math.max(0,Game.factoryBeltCycleTimer-dt);
+          if(Game.factoryBeltCycleTimer===0){
+            const choices=lanePool.filter(row=>row!==Game.factoryBeltLastRow);
+            const pool=choices.length?choices:lanePool;
+            const row=pool[Math.floor(Math.random()*pool.length)];
+            Game.factoryBeltWarningRow=row;
+            Game.factoryBeltLastRow=row;
+            Game.factoryBeltWarningTimer=1.65;
+            showToast(`⚠️ ESTEIRA CARREGANDO — linha ${row+1}! Prepare a defesa.`,'error');
+          }
+        }
+      }else{
+        Game.factoryBeltWarningTimer=0;Game.factoryActiveTimer=0;Game.factoryActiveRows=[];
+      }
       // Blood Moon exclusiva do Telhado Noturno: medidor, aviso e janela temporária.
       const isNightRoof=Game.level?.worldIndex===5||Game.level?.theme==='nightRoof'&&Game.level?.requiresPot;
       const moonHud=document.getElementById('pvm-blood-moon-hud');
@@ -3589,7 +3631,8 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           if (z.skateDashTimer <= 0 && z.skateBurst <= 0) { z.skateBurst = 0.85; z.skateDashTimer = 4.2 + Math.random() * 1.5; spawnParticles(z.x, z.y + 8, '#5eead4', 5); }
           if (z.skateBurst > 0) z.skateBurst = Math.max(0, z.skateBurst - dt);
         }
-        const strongestBoost=Math.max(z.rage?1.62:1,z.hasteTimer>0?1.30:1,z.ability==='swimmer'&&inWater?1.36:1,z.ability==='allstar'&&z.armorHp>0?1.08:1,z.ability==='skater'&&z.skateBurst>0?1.85:1);
+        const factoryLaneBoost=Game.level?.theme==='factory'&&Game.factoryActiveTimer>0&&Game.factoryActiveRows?.includes(z.row)?1.28:1;
+        const strongestBoost=Math.max(z.rage?1.62:1,z.hasteTimer>0?1.30:1,z.ability==='swimmer'&&inWater?1.36:1,z.ability==='allstar'&&z.armorHp>0?1.08:1,z.ability==='skater'&&z.skateBurst>0?1.85:1,factoryLaneBoost);
         const speedMod=(z.slowTimer>0?0.52:1)*strongestBoost*(z.id==='gargantuar'?0.48:1);
 
         // O Mineiro cava uma única vez e reaparece mais perto da casa, criando uma ameaça de retaguarda.
@@ -3839,6 +3882,12 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
                   }
                 });
                 showToast('🧲 PULSO MAGNÉTICO! As plantas das linhas marcadas foram travadas.','error');
+              }else if(b.attackType==='overload'){
+                Game.factoryActiveRows=Array.from({length:GRID.rows},(_,i)=>i);
+                Game.factoryActiveTimer=4.25;
+                Game.factoryBeltWarningTimer=0;Game.factoryBeltWarningRow=-1;
+                Game.factoryBeltCycleTimer=8.5;
+                showToast('🚨 SOBRECARGA TOTAL! As cinco esteiras estão ativas ao mesmo tempo!','error');
               }else if(b.attackType==='assembly'){
                 rows.forEach((row,i)=>{
                   const before=Game.zombies.length;
@@ -3864,20 +3913,23 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
             if(b.actionTimer<=0){
               const pick=Math.random();
               b.targetRow=Math.floor(Math.random()*GRID.rows);
-              if(pick<(phase===3?.27:.34)){
+              if(phase===3&&pick<.22){
+                b.attackType='overload';b.attackRows=Array.from({length:GRID.rows},(_,i)=>i);b.attackCols=[];
+                showToast('🚨 SOBRECARGA TOTAL! As cinco linhas foram marcadas.','error');
+              }else if(pick<(phase===3?.44:.34)){
                 b.attackType='coil';b.attackRows=phase===3?[b.targetRow,(b.targetRow+2)%GRID.rows]:[b.targetRow];b.attackCols=[];
                 showToast('⚠️ Bobinas carregando! Linhas marcadas em azul.','error');
-              }else if(pick<(phase===3?.52:.61)){
+              }else if(pick<(phase===3?.64:.61)){
                 b.attackType='press';const r2=(b.targetRow+1)%GRID.rows;b.attackRows=[b.targetRow,r2];const left=Math.max(0,GRID.cols-(phase===3?4:3));b.attackCols=Array.from({length:phase===3?4:3},(_,i)=>left+i);
                 showToast('⚠️ PRENSA DE MONTAGEM! Área industrial marcada.','error');
-              }else if(pick<(phase===3?.76:.82)){
+              }else if(pick<(phase===3?.82:.82)){
                 b.attackType='magnet';b.attackRows=phase===3?[b.targetRow,(b.targetRow+1)%GRID.rows]:[b.targetRow];b.attackCols=[];
                 showToast('⚠️ O ímã central está atraindo energia das plantas!','error');
               }else{
                 b.attackType='assembly';b.attackRows=phase===3?[b.targetRow,(b.targetRow+2)%GRID.rows]:[b.targetRow];b.attackCols=[];
                 showToast('⚠️ As esteiras começaram a montar reforços!','error');
               }
-              b.attackWarningTimer=phase===3?1.15:1.55;
+              b.attackWarningTimer=b.attackType==='overload'?2.2:(phase===3?1.15:1.55);
             }
           }
         }else if(b.isRegent){
@@ -4058,6 +4110,35 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         }
       }
 
+      if(theme==='factory'){
+        const configured=Array.isArray(Game.level?.factoryBeltRows)?Game.level.factoryBeltRows:[0,1,2,3,4];
+        const active=new Set(Game.factoryActiveRows||[]);
+        const warning=Game.factoryBeltWarningTimer>0?Game.factoryBeltWarningRow:-1;
+        const beltTime=performance.now()/1000;
+        for(let r=0;r<GRID.rows;r++){
+          const y=GRID.offsetY+r*GRID.cellH,hasBelt=configured.includes(r),isActive=active.has(r),isWarning=warning===r;
+          if(!hasBelt){
+            ctx.save();ctx.fillStyle='rgba(15,23,42,.5)';ctx.beginPath();ctx.roundRect(GRID.offsetX+7,y+7,59,18,6);ctx.fill();
+            ctx.fillStyle='rgba(226,232,240,.8)';ctx.font='bold 9px Trebuchet MS';ctx.textAlign='center';ctx.fillText('NORMAL',GRID.offsetX+36,y+20);ctx.restore();
+            continue;
+          }
+          if(isWarning||isActive){
+            ctx.save();ctx.globalAlpha=isWarning?(.13+.08*Math.sin(beltTime*16)):.12;
+            ctx.fillStyle=isWarning?'#facc15':'#fb923c';ctx.fillRect(GRID.offsetX,y,GRID.cols*GRID.cellW,GRID.cellH);ctx.restore();
+          }
+          const trackY=y+GRID.cellH-17;
+          ctx.save();ctx.fillStyle=isActive?'#7c2d12':isWarning?'#854d0e':'#1e293b';ctx.strokeStyle=isActive?'#fdba74':isWarning?'#fde68a':'#94a3b8';ctx.lineWidth=2;
+          ctx.fillRect(GRID.offsetX+2,trackY,GRID.cols*GRID.cellW-4,14);ctx.strokeRect(GRID.offsetX+2,trackY,GRID.cols*GRID.cellW-4,14);
+          for(let x=GRID.offsetX+9;x<GRID.offsetX+GRID.cols*GRID.cellW-9;x+=34){
+            const shift=(beltTime*(isActive?32:9))%34;
+            ctx.strokeStyle=isActive?'#fed7aa':isWarning?'#fde68a':'#64748b';ctx.lineWidth=2;
+            ctx.beginPath();ctx.moveTo(x-shift,trackY+3);ctx.lineTo(x-shift+8,trackY+11);ctx.stroke();
+          }
+          ctx.fillStyle=isActive?'#ffedd5':isWarning?'#fef3c7':'#cbd5e1';ctx.font='bold 9px Trebuchet MS';ctx.textAlign='right';
+          ctx.fillText(isActive?'ESTEIRA ATIVA':isWarning?'AVISO':'ESTEIRA',GRID.offsetX+GRID.cols*GRID.cellW-9,trackY-4);
+          ctx.restore();
+        }
+      }
       drawPoolWater(ctx, waterRows, isNightTheme(theme), performance.now() / 1000);
       if (['night','fog','fogNight','nightRoof'].includes(theme)) {ctx.fillStyle='rgba(10,17,39,.24)';ctx.fillRect(GRID.offsetX,GRID.offsetY,GRID.cols*GRID.cellW,GRID.rows*GRID.cellH);}
       // Destaque ao passar o mouse/toque
@@ -5356,7 +5437,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         c.fillStyle='#0f172a';c.strokeStyle=glow;c.lineWidth=3;c.beginPath();c.roundRect(100,19,36,20,6);c.fill();c.stroke();
         c.restore();
         if(b.attackWarningTimer>0&&Array.isArray(b.attackRows)){
-          c.save();c.globalAlpha=.2+.14*Math.sin(t*17);c.fillStyle=b.attackType==='press'?'#f59e0b':b.attackType==='coil'?'#38bdf8':'#a5f3fc';
+          c.save();c.globalAlpha=.2+.14*Math.sin(t*17);c.fillStyle=b.attackType==='overload'?'#ef4444':b.attackType==='press'?'#f59e0b':b.attackType==='coil'?'#38bdf8':'#a5f3fc';
           b.attackRows.forEach(row=>c.fillRect(GRID.offsetX,GRID.offsetY+row*GRID.cellH+GRID.cellH*.38,GRID.cols*GRID.cellW,GRID.cellH*.22));
           if(b.attackType==='press')b.attackCols?.forEach(col=>c.fillRect(GRID.offsetX+col*GRID.cellW,GRID.offsetY,GRID.cellW,GRID.rows*GRID.cellH));
           c.restore();
