@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.35.0" name="application-version"/>
+<meta content="5.35.1" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -3356,7 +3356,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         const coin = Game.coinDrops[i];
         coin.bob += dt * 4.5;
         if(!coin.magnetizing&&activeGoldMagnets.length){
-          const nearest=activeGoldMagnets.map(pl=>({pl,d:Math.hypot((coin.x-pl.x)/GRID.cellW,(coin.y-pl.y)/GRID.cellH)})).filter(v=>v.d<=7.2).sort((a,b)=>a.d-b.d)[0];
+          const nearest=activeGoldMagnets.map(pl=>({pl,d:Math.hypot((coin.x-pl.x)/GRID.cellW,(coin.y-pl.y)/GRID.cellH)})).filter(v=>v.d<=9.5).sort((a,b)=>a.d-b.d)[0];
           if(nearest){coin.magnetizing=true;coin.magnetTargetX=nearest.pl.x+5;coin.magnetTargetY=nearest.pl.y-22;}
         }
         if(coin.magnetizing){
@@ -5371,7 +5371,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       } else if (hat === 'barrel') {
         c.fillStyle='#92400e';c.strokeStyle='#451a03';c.lineWidth=2.5;c.beginPath();c.roundRect(-18,-54-bob,36,18,5);c.fill();c.stroke();
         c.fillStyle='#d6a36a';c.fillRect(-17,-49-bob,34,3);c.fillRect(-17,-41-bob,34,3);c.strokeStyle='#fbbf24';c.lineWidth=2;c.strokeRect(-18,-54-bob,36,18);
-      } else if (hat === 'allstar') {
+      } else if (hat === 'allstar' && z.armorHp > 0) {
         c.fillStyle='#b91c1c';c.strokeStyle='#450a0a';c.lineWidth=2.5;c.beginPath();c.ellipse(0,-48-bob,19,14,0,Math.PI,Math.PI*2);c.lineTo(19,-44-bob);c.quadraticCurveTo(0,-35-bob,-19,-44-bob);c.closePath();c.fill();c.stroke();
         c.fillStyle='#f8fafc';c.fillRect(-13,-54-bob,26,4);c.fillRect(-5,-61-bob,10,6);
         c.strokeStyle='#e5e7eb';c.lineWidth=2.5;c.beginPath();c.moveTo(-15,-46-bob);c.lineTo(15,-46-bob);c.moveTo(-10,-52-bob);c.lineTo(-8,-39-bob);c.moveTo(10,-52-bob);c.lineTo(8,-39-bob);c.stroke();
@@ -5405,7 +5405,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         c.fillStyle='#6d28d9';c.strokeStyle='#2e1065';c.lineWidth=2;c.beginPath();c.arc(0,-47-bob,18,Math.PI,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f0abfc';c.fillRect(-13,-37-bob,26,5);c.restore();
       } else if (hat === 'catapult') {
         c.save();c.translate(0,-42-bob);c.rotate(Math.sin(walkPhase*1.5)*.08);c.fillStyle='#92400e';c.strokeStyle='#451a03';c.lineWidth=3;c.fillRect(-22,-10,44,18);c.strokeRect(-22,-10,44,18);c.fillStyle='#d6a36a';c.fillRect(-17,-6,34,5);c.strokeStyle='#fbbf24';c.lineWidth=4;c.beginPath();c.moveTo(0,-9);c.lineTo(0,-35);c.lineTo(18,-44);c.stroke();c.fillStyle='#65a30d';c.beginPath();c.arc(19,-45,7,0,Math.PI*2);c.fill();c.restore();
-      } else if (hat === 'ladder') {
+      } else if (hat === 'ladder' && z.armorHp > 0) {
         c.save();c.translate(22,-24-bob);c.rotate(-.16+Math.sin(walkPhase)*.025);c.strokeStyle='#d6a36a';c.lineWidth=5;c.beginPath();c.moveTo(-8,-49);c.lineTo(7,42);c.moveTo(8,-49);c.lineTo(23,42);c.stroke();c.lineWidth=3;for(let k=0;k<5;k++){c.beginPath();c.moveTo(-5+k*2,-37+k*16);c.lineTo(11+k*2,-37+k*16);c.stroke();}c.restore();
       } else if (hat === 'disco') {
         c.save();c.fillStyle='#7e22ce';c.strokeStyle='#f0abfc';c.lineWidth=2;c.beginPath();c.ellipse(0,-49-bob,19,9,0,Math.PI,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f0abfc';for(let k=0;k<5;k++){c.beginPath();c.arc(-13+k*6,-54-bob,2.2,0,Math.PI*2);c.fill();}c.strokeStyle='#22d3ee';c.lineWidth=2;c.beginPath();c.arc(0,-49-bob,25+Math.sin(walkPhase*2)*2,Math.PI*1.1,Math.PI*1.9);c.stroke();c.restore();
@@ -5415,7 +5415,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         c.save();c.fillStyle='rgba(253,230,138,.28)';c.strokeStyle='#facc15';c.lineWidth=2;c.beginPath();c.ellipse(0,-31-bob,20,22,0,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#facc15';c.fillRect(-17,-56-bob,34,8);c.fillStyle='#78350f';c.fillRect(-10,-53-bob,5,3);c.fillRect(4,-53-bob,5,3);c.restore();
       } else if (hat === 'painter') {
         c.save();c.rotate(Math.sin(walkPhase)*.05);c.fillStyle='#0f766e';c.strokeStyle='#134e4a';c.lineWidth=2;c.beginPath();c.ellipse(0,-51-bob,18,8,-.12,Math.PI,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f472b6';c.beginPath();c.arc(8,-55-bob,4,0,Math.PI*2);c.fill();c.fillStyle='#facc15';c.fillRect(-5,-39-bob,12,4);c.restore();
-      } else if (hat === 'astronaut') {
+      } else if (hat === 'astronaut' && z.armorHp > 0) {
         c.save();c.fillStyle='#e2e8f0';c.strokeStyle='#64748b';c.lineWidth=2.5;c.beginPath();c.arc(0,-46-bob,20,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='rgba(56,189,248,.7)';c.strokeStyle='#0c4a6e';c.beginPath();c.ellipse(0,-47-bob,14,10,0,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#fbbf24';c.fillRect(-5,-68-bob,10,4);c.restore();
       } else if (hat === 'plumber') {
         c.save();c.fillStyle='#dc2626';c.strokeStyle='#7f1d1d';c.lineWidth=2;c.beginPath();c.roundRect(-17,-57-bob,34,13,5);c.fill();c.stroke();c.fillStyle='#fef3c7';c.beginPath();c.arc(0,-51-bob,4,0,Math.PI*2);c.fill();c.fillStyle='#1d4ed8';c.fillRect(-13,-42-bob,26,4);c.restore();
