@@ -2897,13 +2897,14 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
 
     // # BOSS SPAWNER — normale fases e chefes invocados pelo painel usam o mesmo HUD.
     function spawnBoss(override=null) {
-      const cfg=override||{name:Game.level?.bossName||'🤖 MEGA MECHA-ZUMBÃO',hp:Game.level?.bossHp||5000};
+      const cfg=override||{type:Game.level?.bossType,name:Game.level?.bossName||'🤖 MEGA MECHA-ZUMBÃO',hp:Game.level?.bossHp||5000};
       const bossName=cfg.name||'🤖 MEGA MECHA-ZUMBÃO';
       const maxHp=Math.max(1000,Math.min(250000,Number(cfg.hp)||5000));
       const isTAF=cfg.type==='taf'||String(bossName).toUpperCase().includes('TAF');
-      const isRegent=!isTAF&&String(bossName).includes('Regente do Eclipse');
+      const isRegent=!isTAF&&(cfg.type==='regent'||String(bossName).includes('Regente do Eclipse'));
+      const isFactoryBoss=!isTAF&&(cfg.type==='factory'||String(bossName).includes('NÉCRO-0'));
       const row=Math.floor(GRID.rows/2);
-      Game.boss={name:bossName,isRegent,isTAF,phase:1,
+      Game.boss={name:bossName,isRegent,isTAF,isFactoryBoss,phase:1,coreOpenTimer:0,
         x:isTAF?GRID.offsetX+(GRID.cols-2.5)*GRID.cellW:LOGICAL_W-110,
         targetCol:Math.max(0,GRID.cols-2),targetRow:row,
         y:GRID.offsetY+row*GRID.cellH+GRID.cellH*.5,
@@ -2936,8 +2937,20 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if (!Game.boss) return;
       const bb=Game.boss, pct = Math.max(0, (bb.hp / bb.maxHp) * 100), left=Math.max(0, Math.ceil(bb.hp));
       document.getElementById('boss-hp-bar').style.width = `${pct}%`;
-      if (bb.isTAF) document.getElementById('boss-hud').dataset.phase = String(bb.phase || 1);
-      document.getElementById('boss-hp-text').textContent = bb.isTAF ? `AURA ${left.toLocaleString('pt-BR')} / ${bb.maxHp.toLocaleString('pt-BR')}` : `${left} / ${bb.maxHp} HP`;
+      if (bb.isTAF||bb.isRegent||bb.isFactoryBoss) document.getElementById('boss-hud').dataset.phase = String(bb.phase || 1);
+      document.getElementById('boss-hp-text').textContent = bb.isTAF ? 'AURA '+left.toLocaleString('pt-BR')+' / '+bb.maxHp.toLocaleString('pt-BR') : left.toLocaleString('pt-BR')+' / '+bb.maxHp.toLocaleString('pt-BR')+' HP';
+    }
+    function damageCurrentBoss(amount){
+      const boss=Game.boss;
+      if(!boss||!(Number(amount)>0))return false;
+      if(boss.isFactoryBoss&&!(boss.coreOpenTimer>0)){
+        spawnParticles(boss.x,boss.y-24,'#94a3b8',3);
+        return false;
+      }
+      boss.hp=Math.max(0,boss.hp-Number(amount));
+      boss.flashTimer=.16;
+      SoundFX.hit();updateBossHud();
+      return true;
     }
 
     function spawnSun(x, y, targetY, value = 25) {
@@ -3179,7 +3192,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           const target=Game.zombies.filter(z=>!z.friendly&&!z.isDying&&z.row===p.row&&z.x>=p.x-8&&z.x-p.x<GRID.cellW*1.55).sort((a,b)=>a.x-b.x)[0];
           if(target){p.squashTimer=(p.squashTimer??.42)-dt;p.squashTarget=target.uid;if(p.squashTimer<=0){spawnParticles(target.x,target.y-15,'#84cc16',26);spawnParticles(target.x,target.y+4,'#a3e635',15);SoundFX.chomp();damageZombie(target,PLANTS[p.type].damage||1800,'blast');Game.plants.splice(i,1);}}
         } else if (plantLogicType === 'jalapeno') {
-          p.timer-=dt;if(p.timer<=0){SoundFX.explosion();spawnParticles(p.x,p.y-15,'#f97316',38);Game.zombies.forEach(z=>{if(!z.friendly&&!z.isDying&&z.row===p.row)damageZombie(z,(PLANTS[p.type].damage||1800)*PlantLabSettings.damageMultiplier,'blast');});if(Game.boss&&Math.abs(Game.boss.y-p.y)<GRID.cellH*.65){Game.boss.hp-=850*PlantLabSettings.damageMultiplier;Game.boss.flashTimer=.3;updateBossHud();}Game.plants.splice(i,1);}
+          p.timer-=dt;if(p.timer<=0){SoundFX.explosion();spawnParticles(p.x,p.y-15,'#f97316',38);Game.zombies.forEach(z=>{if(!z.friendly&&!z.isDying&&z.row===p.row)damageZombie(z,(PLANTS[p.type].damage||1800)*PlantLabSettings.damageMultiplier,'blast');});if(Game.boss&&Math.abs(Game.boss.y-p.y)<GRID.cellH*.65)damageCurrentBoss(850*PlantLabSettings.damageMultiplier);Game.plants.splice(i,1);}
         } else if (plantLogicType === 'cobcannon') {
           p.timer=Math.max(0,(p.timer||0)-dt);
         } else if (plantLogicType === 'spikerock' || plantLogicType === 'spikeweed') {
@@ -3212,7 +3225,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
             spawnParticles(p.x, p.y, '#312e81', 42);
             const radius = GRID.cellW * 3.4;
             Game.zombies.forEach(z => { if (!z.friendly && Math.hypot(z.x-p.x, z.y-p.y) <= radius) damageZombie(z, Math.max(1800,Math.min(6000,Number(p.damage)||1800)) * PlantLabSettings.damageMultiplier, 'blast'); });
-            if (Game.boss && Math.hypot(Game.boss.x-p.x, Game.boss.y-p.y) <= radius) { Game.boss.hp -= (p.damage ?? PLANTS[p.type].damage ?? 1800) * .78 * PlantLabSettings.damageMultiplier; Game.boss.flashTimer=0.25; updateBossHud(); }
+            if (Game.boss && Math.hypot(Game.boss.x-p.x, Game.boss.y-p.y) <= radius) damageCurrentBoss((p.damage ?? PLANTS[p.type].damage ?? 1800) * .78 * PlantLabSettings.damageMultiplier);
             Game.craters.push({row:p.row,col:p.col});
             Game.plants.splice(i, 1);
           }
@@ -3303,7 +3316,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
               spawnParticles(p.x, p.y, '#a16207', 32);
               spawnParticles(p.x, p.y, '#facc15', 26);
               Game.zombies.forEach(z => { if (!z.friendly && z.row === p.row && Math.abs(z.x-p.x) <= GRID.cellW*.58) damageZombie(z,(p.damage ?? PLANTS[p.type].damage ?? 1800)*PlantLabSettings.damageMultiplier,'blast'); });
-              if (Game.boss && Math.abs(Game.boss.y-p.y)<GRID.cellH*.65 && Math.abs(Game.boss.x-p.x)<70) { Game.boss.hp -= 500*PlantLabSettings.damageMultiplier; Game.boss.flashTimer=.2; updateBossHud(); }
+              if (Game.boss && Math.abs(Game.boss.y-p.y)<GRID.cellH*.65 && Math.abs(Game.boss.x-p.x)<70) damageCurrentBoss(500*PlantLabSettings.damageMultiplier);
               Game.plants.splice(i,1);
             }
           }
@@ -3322,11 +3335,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
                 damageZombie(z, Math.max(1800,Math.min(6000,Number(p.damage)||1800)) * PlantLabSettings.damageMultiplier, 'blast');
               }
             });
-            if (Game.boss && Math.abs(Game.boss.x - p.x) <= radiusX + 60) {
-              Game.boss.hp = Math.max(0,Game.boss.hp - (Number(p.bossDamage)||750) * PlantLabSettings.damageMultiplier);
-              Game.boss.flashTimer = 0.2;
-              updateBossHud();
-            }
+            if (Game.boss && Math.abs(Game.boss.x - p.x) <= radiusX + 60) damageCurrentBoss((Number(p.bossDamage)||750) * PlantLabSettings.damageMultiplier);
             Game.plants.splice(i, 1);
           }
         }
@@ -3360,7 +3369,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
                 }
               });
             }
-            if (!hitAny && Game.boss && Math.abs(Game.boss.x-impactX)<(pea.kind==='cob'?GRID.cellW*2:75) && Math.abs(Game.boss.y-impactY)<(pea.kind==='cob'?GRID.cellH*1.4:80)) { Game.boss.hp-=pea.damage; Game.boss.flashTimer=.2; updateBossHud(); }
+            if (!hitAny && Game.boss && Math.abs(Game.boss.x-impactX)<(pea.kind==='cob'?GRID.cellW*2:75) && Math.abs(Game.boss.y-impactY)<(pea.kind==='cob'?GRID.cellH*1.4:80)) damageCurrentBoss(pea.damage);
             spawnParticles(impactX, impactY, pea.kind==='cob'?'#eab308':(pea.kind==='lob'?'#fde68a':'#f97316'), pea.kind==='cob'?46:18);
             spawnParticles(impactX, impactY, '#86efac', 8);
             if(pea.kind==='cob')SoundFX.explosion();else SoundFX.hit();
@@ -3415,7 +3424,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         }
         if (pea.kind === 'fume' && pea.travelled >= pea.rangeDistance) hit = true;
         if (!hit && pea.kind !== 'fume' && Game.boss && Math.abs(Game.boss.x - pea.x) < 55 && Math.abs(Game.boss.y - pea.y) < 75) {
-          Game.boss.hp -= pea.damage; Game.boss.flashTimer=0.1; SoundFX.hit(); spawnParticles(pea.x,pea.y,pea.kind==='comet'?'#c4b5fd':pea.kind==='petal'?'#fb7185':pea.kind==='crystal'?'#38bdf8':(pea.kind==='spore'?'#c084fc':'#f97316'),6); updateBossHud(); hit=true;
+          damageCurrentBoss(pea.damage);spawnParticles(pea.x,pea.y,pea.kind==='comet'?'#c4b5fd':pea.kind==='petal'?'#fb7185':pea.kind==='crystal'?'#38bdf8':(pea.kind==='spore'?'#c084fc':'#f97316'),6);hit=true;
         }
         if (hit || (pea.speed>=0 && pea.x > LOGICAL_W + 30) || (pea.speed<0 && pea.x < -30)) Game.peas.splice(i,1);
       }
@@ -3682,8 +3691,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
             }
           });
           if (Game.boss && Math.abs(Game.boss.y - m.y) < 60 && Math.abs(Game.boss.x - m.x) < 60) {
-            Game.boss.hp -= 400;
-            updateBossHud();
+            damageCurrentBoss(400);
           }
           if (m.x > LOGICAL_W + 60) m.active = false;
         }
@@ -3770,7 +3778,93 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         }
         const targetY = GRID.offsetY + b.targetRow * GRID.cellH + GRID.cellH * 0.5;
         b.y += (targetY - b.y) * 2.5 * dt;
-        if(b.isRegent){
+        if(b.isFactoryBoss){
+          const ratio=b.hp/b.maxHp,phase=ratio<=.28?3:(ratio<=.62?2:1);
+          b.coreOpenTimer=Math.max(0,(b.coreOpenTimer||0)-dt);
+          if(phase!==b.phase){
+            b.phase=phase;b.actionTimer=1.7;
+            showToast(phase===3?'🚨 NÉCRO-0 EM SOBRECARGA! O núcleo está instável.':'⚙️ O Diretor NÉCRO-0 aumentou a produção da fábrica!','error');
+          }
+          b.moveTimer-=dt;
+          if(b.moveTimer<=0){b.moveTimer=phase===3?1.5:2.4;b.targetRow=Math.floor(Math.random()*GRID.rows);}
+          const targetY=GRID.offsetY+b.targetRow*GRID.cellH+GRID.cellH*.5;
+          b.y+=(targetY-b.y)*Math.min(1,2.1*dt);
+          if(b.coreOpenTimer>0){
+            b.corePulse=(b.corePulse||0)+dt*8;
+          }else if(b.attackWarningTimer>0){
+            b.attackWarningTimer=Math.max(0,b.attackWarningTimer-dt);
+            if(b.attackWarningTimer===0){
+              const rows=b.attackRows.length?b.attackRows:[b.targetRow];
+              const cols=b.attackCols?.length?b.attackCols:[Math.max(0,GRID.cols-2)];
+              SoundFX.explosion();
+              if(b.attackType==='coil'){
+                rows.forEach(row=>{
+                  Game.plants.filter(p=>p.row===row).forEach(p=>{
+                    p.hp-=phase===3?420:phase===2?340:270;
+                    p.tafStunTimer=Math.max(p.tafStunTimer||0,phase===3?1.9:1.2);
+                    spawnParticles(p.x,p.y,'#38bdf8',7);
+                  });
+                });
+                showToast('⚡ Bobinas de pulso atingiram as linhas marcadas!','error');
+              }else if(b.attackType==='press'){
+                Game.plants.forEach(p=>{
+                  const col=Number.isFinite(p.col)?p.col:Math.floor((p.x-GRID.offsetX)/GRID.cellW);
+                  if(rows.includes(p.row)&&cols.includes(col)){
+                    p.hp-=phase===3?1050:850;spawnParticles(p.x,p.y,'#f59e0b',14);
+                  }
+                });
+                showToast('🔩 PRENSA DE MONTAGEM! O setor marcado foi esmagado.','error');
+              }else if(b.attackType==='magnet'){
+                Game.plants.forEach(p=>{
+                  if(rows.includes(p.row)){
+                    p.hp-=phase===3?330:220;
+                    p.tafStunTimer=Math.max(p.tafStunTimer||0,phase===3?3.2:2.2);
+                    spawnParticles(p.x,p.y,'#a5f3fc',10);
+                  }
+                });
+                showToast('🧲 PULSO MAGNÉTICO! As plantas das linhas marcadas foram travadas.','error');
+              }else if(b.attackType==='assembly'){
+                rows.forEach((row,i)=>{
+                  const before=Game.zombies.length;
+                  spawnZombie('mechanic',row,LOGICAL_W+65+i*28);
+                  if(Game.zombies.length>before)Game.zombies[Game.zombies.length-1].factoryReinforcement=true;
+                });
+                if(phase>=2){
+                  const row=(rows[0]+2)%GRID.rows,before=Game.zombies.length;
+                  spawnZombie('clockwork',row,LOGICAL_W+125);
+                  if(Game.zombies.length>before)Game.zombies[Game.zombies.length-1].factoryReinforcement=true;
+                }
+                if(phase>=3)spawnZombie('gargantuar',rows[rows.length-1],LOGICAL_W+175);
+                showToast('🏭 ESTEIRA DE MONTAGEM! Reforços mecânicos entraram no gramado.','error');
+              }
+              Game.plants=Game.plants.filter(p=>p.hp>0);
+              b.attackRows=[];b.attackCols=[];b.attackType=null;
+              b.coreOpenTimer=phase===3?4.4:phase===2?3.8:3.2;
+              showToast('🔓 NÚCLEO EXPOSTO! Aproveite a abertura para atacar!','success');
+              b.actionTimer=phase===3?3.1:phase===2?4.1:4.8;
+            }
+          }else if(b.coreOpenTimer<=0){
+            b.actionTimer-=dt;
+            if(b.actionTimer<=0){
+              const pick=Math.random();
+              b.targetRow=Math.floor(Math.random()*GRID.rows);
+              if(pick<(phase===3?.27:.34)){
+                b.attackType='coil';b.attackRows=phase===3?[b.targetRow,(b.targetRow+2)%GRID.rows]:[b.targetRow];b.attackCols=[];
+                showToast('⚠️ Bobinas carregando! Linhas marcadas em azul.','error');
+              }else if(pick<(phase===3?.52:.61)){
+                b.attackType='press';const r2=(b.targetRow+1)%GRID.rows;b.attackRows=[b.targetRow,r2];const left=Math.max(0,GRID.cols-(phase===3?4:3));b.attackCols=Array.from({length:phase===3?4:3},(_,i)=>left+i);
+                showToast('⚠️ PRENSA DE MONTAGEM! Área industrial marcada.','error');
+              }else if(pick<(phase===3?.76:.82)){
+                b.attackType='magnet';b.attackRows=phase===3?[b.targetRow,(b.targetRow+1)%GRID.rows]:[b.targetRow];b.attackCols=[];
+                showToast('⚠️ O ímã central está atraindo energia das plantas!','error');
+              }else{
+                b.attackType='assembly';b.attackRows=phase===3?[b.targetRow,(b.targetRow+2)%GRID.rows]:[b.targetRow];b.attackCols=[];
+                showToast('⚠️ As esteiras começaram a montar reforços!','error');
+              }
+              b.attackWarningTimer=phase===3?1.15:1.55;
+            }
+          }
+        }else if(b.isRegent){
           const ratio=b.hp/b.maxHp,phase=ratio<=.34?3:(ratio<=.68?2:1);
           if(phase!==b.phase){b.phase=phase;b.actionTimer=3.6;showToast(phase===2?'🎼 O Regente muda o ritmo: os refletores entraram em cena!':'🌘 Eclipse total! O palco do Regente está instável.','error');}
           if(b.attackWarningTimer>0){
@@ -3824,6 +3918,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           spawnParticles(b.x, b.y, '#ef4444', 50);
           spawnCoin(b.x, b.y - 20, 12);
           if(b.isRegent){addCoins(100);showToast('🏆 O Regente do Eclipse foi derrotado! +100 moedas bônus.','success');}
+          if(b.isFactoryBoss){addCoins(450);window.PVM_GRANT_XP?.(350);showToast('🏆 DIRETOR NÉCRO-0 DESATIVADO! +450 moedas e +350 XP!','success');}
           if(b.isTAF){addCoins(220);showToast('🏆 O TAF foi derrotado! +220 moedas bônus. A aura se dissipou.','success');if(b.tafEventId)window.PVM_REMOVE_WORLD_EVENT?.(b.tafEventId);window.PVM_STOP_TAF_MUSIC?.();}
           Game.boss = null;
           document.getElementById('boss-hud').classList.add('hidden');
@@ -5208,6 +5303,49 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         if(b.tafRage){c.save();for(let k=0;k<5;k++){const a=t*3+k*Math.PI*2/5,px=Math.cos(a)*68,py=-42+Math.sin(a*1.3)*45;c.globalAlpha=.55+.35*Math.sin(t*8+k);c.fillStyle='#f87171';c.shadowColor='#ef4444';c.shadowBlur=12;c.beginPath();c.arc(px,py,3+(k%2),0,Math.PI*2);c.fill();}c.restore();}
         if(b.flashTimer>0){c.save();c.globalAlpha=.3;c.fillStyle='#fff';c.beginPath();c.ellipse(0,-50,62,100,0,0,Math.PI*2);c.fill();c.restore();}
         drawTAFFx(c,b,t);
+        c.restore();return;
+      }
+      if(b.isFactoryBoss || String(b.name||'').includes('NÉCRO-0')){
+        const t=performance.now()/1000,open=b.coreOpenTimer>0,phase=b.phase||1,glow=open?'#67e8f9':phase===3?'#fb7185':'#f59e0b';
+        c.save();
+        c.fillStyle='rgba(0,0,0,.42)';c.beginPath();c.ellipse(0,78,105,20,0,0,Math.PI*2);c.fill();
+        for(let side of [-1,1]){
+          c.fillStyle='#111827';c.strokeStyle='#64748b';c.lineWidth=4;c.beginPath();c.roundRect(side*48-30,43,60,28,12);c.fill();c.stroke();
+          for(let k=0;k<4;k++){c.fillStyle='#94a3b8';c.beginPath();c.arc(side*48-20+k*13,57,6,0,Math.PI*2);c.fill();c.strokeStyle='#1f2937';c.lineWidth=2;c.stroke();}
+          c.strokeStyle='#64748b';c.lineWidth=12;c.lineCap='round';c.beginPath();c.moveTo(side*74,-5);c.lineTo(side*94,27);c.lineTo(side*81,43);c.stroke();
+          c.fillStyle='#475569';c.strokeStyle='#cbd5e1';c.lineWidth=2;c.beginPath();c.roundRect(side*74-14,19,28,25,6);c.fill();c.stroke();
+          c.fillStyle=glow;c.beginPath();c.arc(side*74,30,5+Math.sin(t*4+side)*1.5,0,Math.PI*2);c.fill();
+        }
+        c.fillStyle='#334155';c.strokeStyle='#0f172a';c.lineWidth=5;c.beginPath();c.roundRect(-76,-31,152,88,18);c.fill();c.stroke();
+        c.fillStyle='#475569';c.strokeStyle='#cbd5e1';c.lineWidth=2;c.beginPath();c.roundRect(-58,-51,116,37,12);c.fill();c.stroke();
+        c.save();c.beginPath();c.roundRect(-72,-24,144,18,4);c.clip();for(let x=-90;x<100;x+=22){c.fillStyle='#fbbf24';c.save();c.translate(x,0);c.rotate(-.55);c.fillRect(-5,-32,10,40);c.restore();}c.restore();
+        c.fillStyle='#0f172a';c.strokeStyle=glow;c.lineWidth=open?5:3;c.shadowColor=glow;c.shadowBlur=open?27:10;c.beginPath();c.roundRect(-31,-13,62,61,13);c.fill();c.stroke();
+        if(open){
+          c.fillStyle='rgba(103,232,249,.22)';c.beginPath();c.ellipse(0,18,45,43,0,0,Math.PI*2);c.fill();
+          c.fillStyle='#e0f2fe';c.beginPath();c.arc(0,17,18+Math.sin(t*11)*2,0,Math.PI*2);c.fill();
+          c.fillStyle='#0891b2';c.beginPath();c.arc(0,17,9,0,Math.PI*2);c.fill();
+          c.strokeStyle='#cffafe';c.lineWidth=3;c.beginPath();c.arc(0,17,29,-.8+t*.2,2.5+t*.2);c.stroke();
+        }else{
+          c.fillStyle=phase===3?'#7f1d1d':'#78350f';c.beginPath();c.arc(0,18,17,0,Math.PI*2);c.fill();
+          c.strokeStyle=glow;c.lineWidth=3;c.beginPath();c.arc(0,18,23,0,Math.PI*2);c.stroke();
+          c.fillStyle='#fef3c7';c.font='bold 10px Trebuchet MS';c.textAlign='center';c.fillText('N-0',0,22);
+        }
+        c.fillStyle='#1e293b';c.strokeStyle='#94a3b8';c.lineWidth=3;c.beginPath();c.roundRect(-34,-84,68,35,10);c.fill();c.stroke();
+        for(let k=0;k<3;k++){c.fillStyle=k===1?glow:'#22c55e';c.shadowColor=c.fillStyle;c.shadowBlur=10;c.beginPath();c.arc(-18+k*18,-67,5,0,Math.PI*2);c.fill();}
+        c.shadowBlur=0;c.strokeStyle='#cbd5e1';c.lineWidth=4;c.beginPath();c.moveTo(-21,-84);c.lineTo(-30,-107);c.moveTo(21,-84);c.lineTo(30,-107);c.stroke();
+        c.fillStyle=glow;c.beginPath();c.arc(0,-112,6+Math.sin(t*5)*1.5,0,Math.PI*2);c.fill();
+        c.strokeStyle='#64748b';c.lineWidth=13;c.lineCap='round';c.beginPath();c.moveTo(-72,-5);c.lineTo(-99,14);c.lineTo(-112,35);c.stroke();
+        c.strokeStyle='#cbd5e1';c.lineWidth=4;c.beginPath();c.moveTo(-112,35);c.lineTo(-125,43);c.moveTo(-112,35);c.lineTo(-122,23);c.stroke();
+        c.strokeStyle=glow;c.lineWidth=5;c.beginPath();c.moveTo(72,-7);c.lineTo(100,9);c.lineTo(113,27);c.stroke();
+        c.fillStyle='#0f172a';c.strokeStyle=glow;c.lineWidth=3;c.beginPath();c.roundRect(100,19,36,20,6);c.fill();c.stroke();
+        c.restore();
+        if(b.attackWarningTimer>0&&Array.isArray(b.attackRows)){
+          c.save();c.globalAlpha=.2+.14*Math.sin(t*17);c.fillStyle=b.attackType==='press'?'#f59e0b':b.attackType==='coil'?'#38bdf8':'#a5f3fc';
+          b.attackRows.forEach(row=>c.fillRect(GRID.offsetX,GRID.offsetY+row*GRID.cellH+GRID.cellH*.38,GRID.cols*GRID.cellW,GRID.cellH*.22));
+          if(b.attackType==='press')b.attackCols?.forEach(col=>c.fillRect(GRID.offsetX+col*GRID.cellW,GRID.offsetY,GRID.cellW,GRID.rows*GRID.cellH));
+          c.restore();
+        }
+        if(open){c.save();c.fillStyle='#cffafe';c.font='bold 13px Trebuchet MS';c.textAlign='center';c.shadowColor='#22d3ee';c.shadowBlur=12;c.fillText('NÚCLEO EXPOSTO',0,-127);c.restore();}
         c.restore();return;
       }
       if(b.isRegent || String(b.name||'').includes('Regente do Eclipse')){
