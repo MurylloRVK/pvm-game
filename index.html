@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.35.1" name="application-version"/>
+<meta content="5.35.2" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -2197,7 +2197,7 @@
       const box=document.getElementById('almanac-detail');if(!box)return;
       const kind=selectedAlmanacEntry.kind,id=selectedAlmanacEntry.id;
       if(kind==='plant'&&PLANTS[id]){
-        const p=PLANTS[id],unlocked=allContentUnlocked||adventureProgress.unlockedPlants.includes(id),dmg=id==='watermelon'?'80 direto + 26 em área 3x1 (três linhas)':id==='hypnoshroom'?'Converte um zumbi':id==='magnetshroom'?'Remove armadura':p.damage??(id==='peashooter'||id==='snowpea'?20:id==='repeater'?40:null);
+        const p=PLANTS[id],unlocked=allContentUnlocked||adventureProgress.unlockedPlants.includes(id),dmg=id==='watermelon'?'80 direto + 26 em área 3x1 (três linhas)':id==='hypnoshroom'?'Converte um zumbi':id==='magnetshroom'?'Puxa metal leve e desarma Soldador/Drone de Sucata':id==='goldmagnet'?'Puxa duas peças e coleta moedas':p.damage??(id==='peashooter'||id==='snowpea'?20:id==='repeater'?40:null);
         const range=p.range?`${p.range} casas`:(id==='watermelon'?'Arremesso em arco':'Conforme a linha');
         box.innerHTML=`<div class="almanac-detail-visual"><canvas id="almanac-detail-sprite" class="almanac-detail-sprite" width="170" height="138"></canvas></div><h3 class="text-2xl text-yellow-200 font-bold text-center"></h3><p class="text-xs text-center ${unlocked?'text-lime-300':'text-amber-400'} mb-3">${unlocked?'LIBERADA':'BLOQUEADA NA CAMPANHA'}</p><p class="text-sm text-amber-100/90 mb-4"></p><div class="grid grid-cols-2 gap-2 text-xs"><div class="bg-black/25 p-2 rounded">☀️ Custo: <b>${p.cost}</b></div><div class="bg-black/25 p-2 rounded">⏱️ Recarga: <b>${p.cooldown}s</b></div><div class="bg-black/25 p-2 rounded">❤️ Resistência: <b>${p.hp}</b></div><div class="bg-black/25 p-2 rounded">🎯 Alcance: <b>${range}</b></div><div class="bg-black/25 p-2 rounded col-span-2">💥 Dano: <b>${dmg===null?'Especial':dmg}</b></div></div>`;
         box.querySelector('h3').textContent=p.name;const evolution=p.upgradeFrom?`
@@ -4553,8 +4553,10 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         ctx.save();ctx.translate(piece.x,piece.y);ctx.rotate(piece.spin+piece.progress*2.4);ctx.shadowColor='#93c5fd';ctx.shadowBlur=10;
         if(piece.kind==='bucket'){
           ctx.fillStyle='#94a3b8';ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-9,-7);ctx.lineTo(9,-7);ctx.lineTo(7,8);ctx.lineTo(-7,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(0,-7,9,Math.PI,Math.PI*2);ctx.stroke();
-        }else if(piece.kind==='screenDoor'||piece.kind==='ladder'){
+        }else if(piece.kind==='screenDoor'){
           ctx.fillStyle='#64748b';ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;ctx.fillRect(-9,-11,18,22);ctx.strokeRect(-9,-11,18,22);ctx.lineWidth=1;for(let k=-6;k<=6;k+=6){ctx.beginPath();ctx.moveTo(k,-10);ctx.lineTo(k,10);ctx.moveTo(-8,k);ctx.lineTo(8,k);ctx.stroke();}
+        }else if(piece.kind==='ladder'){
+          ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-8,-12);ctx.lineTo(-4,12);ctx.moveTo(5,-12);ctx.lineTo(9,12);for(let k=-8;k<=8;k+=8){ctx.moveTo(-6,k);ctx.lineTo(7,k);}ctx.stroke();
         }else if(piece.kind==='droneRotor'){
           ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(12,0);ctx.moveTo(0,-11);ctx.lineTo(0,11);ctx.stroke();ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
         }else if(piece.kind==='welderMask'){
@@ -5444,11 +5446,12 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       if(z.jumpTimer>0){c.save();c.globalAlpha=.78;c.fillStyle='#fbbf24';c.font='bold 12px Trebuchet MS';c.fillText('PULO!',10,-63-bob);c.restore();}
 
       // Escudo de porta de tela: a malha racha conforme perde 25%, 50%, 75% e 90% da resistência.
-      if (z.armorHp>0&&['paper','folded','folded_crown','coffin','neoprene','float','barrel','football','wood','ladder','space'].includes(z.armorType)) {
+      if (z.armorHp>0&&['paper','folded','folded_crown','coffin','neoprene','float','barrel','football','wood','ladder','space','scrap','pulse_shell'].includes(z.armorType)) {
         const ratio=z.maxArmorHp?z.armorHp/z.maxArmorHp:1;c.save();c.globalAlpha=.95;
         if(z.armorType==='barrel'){c.fillStyle='#92400e';c.strokeStyle='#fbbf24';c.lineWidth=2.5;c.beginPath();c.roundRect(-45,-12-bob,26,34,5);c.fill();c.stroke();c.fillStyle='#d6a36a';c.fillRect(-44,-4-bob,24,4);c.fillRect(-44,7-bob,24,4);}
         else if(z.armorType==='wood'){c.fillStyle='#92400e';c.strokeStyle='#fbbf24';c.lineWidth=2.5;c.beginPath();c.roundRect(-42,-14-bob,27,36,5);c.fill();c.stroke();c.strokeStyle='#d6a36a';c.lineWidth=3;c.beginPath();c.moveTo(-39,-5-bob);c.lineTo(-18,-5-bob);c.moveTo(-39,7-bob);c.lineTo(-18,7-bob);c.stroke();}
         else if(z.armorType==='ladder'){c.strokeStyle='#d6a36a';c.lineWidth=5;c.beginPath();c.moveTo(-42,-17-bob);c.lineTo(-31,22-bob);c.moveTo(-30,-17-bob);c.lineTo(-19,22-bob);for(let k=0;k<4;k++){c.moveTo(-39+k*2,-10+k*9-bob);c.lineTo(-27+k*2,-10+k*9-bob);}c.stroke();}
+        else if(z.armorType==='scrap'||z.armorType==='pulse_shell'){c.fillStyle=z.armorType==='pulse_shell'?'#0e7490':'#64748b';c.strokeStyle=z.armorType==='pulse_shell'?'#67e8f9':'#cbd5e1';c.lineWidth=2.5;c.beginPath();c.moveTo(-18,-19-bob);c.lineTo(-43,-12-bob);c.lineTo(-40,13-bob);c.lineTo(-25,20-bob);c.lineTo(-12,9-bob);c.closePath();c.fill();c.stroke();c.fillStyle='#e2e8f0';c.beginPath();c.arc(-34,-5-bob,2,0,Math.PI*2);c.arc(-24,9-bob,2,0,Math.PI*2);c.fill();}
         else if(z.armorType==='space'){c.fillStyle='#e2e8f0';c.strokeStyle='#64748b';c.lineWidth=2.5;c.beginPath();c.roundRect(-42,-15-bob,28,34,7);c.fill();c.stroke();c.fillStyle='#38bdf8';c.fillRect(-36,-8-bob,16,8);}
         else if(z.armorType==='football'){c.fillStyle='#b91c1c';c.strokeStyle='#fef2f2';c.lineWidth=2.5;c.beginPath();c.ellipse(-4,1-bob,29,19,-.12,0,Math.PI*2);c.fill();c.stroke();c.fillStyle='#f8fafc';c.fillRect(-24,-6-bob,8,15);c.fillRect(5,-8-bob,8,16);c.strokeStyle='#7f1d1d';c.lineWidth=2;c.beginPath();c.moveTo(-23,2-bob);c.lineTo(21,2-bob);c.stroke();}
         else if(z.armorType==='paper'){c.fillStyle='#fef3c7';c.strokeStyle='#a16207';c.lineWidth=2;c.beginPath();c.moveTo(-20,-16-bob);c.lineTo(-43,-10-bob);c.lineTo(-42,13-bob);c.lineTo(-19,8-bob);c.closePath();c.fill();c.stroke();c.strokeStyle='#92400e';c.lineWidth=1;c.beginPath();c.moveTo(-38,-5-bob);c.lineTo(-23,-7-bob);c.moveTo(-38,1-bob);c.lineTo(-24,-1-bob);c.stroke();}
