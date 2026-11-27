@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.27.0" name="application-version"/>
+<meta content="5.28.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -2225,7 +2225,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
     function openAdventure(){selectedAdventureLevel=Math.max(0,Math.min(CAMPAIGN_LEVELS.length-1,(Number(adventureProgress.maxUnlockedLevel)||1)-1));selectedAdventureWorld=Math.floor(selectedAdventureLevel/10);showScreen('adventure');}
     function selectAdventureWorld(w){
       selectedAdventureWorld=Math.max(0,Math.min(ADVENTURE_WORLDS.length-1,Number(w)||0));
-      selectedAdventureLevel=Math.max(0,Math.min(59,selectedAdventureWorld*10));
+      selectedAdventureLevel=Math.max(0,Math.min(CAMPAIGN_LEVELS.length-1,selectedAdventureWorld*10));
       renderAdventureSelector();
     }
     function selectAdventureLevel(i){
@@ -6656,6 +6656,30 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       window.openShop = openShop;
       window.openCodes = openCodes;
       window.openChaosConsole = openChaosConsole;
+
+      // Compatibilidade dos botões HTML: as funções vivem dentro desta IIFE,
+      // portanto precisam ser explicitamente expostas para onclick/onchange.
+      Object.assign(window, {
+        showScreen,
+        closeShop, buyAutoCollector, buySeedSlotUpgrade,
+        advanceStoryDialogue, activateSecretCode, closeCodes,
+        closeChaosConsole, updateChaosLabels, applyChaosSettings,
+        chaosSpawnPack, chaosClearField, resetChaosSettings,
+        arcadeBack, setArcadeCategory,
+        renderSeedSelection, closeSeedSelection, confirmSeedSelection,
+        cancelImitaterPicker, resumeGame, restartCurrentLevel, exitToMenu,
+        setAlmanacTab, updatePlantLabControls, savePlantLabDesign,
+        createCustomPlantFromLab, resetSelectedPlantDesign,
+        applyPlantLabSettings, resetPlantLabSettings, toggleShovel,
+        toggleGameSpeed, playNextCampaignLevel, toggleBossConfig,
+        saveCustomLevel, testEditorLevelNow, resetLevelEditorForm,
+        exportLevelsJSON, promptImportJSON, updateZombiePreview,
+        saveCustomZombie, resetZombieCreatorForm,
+        startArcadeGame, openArcadeDevelopment, returnFromArcadeResult,
+        backFromArcadeGame, chooseBowlingLane, launchBowlingNut,
+        hitArcadeTarget, breakVase, setVaseMode, attackVaseZombie,
+        selectIZombie, deployIZombie, answerPlantLogic
+      });
 })();
 
   </script>
@@ -7035,6 +7059,7 @@ const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g
 const bridge=window.PVMAccountBridge, game=window.PVMBridge;
 if(!bridge||!game){console.error('PvM 5.3: ponte de perfil indisponível.');return;}
 const AUTH_KEY='pvm_accounts_v53',MAIL_KEY='pvm_inbox_v53',CONSENT_KEY='pvm_admin_music_consent_v53',MAIL_BOOT_KEY='pvm_mail_boot_v53';
+const ACTIVE_ACCOUNT_SESSION_KEY='pvm_active_account_session_v1';
 let accountStore={};try{accountStore=JSON.parse(localStorage.getItem(AUTH_KEY)||'{}')||{}}catch{accountStore={}}
 let activeAccount=null,isAdmin=false,adminTrack=null,customAudio=null,pendingAudio=null;
 const persistAccounts=()=>{try{localStorage.setItem(AUTH_KEY,JSON.stringify(accountStore))}catch(e){console.warn('Não foi possível salvar contas',e)}};
@@ -7091,7 +7116,7 @@ function authModeSet(mode){authMode=mode;$('pvm-auth-confirm-wrap').classList.to
 $('pvm-auth-tab-login').onclick=()=>authModeSet('login');$('pvm-auth-tab-create').onclick=()=>authModeSet('create');
 function accountKey(name){return name.trim().toLocaleLowerCase('pt-BR')}
 function defaultsProgress(){return {passXp:0,claimed:[],unlocked:[],boosters:{xp:0,coins:0},spinCount:0,pass50Claimed:[],upgrades:{damage:0,speed:0,sun:0},shiny:{},plantFragments:{},plantLevels:{},seasonCoins:0}}
-async function enterAccount(key,record){activeAccount=key;const profile=record.profile||{name:record.name,xp:0,level:1,joined:Date.now(),games:0,kills:0};profile.name=record.name;bridge.setProfile(profile);bridge.setProgress({...defaultsProgress(),...(record.progress||{}),boosters:{...defaultsProgress().boosters,...(record.progress?.boosters||{})},upgrades:{...defaultsProgress().upgrades,...(record.progress?.upgrades||{})},shiny:{...(record.progress?.shiny||{})},plantFragments:{...(record.progress?.plantFragments||{})},plantLevels:{...(record.progress?.plantLevels||{})}});window.PVM_REFRESH_SHINY?.();window.PVMAuthSaveSnapshot(getProfile(),getProgress());setNameOnMenu();auth.style.display='none';auth.dataset.authenticated='1';adminTrack=null;isAdmin=false;applyPermanentUpgrades();window.PVM_APPLY_SEASONAL_LEVELS?.();window.PVMBridge?.toast?.(`Bem-vindo, ${record.name}!`,'success')}
+async function enterAccount(key,record){activeAccount=key;try{sessionStorage.setItem(ACTIVE_ACCOUNT_SESSION_KEY,key)}catch{}const profile=record.profile||{name:record.name,xp:0,level:1,joined:Date.now(),games:0,kills:0};profile.name=record.name;bridge.setProfile(profile);bridge.setProgress({...defaultsProgress(),...(record.progress||{}),boosters:{...defaultsProgress().boosters,...(record.progress?.boosters||{})},upgrades:{...defaultsProgress().upgrades,...(record.progress?.upgrades||{})},shiny:{...(record.progress?.shiny||{})},plantFragments:{...(record.progress?.plantFragments||{})},plantLevels:{...(record.progress?.plantLevels||{})}});window.PVM_REFRESH_SHINY?.();window.PVMAuthSaveSnapshot(getProfile(),getProgress());setNameOnMenu();auth.style.display='none';auth.dataset.authenticated='1';adminTrack=null;isAdmin=false;applyPermanentUpgrades();window.PVM_APPLY_SEASONAL_LEVELS?.();window.PVMBridge?.toast?.(`Bem-vindo, ${record.name}!`,'success')}
 $('pvm-auth-submit').onclick=async()=>{const name=$('pvm-auth-name').value.trim(),key=accountKey(name),pass=$('pvm-auth-password').value,feedback=$('pvm-auth-feedback');if(!/^[\p{L}0-9_-]{3,18}$/u.test(name)){feedback.textContent='Use de 3 a 18 letras, números, _ ou -.';return}if(pass.length<8){feedback.textContent='A senha precisa ter pelo menos 8 caracteres.';return}const btn=$('pvm-auth-submit');btn.disabled=true;btn.textContent='Verificando...';try{
  if(authMode==='create'){
   if(accountStore[key])throw new Error('Esse nome já está cadastrado neste navegador.');if(pass!==$('pvm-auth-confirm').value)throw new Error('As senhas não coincidem.');
@@ -7107,7 +7132,7 @@ function showModal(title,html){$('pvm-modal-title').textContent=title;$('pvm-mod
 window.openPlayerProfile=()=>{if(!activeAccount)return;const p=getProfile();showModal('👤 Perfil e segurança',`<div class="space-y-3"><div class="pvm-reward"><b>${esc(p.name)}</b><div class="pvm-muted">Conta local • criada ${new Date(accountStore[activeAccount]?.created||Date.now()).toLocaleDateString('pt-BR')}</div></div><div class="grid grid-cols-3 gap-2"><div class="pvm-reward"><b>${p.level||1}</b><div class="pvm-muted">Nível</div></div><div class="pvm-reward"><b>${p.xp||0}</b><div class="pvm-muted">XP total</div></div><div class="pvm-reward"><b>${p.kills||0}</b><div class="pvm-muted">Abates</div></div></div><button class="pvm-btn w-full" onclick="pvmOpenPasswordChange()">🔒 Alterar senha</button><button class="pvm-btn w-full" onclick="pvmLogout()">Sair da conta</button><p class="pvm-muted">A senha não pode ser recuperada pelo jogo. Se esquecer, será necessário iniciar uma nova conta ou implementar recuperação por servidor.</p></div>`)};
 window.pvmOpenPasswordChange=()=>showModal('🔒 Alterar senha',`<div class="space-y-3"><label class="block text-sm">Senha atual<div class="relative flex items-center"><input id="pvm-old-pass" class="pvm-input pr-12" type="password"><button type="button" class="absolute right-2 text-xl px-2" aria-label="Mostrar ou ocultar senha" onclick="pvmTogglePassword('pvm-old-pass',this)">👁️</button></div></label><label class="block text-sm">Nova senha<div class="relative flex items-center"><input id="pvm-new-pass" class="pvm-input pr-12" type="password"><button type="button" class="absolute right-2 text-xl px-2" aria-label="Mostrar ou ocultar senha" onclick="pvmTogglePassword('pvm-new-pass',this)">👁️</button></div></label><label class="block text-sm">Confirmar nova senha<div class="relative flex items-center"><input id="pvm-new-pass2" class="pvm-input pr-12" type="password"><button type="button" class="absolute right-2 text-xl px-2" aria-label="Mostrar ou ocultar senha" onclick="pvmTogglePassword('pvm-new-pass2',this)">👁️</button></div></label><p id="pvm-pass-feedback" class="pvm-muted"></p><button class="pvm-btn w-full" onclick="pvmSavePassword()">Salvar senha</button></div>`);
 window.pvmSavePassword=async()=>{const rec=accountStore[activeAccount],old=$('pvm-old-pass').value,np=$('pvm-new-pass').value,np2=$('pvm-new-pass2').value,fb=$('pvm-pass-feedback');if(np.length<8){fb.textContent='A nova senha precisa ter pelo menos 8 caracteres.';return}if(np!==np2){fb.textContent='As novas senhas não coincidem.';return}try{const oldHash=await hashPassword(old,fromB64(rec.salt));if(!secureEqual(oldHash,rec.hash)){fb.textContent='Senha atual incorreta.';return}const salt=crypto.getRandomValues(new Uint8Array(16));rec.salt=toB64(salt);rec.hash=await hashPassword(np,salt);persistAccounts();fb.textContent='Senha alterada com sucesso.'}catch(e){fb.textContent=e.message}};
-window.pvmLogout=()=>{if(activeAccount)window.PVMAuthSaveSnapshot(getProfile(),getProgress());activeAccount=null;isAdmin=false;adminTrack=null;auth.style.display='flex';auth.dataset.authenticated='0';authModeSet('login');$('pvm-auth-name').value='';$('pvm-auth-password').value='';window.closePvmModal?.();window.PVMBridge?.showScreen?.('menu')};
+window.pvmLogout=()=>{if(activeAccount)window.PVMAuthSaveSnapshot(getProfile(),getProgress());try{sessionStorage.removeItem(ACTIVE_ACCOUNT_SESSION_KEY)}catch{}activeAccount=null;isAdmin=false;adminTrack=null;auth.style.display='flex';auth.dataset.authenticated='0';authModeSet('login');$('pvm-auth-name').value='';$('pvm-auth-password').value='';window.closePvmModal?.();window.PVMBridge?.showScreen?.('menu')};
 
 // Catalogue: themed plants are original PvM creations. Exclusive rarity is reserved for the pass.
 const plantCatalog=[
@@ -7348,6 +7373,11 @@ window.startPvmVillainRaid=()=>{const l=game.campaignLevels?.[49];if(!l){game.to
 // Add a few new Seu Zé conversations without replacing the original dialogue pool.
 const shopLine=$('shopkeeper-line');if(shopLine){const zeLines=['“Dizem que um bom jardineiro conhece cada folha. Eu conheço cada boleto do adubo.”','“Ouvi um zumbi ensaiando atrás do celeiro. A afinação era péssima, mas a ameaça era séria.”','“Se o palco ficar escuro, fique de olho no Holofote. Não é iluminação decorativa!”','“O Mestre de Cerimônias cura a horda. É por isso que eu nunca confio em quem usa cartola.”','“A roleta é engraçada: a planta mais brilhante nem sempre é a melhor para aquela fase.”','“Senha boa é como uma boa cerca: não use a mesma do vizinho e não deixe a porteira aberta.”'];const old=window.talkToShopkeeper;if(typeof old==='function'){window.talkToShopkeeper=()=>{old();if(Math.random()<.5)shopLine.textContent=zeLines[Math.floor(Math.random()*zeLines.length)]}}}
 
+// Restaura a sessão após atualização/recarregamento na mesma aba, sem exigir novo cadastro.
+try{
+ const remembered=sessionStorage.getItem(ACTIVE_ACCOUNT_SESSION_KEY);
+ if(remembered&&accountStore[remembered])enterAccount(remembered,accountStore[remembered]);
+}catch(error){console.warn('Não foi possível restaurar a sessão PvM:',error)}
 // Update indicator and initial login requirement.
 updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
 })();
