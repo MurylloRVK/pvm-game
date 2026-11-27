@@ -6587,6 +6587,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         campaignLevels: CAMPAIGN_LEVELS,
         addCoins: amount => addCoins(amount),
         getCoins: () => Economy.coins,
+        refreshHUD: () => updateGameHUD(),
         spendCoins: amount => { const n=Math.max(0,Math.floor(Number(amount)||0)); if(Economy.coins<n)return false; Economy.coins-=n; saveEconomy(); updateWalletUI(); return true; },
         unlockPlant: id => { if(!PLANTS[id])return false; if(!adventureProgress.unlockedPlants.includes(id))adventureProgress.unlockedPlants.push(id); saveAdventureProgress(); return true; },
         plantLabSettings: PlantLabSettings,
@@ -8761,7 +8762,7 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
   }catch{clientId='pvm-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,13);}
   let cursor=null,connected=false,onlinePlayers=0,polling=false;
   const appliedActiveEvents=new Set();
-  let pendingTaf=null;
+  let pendingTaf=null,pendingSun=0,pendingSunExpiresAt=0;
   try{const saved=sessionStorage.getItem(CURSOR_KEY);if(saved!==null)cursor=Math.max(0,Number(saved)||0);}catch{}
   const toast=(message,type='info')=>window.PVMBridge?.toast?.(message,type);
   function refreshStatus(){
@@ -8798,6 +8799,11 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
       const title=String(payload.title||'Comunicado da Administração').slice(0,90);
       const body=String(payload.body||'').slice(0,260);
       toast(`📣 ${title}: ${body}`,'success');
+    }else if(record.type==='sun'){
+      const amount=Math.max(0,Math.min(5000,Math.floor(Number(payload.amount)||0)));
+      const game=window.PVMBridge?.getGame?.();
+      if(amount&&game?.level&&!game.levelCompleted){game.sun=Math.min(999999,(Number(game.sun)||0)+amount);window.PVMBridge?.refreshHUD?.();toast('☀️ A administração enviou +'+amount.toLocaleString('pt-BR')+' sóis!','success');}
+      else if(amount){pendingSun=Math.min(10000,pendingSun+amount);pendingSunExpiresAt=Date.now()+10*60*1000;toast('☀️ Pacote de sóis recebido. Entre em uma fase em até 10 minutos para resgatar.','info');}
     }else if(record.type==='taf'){
       const options={hp:Math.max(12000,Math.min(250000,Number(payload.hp)||24000))};
       const ok=window.PVM_RECEIVE_TAF_BOSS?.(options);
@@ -8808,9 +8814,8 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
     }
   }
   function tryPendingTaf(){
-    if(!pendingTaf)return;
-    if(pendingTaf.expiresAt<=Date.now()){pendingTaf=null;return;}
-    if(window.PVM_RECEIVE_TAF_BOSS?.(pendingTaf.options))pendingTaf=null;
+    if(pendingTaf){if(pendingTaf.expiresAt<=Date.now())pendingTaf=null;else if(window.PVM_RECEIVE_TAF_BOSS?.(pendingTaf.options))pendingTaf=null;}
+    if(pendingSun>0){if(pendingSunExpiresAt<=Date.now()){pendingSun=0;pendingSunExpiresAt=0;}else{const game=window.PVMBridge?.getGame?.();if(game?.level&&!game.levelCompleted){game.sun=Math.min(999999,(Number(game.sun)||0)+pendingSun);toast('☀️ +'+pendingSun.toLocaleString('pt-BR')+' sóis resgatados!','success');pendingSun=0;pendingSunExpiresAt=0;window.PVMBridge?.refreshHUD?.();}}}
   }
   const originalLaunchLevel=window.launchLevel;
   if(typeof originalLaunchLevel==='function'){
@@ -8861,7 +8866,14 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
       return result;
     },
     logout(){adminToken=null;adminTokenExpiresAt=0;},
-    hasSession(){return !!adminToken&&adminTokenExpiresAt>Date.now();}
+    hasSession(){return !!adminToken&&adminTokenExpiresAt>Date.now();},
+    async listPromoCodes(){
+      if(!adminToken||adminTokenExpiresAt<=Date.now())throw new Error('Entre no painel administrativo para consultar os códigos.');
+      return request('/api/admin/promo-codes',{headers:{'Authorization':`Bearer ${adminToken}`}});
+    },
+    async redeemCode(code,player){
+      return request('/api/redeem-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:String(code||''),player:String(player||'jogador')})});
+    }
   };
   async function adminBroadcast(type,extra={}){
     if(!window.PVM_ADMIN_API.hasSession())throw new Error('Sua sessão de administrador expirou. Entre novamente.');
@@ -8879,6 +8891,7 @@ refreshShinyStats();setTimeout(refreshShinyStats,900);
     broadcastEvent(event){if(event?.id)appliedActiveEvents.add(String(event.id));return adminBroadcast('event',{event});},
     broadcastClear(){clearAdminWorldEvents();return adminBroadcast('clear');},
     broadcastTAF(options){return adminBroadcast('taf',{options});},
+    broadcastSun(amount){return adminBroadcast('sun',{amount});},
     broadcastNotice(title,body){return adminBroadcast('notice',{title,body});}
   };
   pollLoop();
