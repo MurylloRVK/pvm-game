@@ -1848,7 +1848,7 @@
     }
     function unlockAllContent(){
       allContentUnlocked=true;try{localStorage.setItem(PVM_ALL_UNLOCKED_KEY,'1');}catch{}
-      adventureProgress.maxUnlockedLevel=60;adventureProgress.unlockedPlants=Object.keys(PLANTS);saveAdventureProgress();
+      adventureProgress.maxUnlockedLevel=70;adventureProgress.unlockedPlants=Object.keys(PLANTS);saveAdventureProgress();
       selectedAdventureWorld=0;selectedAdventureLevel=0;renderMenuLists();
     }
     function restoreNormalProgress(){
@@ -2219,7 +2219,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       document.getElementById('custom-level-count').textContent=`${custom.length} ${custom.length===1?'fase':'fases'}`;box.innerHTML='';
       if(!custom.length)box.innerHTML='<div class="text-xs text-amber-300/60 italic py-2">Nenhuma fase criada ainda. Use o Editor de Fases para montar uma!</div>';
       else custom.forEach(lvl=>{const row=document.createElement('div');row.className='flex items-center justify-between bg-amber-950/90 border border-amber-700/70 rounded-xl px-3 py-2 gap-2';row.innerHTML=`<div class="min-w-0"><div class="font-bold text-sm text-yellow-200">${lvl.name} ${lvl.hasBoss?'🤖':''}</div><div class="text-[11px] text-amber-300/80">${lvl.waves} ondas • ☀️ ${lvl.initialSun}</div></div><div class="flex gap-1.5 shrink-0"><button class="btn-pvz px-3 py-1 rounded-lg text-xs font-bold text-white">Jogar</button><button class="bg-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold text-white">Editar</button></div>`;const b=row.querySelectorAll('button');b[0].onclick=()=>startLevel(lvl,-1);b[1].onclick=()=>openLevelEditor(lvl.id);box.appendChild(row);});
-      updateWalletUI();const n=adventureProgress.maxUnlockedLevel, lvl=CAMPAIGN_LEVELS[Math.min(59,n-1)];document.getElementById('adventure-home-progress').textContent=allContentUnlocked?'🔓 Tudo liberado • Modo sandbox':(n>=60&&adventureProgress.completedLevels.includes(60)?'Campanha concluída!':`${lvl.worldName} • Fase ${selectedWorldNumber(n-1)}`);
+      updateWalletUI();const n=adventureProgress.maxUnlockedLevel, lvl=CAMPAIGN_LEVELS[Math.min(59,n-1)];document.getElementById('adventure-home-progress').textContent=allContentUnlocked?'🔓 Tudo liberado • Modo sandbox':(n>=70&&adventureProgress.completedLevels.includes(70)?'Campanha concluída!':`${lvl.worldName} • Fase ${selectedWorldNumber(n-1)}`);
       renderHomeProgressSummary();
     }
     function openAdventure(){selectedAdventureLevel=Math.max(0,Math.min(CAMPAIGN_LEVELS.length-1,(Number(adventureProgress.maxUnlockedLevel)||1)-1));selectedAdventureWorld=Math.floor(selectedAdventureLevel/10);showScreen('adventure');}
