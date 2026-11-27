@@ -1859,38 +1859,45 @@
       adventureProgress.completedLevels.forEach(n=>{const reward=PLANT_REWARDS[n];if(reward&&!adventureProgress.unlockedPlants.includes(reward))adventureProgress.unlockedPlants.push(reward);});
       saveAdventureProgress();selectedAdventureWorld=Math.floor((next-1)/10);selectedAdventureLevel=next-1;renderMenuLists();
     }
-    function activateSecretCode(){
+    async function activateSecretCode(){
       const input=document.getElementById('secret-code-input');
       const feedback=document.getElementById('secret-code-feedback');
-      const code=input.value.trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
-      if(code==='TUDO LIBERADO'||code==='PVM 100'||code==='UNLOCK ALL'){
-        unlockAllContent();feedback.textContent='Tudo liberado e salvo neste navegador.';showToast('🔓 Campanha, plantas, regiões e slots liberados!','success');return;
+      if(!input||!feedback)return;
+      const code=input.value.trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'');
+      if(!code){feedback.textContent='Digite um código.';return;}
+      const profile=window.PVMAccountBridge?.getProfile?.()||{};
+      const player=String(profile.name||'jogador').trim().slice(0,64)||'jogador';
+      const localKey='pvm_server_promo_claims_v1:'+encodeURIComponent(player.toLocaleLowerCase('pt-BR'));
+      let claimed=[];try{claimed=JSON.parse(localStorage.getItem(localKey)||'[]')}catch{}
+      if(!Array.isArray(claimed))claimed=[];
+      feedback.textContent='Validando o código no servidor…';
+      try{
+        if(!window.PVM_ADMIN_API?.redeemCode)throw new Error('O serviço de códigos ainda não carregou. Atualize a página e tente novamente.');
+        const reward=await window.PVM_ADMIN_API.redeemCode(code,player);
+        if(!reward?.ok||!reward.id)throw new Error('O servidor não confirmou o resgate.');
+        if(claimed.includes(reward.id))throw new Error('Este código já foi usado nesta conta neste navegador.');
+        if(reward.coins>0)addCoins(reward.coins);
+        if(reward.xp>0)window.PVM_GRANT_XP?.(reward.xp);
+        if(reward.action==='unlock_all'){
+          unlockAllContent();
+        }else if(reward.action==='chaos_mode'){
+          unlockAllContent();
+          const values={'chaos-damage':'1000','chaos-attack':'50','chaos-game-speed':'5'};
+          Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value;});
+          const free=document.getElementById('chaos-free-plants'),infinite=document.getElementById('chaos-infinite-sun');
+          if(free)free.checked=true;if(infinite)infinite.checked=true;
+          applyChaosSettings();
+        }else if(reward.action==='mutation_event'){
+          const duration=Math.max(60,Math.min(3600,Number(reward.durationSeconds)||600));
+          const event={id:'promo-cosmic-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),type:'cosmic',scope:'local',source:'promo-code',label:'Ruptura Cósmica',mutationChance:.7,startsAt:Date.now(),endsAt:Date.now()+duration*1000};
+          window.PVM_ADD_WORLD_EVENT?.(event);
+        }
+        claimed.push(reward.id);try{localStorage.setItem(localKey,JSON.stringify(claimed));}catch{}
+        feedback.textContent=reward.message||'Recompensa ativada!';
+        showToast('🎁 '+(reward.label||'Código')+' resgatado!','success');
+      }catch(error){
+        feedback.textContent=error?.message||'Não foi possível validar o código. Tente novamente.';
       }
-      if(code==='PROGRESSO NORMAL'){restoreNormalProgress();feedback.textContent='Travas de progressão restauradas.';showToast('🔒 Progressão normal reativada.','info');return;}
-      if(code==='CAOS INFINITO'||code==='MODO DEUS'){
-        unlockAllContent();document.getElementById('chaos-damage').value='1000';document.getElementById('chaos-attack').value='50';document.getElementById('chaos-game-speed').value='5';document.getElementById('chaos-free-plants').checked=true;document.getElementById('chaos-infinite-sun').checked=true;applyChaosSettings();
-        feedback.textContent='Modo de caos extremo ativado. Abra a Oficina do Caos para ajustar.';return;
-      }
-      if(['TAF','AURA FARMER','THE AURA FARMER','INVOCAR TAF','CHAMAR TAF'].includes(code)){
-        if(!Game.level||Game.levelCompleted){feedback.textContent='Entre em uma partida antes de invocar o TAF.';return;}
-        if(Game.boss){feedback.textContent='Já existe um chefe nesta partida.';return;}
-        if(window.PVM_ADMIN_SPAWN_TAF?.()){feedback.textContent='🐎 O Aura Farmer entrou no palco!';closeCodes();}else feedback.textContent='Não foi possível invocar o TAF agora.';
-        return;
-      }
-      if(code==='AQUARIO'){if(!Game.level){feedback.textContent='Abra uma fase antes de usar AQUARIO.';return;}chaosSpawnPack(true);feedback.textContent='Horda aquática invocada na fase atual.';return;}
-      if(code==='SURTO'){if(!Game.level){feedback.textContent='Abra uma fase antes de usar SURTO.';return;}chaosSpawnPack(false);feedback.textContent='Horda aleatória invocada na fase atual.';return;}
-      if(code==='RESETAR CAOS'){resetChaosSettings();feedback.textContent='Configurações restauradas.';return;}
-      // # SECRET PROMO CODES — redemption is tracked locally; the code list is shown only in Admin.
-      const secretReward=window.PVM_SECRET_CODES?.[code];
-      if(secretReward){
-        let claimed=[];try{claimed=JSON.parse(localStorage.getItem('pvm_secret_code_claims_v1')||'[]')}catch{}
-        if(claimed.includes(code)){feedback.textContent='Este código já foi resgatado neste navegador.';return;}
-        if(secretReward.coins){Economy.coins+=secretReward.coins;saveEconomy();}
-        if(secretReward.sun&&Game.level){Game.sun=Math.min(999999,Game.sun+secretReward.sun);updateGameHUD();}
-        claimed.push(code);try{localStorage.setItem('pvm_secret_code_claims_v1',JSON.stringify(claimed));}catch{}
-        feedback.textContent=secretReward.message||'Recompensa secreta ativada!';showToast('🎁 Código secreto resgatado!','success');return;
-      }
-      feedback.textContent='Código não reconhecido. Peça ao administrador um código válido.';
     }
 
     function openShop() {
@@ -7226,21 +7233,7 @@ window.PVM_STOP_TAF_MUSIC=()=>{
 };
 
 // # PRIVATE CODE REGISTER — only rendered inside the authenticated admin panel.
-window.PVM_SECRET_CODES={
- 'TUDO LIBERADO':{coins:0,message:'Código antigo: libera todo o conteúdo.'},
- 'PROGRESSO NORMAL':{coins:0,message:'Código antigo: restaura a progressão normal.'},
- 'CAOS INFINITO':{coins:0,message:'Código antigo: ativa o modo de caos.'},
- 'MODO DEUS':{coins:0,message:'Código antigo: ativa o modo de caos.'},
- 'AQUARIO':{coins:0,message:'Código antigo: invoca uma horda aquática durante a fase.'},
- 'SURTO':{coins:0,message:'Código antigo: invoca uma horda aleatória durante a fase.'},
- 'RESETAR CAOS':{coins:0,message:'Código antigo: restaura as configurações do caos.'},
- 'BROTO DE OURO':{coins:250,message:'+250 moedas.'},
- 'NOITE DE BRUMA':{coins:400,message:'+400 moedas.'},
- 'AURA DE PRATA':{coins:550,message:'+550 moedas.'},
- 'JARDIM INFINITO':{coins:750,message:'+750 moedas.'},
- 'CAVALO MAROMBA':{coins:1000,message:'+1.000 moedas.'}
-};
-
+// Os códigos promocionais são derivados e validados exclusivamente pela API privada do Render.
 window.pvmTestTAFFromSettings=()=>{if(!isAdmin){game.toast('Ative o Painel de Administrador antes de usar /TAF.','error');return false}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp:24000});if(ok)game.toast('🐎 TAF invocado para teste!','success');return !!ok};
 
 // Admin panel. Passphrase is deliberately client-side; it is a convenience gate, not secure server authorization.
@@ -7267,13 +7260,14 @@ function renderAdminPanel(){
  const accountOptions=Object.entries(accountStore).map(([k,a])=>`<option value="${esc(k)}" ${k===activeAccount?'selected':''}>${esc(a.name||k)}</option>`).join(''); showModal('👑 Administração do PvM',`<div class="space-y-4">
  <div class="pvm-reward"><b>✅ Administrador autenticado pelo servidor</b><p class="pvm-muted">Eventos, comunicados e anúncios do TAF são enviados pelo servidor aos jogadores que estiverem com o PvM aberto. A lista de contas e os boosters exibidos abaixo ainda são locais a este navegador; não representam contas de outros jogadores.</p></div>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-cyan-200">📡 Central global de jogadores</h3><p class="pvm-muted">O servidor recebe os anúncios e os distribui automaticamente. Não é necessário manter uma aba de administrador aberta como central P2P.</p><p id="pvm-global-admin-status" class="pvm-muted">Conectando à API do PvM…</p><button class="pvm-btn w-full" onclick="PVM_GLOBAL_ADMIN?.startHost?.()">🔄 Atualizar conexão e jogadores online</button></section>
+ <section class="pvm-reward space-y-2 border border-yellow-500/30"><h3 class="font-bold text-yellow-100">☀️ Comando administrativo de sóis</h3><p class="pvm-muted">Comando privado: <b>/SOL quantidade</b>. Só funciona com a sessão administrativa autenticada e uma partida ativa. Pode enviar o pacote para os jogadores conectados.</p><label class="block text-sm">Quantidade de sóis (50–5.000)<input id="pvm-admin-sun-amount" class="pvm-input" type="number" min="50" max="5000" step="50" value="500"></label><label class="block text-sm">Alcance<select id="pvm-admin-sun-scope" class="pvm-input"><option value="global" selected>🌍 Todos os jogadores online</option><option value="local">🖥️ Apenas minha partida</option></select></label><button class="pvm-btn w-full" onclick="pvmAdminGrantSun()">☀️ Executar /SOL</button><p id="pvm-admin-sun-status" class="pvm-muted">Entre em uma partida para conceder sóis.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-lime-200">🎁 Distribuir boosters temporários</h3>
  <label class="block text-sm">Conta que receberá<select id="pvm-admin-booster-account" class="pvm-input" onchange="pvmAdminRefreshBoostInfo(this.value)">${accountOptions}</select></label>
  <p id="pvm-admin-target-boosts" class="pvm-muted">Boosters da conta selecionada: XP ×${bp.xp||0} • Moedas ×${bp.coins||0}</p>
  <label class="block text-sm">Tipo de booster<select id="pvm-admin-booster-type" class="pvm-input"><option value="xp">⭐ XP em dobro</option><option value="coins">🪙 Moedas em dobro</option><option value="damage">🌱 Dano das plantas +20%</option><option value="speed">⚡ Velocidade de ataque +15%</option></select></label>
  <label class="block text-sm">Duração escolhida por você (minutos)<input id="pvm-admin-booster-duration" class="pvm-input" type="number" min="1" max="10080" step="1" required placeholder="Digite a duração em minutos"></label>
  <button class="pvm-btn w-full" onclick="pvmAdminGrantBoosters()">Conceder booster</button></section>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🎟️ Códigos promocionais do jogo</h3><p class="pvm-muted">Aviso: os códigos de recompensa desta versão ainda estão no JavaScript público. Não trate esta lista como segredo nem coloque códigos únicos ou recompensas sensíveis aqui.</p><div class="space-y-2">${Object.entries(window.PVM_SECRET_CODES||{}).map(([code,reward])=>`<div class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/25 p-2"><div><b class="text-yellow-100 tracking-wide">${esc(code)}</b><div class="pvm-muted">${esc(reward.message)}</div></div><button class="pvm-btn" type="button" onclick="navigator.clipboard?.writeText('${esc(code)}')">Copiar</button></div>`).join('')}</div><p class="pvm-muted">Códigos antigos continuam disponíveis. Como o jogo atual é HTML local, alguém com acesso ao código-fonte pode inspecioná-los; segredo real exige validação no servidor.</p></section>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🎟️ Códigos promocionais privados</h3><p class="pvm-muted">Os códigos são derivados no servidor e não ficam gravados no HTML público. Só esta sessão administrativa autenticada recebe a lista. Códigos comuns dão moedas e XP; os raros liberam funções especiais.</p><div id="pvm-admin-promo-list" class="space-y-2"><p class="pvm-muted">Carregando códigos protegidos…</p></div><p class="pvm-muted">O servidor limita tentativas e impede resgates repetidos pela mesma conta durante a sessão ativa do serviço.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🐎 TAF — The Aura Farmer</h3><p class="pvm-muted">Invocação manual em qualquer modo de jogo com uma fase ativa. O chefe tem barra de vida própria, dança entre as três últimas colunas, chama zumbis e atordoa plantas.</p><label class="block text-sm">Vida do TAF (HP)<input id="pvm-admin-taf-hp" class="pvm-input" type="number" min="12000" max="250000" step="1000" value="24000"></label><label class="block text-sm">Alcance<select id="pvm-admin-taf-scope" class="pvm-input"><option value="global" selected>🌍 Todos os jogadores online no PvM</option><option value="room">Jogador 1 + Jogador 2 da sala VS</option><option value="local">Somente minha partida</option></select></label><label class="block text-sm">Música alternativa do TAF (opcional; até 15 MB)<input id="pvm-admin-taf-audio" class="pvm-input" type="file" accept="audio/*"></label><p class="pvm-muted">Padrão: procura o MP3 “The Aura Farmer - Horror Skunx (official song)_128k.mp3” na mesma pasta do index.html. Se selecionar outro áudio aqui, ele substitui o arquivo padrão nesta sessão. A música fica em loop até o TAF morrer.</p><button class="pvm-btn w-full" onclick="pvmAdminSpawnTAF()">🐎 INVOCAR TAF</button><p id="pvm-admin-taf-status" class="pvm-muted">Entre em uma partida para invocar o chefe.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🌩️ Evento / mutação da partida</h3>
  <label class="block text-sm">Efeito<select id="pvm-admin-world-event" class="pvm-input">
@@ -7288,8 +7282,42 @@ function renderAdminPanel(){
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🎉 Evento da Frente de Guerra</h3><button class="pvm-btn w-full" onclick="pvmAdminOpenWarfront()">⚔️ Abrir controle de eventos da Frente de Guerra</button></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🎵 Música compartilhada</h3><input id="pvm-admin-audio" class="pvm-input" type="file" accept="audio/*"><p class="pvm-muted">A duração vale para o evento e sua mutação. O áudio compartilhado continua limitado às abas abertas no mesmo navegador.</p><button class="pvm-btn w-full" onclick="pvmAdminSendMusic()">Enviar música para jogadores locais</button><button class="pvm-btn w-full" onclick="pvmAdminStopMusic()">⏹ Parar música compartilhada</button><p id="pvm-admin-music-status" class="pvm-muted"></p></section>
  <button class="pvm-btn w-full" onclick="pvmAdminLogout()">Desativar modo administrador</button></div>`);
- const status=$('pvm-admin-world-status'),active=window.PVM_GET_WORLD_EVENTS?.()||[];if(status)status.textContent=active.length?active.map(e=>`${e.label||e.type} • ${Math.max(0,Math.ceil((e.endsAt-Date.now())/60000))} min restantes`).join(' | '):'Nenhum evento ou mutação ativo.';const hubStatus=$('pvm-global-admin-status');if(hubStatus)hubStatus.textContent=window.PVM_GLOBAL_ADMIN?.getStatus?.()||'Central global será iniciada ao acessar o painel.'
+ const status=$('pvm-admin-world-status'),active=window.PVM_GET_WORLD_EVENTS?.()||[];if(status)status.textContent=active.length?active.map(e=>`${e.label||e.type} • ${Math.max(0,Math.ceil((e.endsAt-Date.now())/60000))} min restantes`).join(' | '):'Nenhum evento ou mutação ativo.';const hubStatus=$('pvm-global-admin-status');if(hubStatus)hubStatus.textContent=window.PVM_GLOBAL_ADMIN?.getStatus?.()||'Central global será iniciada ao acessar o painel.';window.pvmLoadAdminPromoCodes?.();
 }
+window.pvmLoadAdminPromoCodes=async()=>{
+ if(!isAdmin||!window.PVM_ADMIN_API?.hasSession?.())return;
+ const box=$('pvm-admin-promo-list');if(!box)return;
+ box.innerHTML='<p class="pvm-muted">Consultando o servidor privado…</p>';
+ try{
+  const data=await window.PVM_ADMIN_API.listPromoCodes();
+  const codes=Array.isArray(data.codes)?data.codes:[];
+  if(!codes.length){box.innerHTML='<p class="pvm-muted">Nenhum código disponível.</p>';return;}
+  box.innerHTML=codes.map(item=>'<div class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/25 p-2"><div class="min-w-0"><b class="text-yellow-100 tracking-wide break-all">'+esc(item.code)+'</b><div class="pvm-muted">'+esc(item.label)+' • '+esc(item.tier)+' • '+esc(item.message)+'</div></div><button class="pvm-btn" type="button" data-pvm-copy-code="'+esc(item.code)+'">Copiar</button></div>').join('');
+  box.querySelectorAll('[data-pvm-copy-code]').forEach(button=>button.addEventListener('click',()=>{navigator.clipboard?.writeText(button.getAttribute('data-pvm-copy-code')||'');game.toast('Código copiado.','success')}));
+ }catch(error){box.innerHTML='<p class="pvm-muted">'+esc(error?.message||'Falha ao carregar códigos.')+'</p>';}
+};
+window.pvmAdminGrantSun=async()=>{
+ if(!isAdmin||!window.PVM_ADMIN_API?.hasSession?.()){game.toast('O comando /SOL exige uma sessão administrativa válida.','error');return;}
+ const status=$('pvm-admin-sun-status'),amount=Math.floor(Number($('pvm-admin-sun-amount')?.value)||0),scope=$('pvm-admin-sun-scope')?.value||'global';
+ if(amount<50||amount>5000){if(status)status.textContent='Digite uma quantidade entre 50 e 5.000 sóis.';return;}
+ const current=window.PVMBridge?.getGame?.();
+ if(!current?.level||current.levelCompleted){if(status)status.textContent='Inicie uma partida antes de executar /SOL.';return;}
+ if(scope==='global'){
+  try{
+   const delivered=await window.PVM_GLOBAL_ADMIN?.broadcastSun?.(amount);
+   if(typeof delivered!=='number')throw new Error('O servidor não confirmou o envio.');
+   current.sun=Math.min(999999,(Number(current.sun)||0)+amount);
+   window.PVMBridge?.refreshHUD?.();
+   if(status)status.textContent='/SOL enviado: +'+amount.toLocaleString('pt-BR')+' sóis nesta partida e distribuído para '+delivered+' jogador(es) online.';
+   game.toast('☀️ /SOL executado! +'+amount.toLocaleString('pt-BR')+' sóis.','success');
+  }catch(error){if(status)status.textContent=error?.message||'Não foi possível enviar o pacote.';game.toast('Falha ao executar /SOL.','error');}
+ }else{
+  current.sun=Math.min(999999,(Number(current.sun)||0)+amount);
+  window.PVMBridge?.refreshHUD?.();
+  if(status)status.textContent='/SOL local executado: +'+amount.toLocaleString('pt-BR')+' sóis.';
+  game.toast('☀️ +'+amount.toLocaleString('pt-BR')+' sóis adicionados à partida.','success');
+ }
+};
 window.pvmAdminRefreshBoostInfo=target=>{if(!isAdmin)return;const rec=accountStore[target],b=rec?.progress?.boosters||{xp:0,coins:0},el=$('pvm-admin-target-boosts');if(el)el.textContent=`Boosters da conta selecionada: XP ×${Number(b.xp)||0} • Moedas ×${Number(b.coins)||0}`};
 window.pvmAdminGrantBoosters=()=>{if(!isAdmin)return;const kind=$('pvm-admin-booster-type')?.value,target=$('pvm-admin-booster-account')?.value||activeAccount,duration=Number($('pvm-admin-booster-duration')?.value);if(!Number.isFinite(duration)||duration<1||duration>10080){game.toast('Digite a duração do booster em minutos (1 a 10080).','error');return}const record=accountStore[target];if(!record){game.toast('Essa conta não foi encontrada neste navegador.','error');return}record.progress=record.progress||defaultsProgress();record.progress.boosters={xp:0,coins:0,...(record.progress.boosters||{})};record.progress.timedBoosters=record.progress.timedBoosters||{};const key={xp:'xpUntil',coins:'coinsUntil',damage:'damageUntil',speed:'speedUntil'}[kind];if(!key){game.toast('Escolha um booster válido.','error');return}record.progress.timedBoosters[key]=Date.now()+duration*60000;persistAccounts();if(target===activeAccount){bridge.setProgress(record.progress);bridge.save();window.PVM_REFRESH_TIMED_BOOSTS?.()}game.toast(`🎁 Booster ${kind} aplicado por ${duration} minutos à conta ${record.name}.`,'success');renderAdminPanel()};
 window.pvmAdminSendMail=()=>{if(!isAdmin)return;const title=$('pvm-admin-mail-title').value.trim(),body=$('pvm-admin-mail-body').value.trim();if(!title||!body){game.toast('Preencha título e mensagem.','error');return}const item={from:'Administração',title,body,time:Date.now()};addMail(item,true);const delivered=window.PVM_GLOBAL_ADMIN?.broadcastNotice?.(title,body)||0;game.toast(`📣 Comunicado salvo aqui e enviado para ${delivered} jogador(es) online.`,'success');renderAdminPanel()};
