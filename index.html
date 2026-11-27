@@ -3448,9 +3448,18 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           z.deathTimer -= dt;
           if (z.deathTimer <= 0) {
             spawnParticles(z.x, z.y, z.skin, 16);
-            const coinChance = z.id === 'gargantuar' ? 0.85 : (z.ability === 'healer' ? 0.32 : 0.2);
-            if(z.isShiny){spawnCoin(z.x,z.y-5,1);spawnParticles(z.x,z.y-22,'#fef08a',10);}
-            else if (Math.random() < coinChance) spawnCoin(z.x, z.y - 5, z.id === 'gargantuar' ? 10 : (Math.random()<0.12?3:1));
+            const mutationCount=Math.min(3,Array.isArray(z.pvmMutations)?z.pvmMutations.length:(z.pvmMutation?1:0));
+            const baseCoinChance=z.id==='gargantuar'?.85:(z.ability==='healer'?.32:.2);
+            const coinChance=Math.min(.97,baseCoinChance+mutationCount*.1);
+            if(z.isShiny){spawnCoin(z.x,z.y-5,1+mutationCount*2);spawnParticles(z.x,z.y-22,'#fef08a',10);}
+            else if(Math.random()<coinChance)spawnCoin(z.x,z.y-5,z.id==='gargantuar'?10+mutationCount*3:(Math.random()<.12?3:1)+mutationCount*2);
+            if(mutationCount>0&&Math.random()<Math.min(.38,.10+mutationCount*.075)){
+              const bonus=3+mutationCount*3+Math.floor(Math.random()*3);
+              spawnCoin(z.x+12,z.y-22,bonus);
+              const bonusColor=z.pvmMutation==='taco'?'#f59e0b':z.pvmMutation==='cosmic'?'#c084fc':'#fde68a';
+              spawnParticles(z.x,z.y-26,bonusColor,18);
+              if(Math.random()<.35)window.PVM_GRANT_XP?.(5*mutationCount);
+            }
             if (z.ability === 'explosive') {
               SoundFX.explosion(); spawnParticles(z.x,z.y,'#f97316',25);
               Game.plants.forEach(pl => { if (Math.abs(pl.x-z.x)<GRID.cellW*1.1 && pl.row===z.row) pl.hp-=180; });
@@ -7289,7 +7298,7 @@ window.pvmAdminSendMusic=async()=>{if(!isAdmin)return;const file=$('pvm-admin-au
 window.pvmAdminStopMusic=()=>{if(!isAdmin)return;if(customAudio)customAudio.pause();adminTrack=null;pendingAudio=null;bus?.postMessage({type:'track-stop'});$('pvm-admin-music-status').textContent='Reprodução compartilhada interrompida.'};
 // # ADMIN TAF INVOCATION — independent from campaign mode or level number.
 window.pvmAdminSpawnTAF=async()=>{if(!isAdmin)return;const status=$('pvm-admin-taf-status'),hp=Number($('pvm-admin-taf-hp')?.value)||24000,scope=$('pvm-admin-taf-scope')?.value||'global',file=$('pvm-admin-taf-audio')?.files?.[0]||null;if(!Number.isFinite(hp)||hp<12000||hp>250000){if(status)status.textContent='A vida precisa ficar entre 12.000 e 250.000 HP.';return}if(file&&!window.PVM_SET_TAF_MUSIC_FILE?.(file)){if(status)status.textContent='Escolha um áudio válido de até 15 MB.';return}const ok=window.PVM_ADMIN_SPAWN_TAF?.({hp});if(!ok){if(status)status.textContent='Não invocou: inicie uma fase e confira se já existe outro chefe.';return}let sent=0;if(scope==='global'){try{sent=await window.PVM_GLOBAL_ADMIN?.broadcastTAF?.({hp})||0}catch(error){if(status)status.textContent=`TAF invocado aqui, mas o envio global falhou: ${error?.message||'servidor indisponível'}`;game.toast('O TAF foi invocado apenas nesta partida; falhou o envio global.','error');return}}else if(scope==='room')sent=window.PVMOnlineVersus?.broadcastBoss?.({hp})?1:0;if(status)status.textContent=scope==='global'?`TAF invocado aqui e enviado para ${sent} jogador(es) conectados. Mantenha a central do administrador aberta.`:scope==='room'?(sent?'TAF invocado para os dois jogadores conectados.':'TAF invocado nesta partida. Nenhum Jogador 2 está conectado na sala VS.'):'TAF invocado somente na sua partida.';game.toast('🐎 TAF entrou no gramado!','success')};
-window.pvmAdminStartWorldEvent=async()=>{if(!isAdmin)return;const type=$('pvm-admin-world-event')?.value,scope=$('pvm-admin-world-scope')?.value||'local',minutes=Number($('pvm-admin-world-duration')?.value);if(!Number.isFinite(minutes)||minutes<1||minutes>10080){$('pvm-admin-world-status').textContent='Digite a duração em minutos (1 a 10080) antes de iniciar.';return}const labels={taco:'Chuva de Tacos',shock:'Tempestade Elétrica',leprechaun:'Leprechaun',eclipse:'Eclipse',chorume:'Chorume',frost:'Geada',flame:'Incandescente',armored:'Blindado',phantom:'Espectral',spore:'Esporos',cosmic:'Cósmica',tafAura:'Aura do TAF'};if(!labels[type])return;let audioFile=$('pvm-admin-taco-audio')?.files?.[0]||null;if(type==='taco'&&audioFile){try{const url=URL.createObjectURL(audioFile),audio=new Audio();const duration=await new Promise(resolve=>{audio.onloadedmetadata=()=>resolve(audio.duration);audio.onerror=()=>resolve(0);audio.src=url});URL.revokeObjectURL(url);if(!Number.isFinite(duration)||duration<30){$('pvm-admin-world-status').textContent='O áudio escolhido precisa ter pelo menos 30 segundos. Evento não iniciado.';return}playAdminAudio(audioFile,audioFile.name);bus?.postMessage({type:'track',title:audioFile.name,file:audioFile})}catch{$('pvm-admin-world-status').textContent='Não foi possível validar o áudio. O evento pode ser iniciado sem música.'}}const event={id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),type,scope,label:labels[type],source:scope==='global'?'admin-hub':'admin-local',startsAt:Date.now(),endsAt:Date.now()+minutes*60000};window.PVM_ADD_WORLD_EVENT?.(event);bus?.postMessage({type:'pvm-world-event',event});let delivered=0;if(scope==='global'){try{delivered=await window.PVM_GLOBAL_ADMIN?.broadcastEvent?.(event)||0}catch(error){$('pvm-admin-world-status').textContent=`Evento ativo apenas aqui; envio global falhou: ${error?.message||'servidor indisponível'}`;game.toast('O evento não foi enviado aos outros jogadores.','error');return}}else if(scope==='room')delivered=window.PVMOnlineVersus?.broadcastEvent?.(event)?1:0;$('pvm-admin-world-status').textContent=scope==='global'?`${labels[type]} ativo por ${minutes} min e enviado para ${delivered} jogador(es) online. Deixe a central do administrador aberta.`:scope==='room'?`${labels[type]} enviado para ${delivered} jogador(es) da sala VS.`:`${labels[type]} ativo por ${minutes} min neste navegador.`;game.toast(`🌩️ ${labels[type]} iniciado!`,'success')};
+window.pvmAdminStartWorldEvent=async()=>{if(!isAdmin)return;const type=$('pvm-admin-world-event')?.value,scope=$('pvm-admin-world-scope')?.value||'local',minutes=Number($('pvm-admin-world-duration')?.value);if(!Number.isFinite(minutes)||minutes<1||minutes>10080){$('pvm-admin-world-status').textContent='Digite a duração em minutos (1 a 10080) antes de iniciar.';return}const labels={taco:'Chuva de Tacos',shock:'Tempestade Elétrica',leprechaun:'Leprechaun',eclipse:'Eclipse',chorume:'Chorume',frost:'Geada',flame:'Incandescente',armored:'Blindado',phantom:'Espectral',spore:'Esporos',cosmic:'Cósmica',tafAura:'Aura do TAF'};if(!labels[type])return;let audioFile=$('pvm-admin-taco-audio')?.files?.[0]||null;if(type==='taco'&&audioFile){try{const url=URL.createObjectURL(audioFile),audio=new Audio();const duration=await new Promise(resolve=>{audio.onloadedmetadata=()=>resolve(audio.duration);audio.onerror=()=>resolve(0);audio.src=url});URL.revokeObjectURL(url);if(!Number.isFinite(duration)||duration<30){$('pvm-admin-world-status').textContent='O áudio escolhido precisa ter pelo menos 30 segundos. Evento não iniciado.';return}playAdminAudio(audioFile,audioFile.name);bus?.postMessage({type:'track',title:audioFile.name,file:audioFile})}catch{$('pvm-admin-world-status').textContent='Não foi possível validar o áudio. O evento pode ser iniciado sem música.'}}const event={id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),type,scope,label:labels[type],source:scope==='global'?'admin-hub':'admin-local',mutationChance:type==='taco'?.52:.42,startsAt:Date.now(),endsAt:Date.now()+minutes*60000};window.PVM_ADD_WORLD_EVENT?.(event);bus?.postMessage({type:'pvm-world-event',event});let delivered=0;if(scope==='global'){try{delivered=await window.PVM_GLOBAL_ADMIN?.broadcastEvent?.(event)||0}catch(error){$('pvm-admin-world-status').textContent=`Evento ativo apenas aqui; envio global falhou: ${error?.message||'servidor indisponível'}`;game.toast('O evento não foi enviado aos outros jogadores.','error');return}}else if(scope==='room')delivered=window.PVMOnlineVersus?.broadcastEvent?.(event)?1:0;$('pvm-admin-world-status').textContent=scope==='global'?`${labels[type]} ativo por ${minutes} min e enviado para ${delivered} jogador(es) online. Deixe a central do administrador aberta.`:scope==='room'?`${labels[type]} enviado para ${delivered} jogador(es) da sala VS.`:`${labels[type]} ativo por ${minutes} min neste navegador.`;game.toast(`🌩️ ${labels[type]} iniciado!`,'success')};
 window.pvmAdminStopWorldEvent=async()=>{if(!isAdmin)return;window.PVM_SET_WORLD_EVENT?.(null);bus?.postMessage({type:'pvm-world-event',event:null});window.PVMOnlineVersus?.broadcastEventClearAll?.();try{const delivered=await window.PVM_GLOBAL_ADMIN?.broadcastClear?.()||0;$('pvm-admin-world-status').textContent=`Eventos encerrados aqui e enviados para ${delivered} jogador(es) online.`;game.toast('Eventos e mutações encerrados.','info')}catch(error){$('pvm-admin-world-status').textContent='Eventos encerrados neste navegador, mas não foi possível avisar os outros jogadores: '+(error?.message||'servidor indisponível');game.toast('Falha ao encerrar os eventos globalmente.','error')}};
 window.pvmAdminLogout=()=>{isAdmin=false;window.PVM_ADMIN_API?.logout?.();showModal('👑 Administrador','<p class="pvm-muted">Sessão administrativa encerrada neste navegador.</p>')};
 const oldWfAdmin=window.wfOpenAdmin;window.wfOpenAdmin=()=>{if(!isAdmin){window.openPvmAdmin();return}oldWfAdmin?.()};
@@ -8389,14 +8398,31 @@ function setEvent(e){if(e)return addEvent(e);clearEvents()}
 window.PVM_SET_WORLD_EVENT=setEvent;window.PVM_ADD_WORLD_EVENT=addEvent;window.PVM_REMOVE_WORLD_EVENT=removeEvent;window.PVM_GET_WORLD_EVENTS=()=>activeEvents.slice();
 const eventMultipliers={taco:[1.12,1.08,1.04],shock:[1.18,1.15,1.08],leprechaun:[1.12,1.10,1.16],eclipse:[1.08,1.08,1.04],chorume:[1.4,1.3,1.12],frost:[1.25,1.1,.9],flame:[1.18,1.22,1.05],armored:[1.55,1.18,.92],phantom:[1.12,1.12,1.2],spore:[1.2,1.12,1.05],cosmic:[1.1,1.2,1.1],tafAura:[1.16,1.12,1.08]};
 function applyStackedMutation(z){
- if(!z||z.isDying)return;const signature=activeEvents.map(e=>e.id).sort().join('|');if(z._pvmEventsSignature===signature)return;
- const oldRatio=z.maxHp?Math.max(0,Math.min(1,z.hp/z.maxHp)):1;
+ if(!z||z.isDying||!(Number(z.hp)>0))return;
+ const attempts=z._pvmMutationAttempts||(z._pvmMutationAttempts=Object.create(null));
+ const mutations=Array.isArray(z.pvmMutations)?z.pvmMutations.slice():(z.pvmMutation?[z.pvmMutation]:[]);
+ const added=[];
+ for(const event of activeEvents){
+  const id=String(event?.id||'');if(!id||attempts[id])continue;
+  attempts[id]=true;
+  if(mutations.length>=3||!eventMultipliers[event.type]||mutations.includes(event.type))continue;
+  const chance=Math.max(.05,Math.min(.9,Number(event.mutationChance)||.42));
+  if(Math.random()<chance){mutations.push(event.type);added.push(event.type);}
+ }
+ if(!added.length)return;
+ const currentMax=Math.max(1,Number(z.maxHp)||Number(z.hp)||1);
+ const healthRatio=Math.max(.03,Math.min(1,(Number(z.hp)||currentMax)/currentMax));
  if(!z._pvmEventBase)z._pvmEventBase={hp:z.hp,maxHp:z.maxHp,damage:z.damage,speed:z.speed};
  const base=z._pvmEventBase;let hp=1,dmg=1,spd=1;
- for(const e of activeEvents){const m=eventMultipliers[e.type]||[1.1,1.1,1.05];hp*=m[0];dmg*=m[1];spd*=m[2];}
- if(activeEvents.length){z.maxHp=Math.ceil((base.maxHp||base.hp||1)*hp);z.hp=Math.max(1,Math.ceil(z.maxHp*oldRatio));z.damage=Math.ceil((base.damage||100)*dmg);z.speed=Math.max(1,(base.speed||18)*spd);z.pvmMutations=activeEvents.map(e=>e.type);z.pvmMutation=activeEvents[activeEvents.length-1]?.type||null;}
- else{z.maxHp=base.maxHp;z.hp=Math.max(0,Math.ceil((base.maxHp||base.hp||1)*oldRatio));z.damage=base.damage;z.speed=base.speed;delete z._pvmEventBase;delete z._pvmEventSignature;delete z.pvmMutations;delete z.pvmMutation;}
- z._pvmEventsSignature=signature;
+ for(const type of mutations){const m=eventMultipliers[type]||[1.1,1.1,1.05];hp*=m[0];dmg*=m[1];spd*=m[2];}
+ z.maxHp=Math.ceil((Number(base.maxHp)||Number(base.hp)||1)*hp);
+ z.hp=Math.max(1,Math.ceil(z.maxHp*healthRatio));
+ z.damage=Math.ceil((Number(base.damage)||100)*dmg);
+ z.speed=Math.max(1,(Number(base.speed)||18)*spd);
+ z.pvmMutations=mutations.slice(0,3);z.pvmMutation=z.pvmMutations[z.pvmMutations.length-1]||null;
+ z.pvmMutationCount=z.pvmMutations.length;
+ const colors={taco:'#f59e0b',shock:'#38bdf8',leprechaun:'#22c55e',chorume:'#84cc16',frost:'#7dd3fc',flame:'#fb923c',armored:'#94a3b8',phantom:'#a78bfa',spore:'#4ade80',cosmic:'#c084fc',tafAura:'#facc15',eclipse:'#64748b'};
+ try{const g=bridge()?.getGame?.();if(g?.particles)for(const type of added)window.PVM_MUTATION_PARTICLES?.(z.x,z.y-24,colors[type]||'#facc15',12);}catch{}
 }
 function applyEventNow(){
  const g=bridge()?.getGame?.();if(!g)return;const now=Date.now(),before=activeEvents.length;activeEvents=activeEvents.filter(e=>Number(e.endsAt)>now);if(activeEvents.length!==before)persistEvents();
