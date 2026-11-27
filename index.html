@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.30.0" name="application-version"/>
+<meta content="5.31.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -404,7 +404,7 @@
 <button class="btn-pvz flex-1 rounded-xl py-3 font-display text-white" onclick="activateSecretCode()">ATIVAR</button>
 <button class="btn-danger rounded-xl px-4 py-3 font-bold text-white" onclick="closeCodes()">Fechar</button>
 </div>
-<div class="text-xs text-amber-200/80 mt-3 text-left space-y-1"><p>🔒 Os códigos são secretos e não aparecem nesta tela. Somente o administrador pode consultar a lista privada.</p><p>Os códigos compartilhados podem ter limite de um resgate por navegador.</p></div>
+<div class="text-xs text-amber-200/80 mt-3 text-left space-y-1"><p>🧪 <b>PVMTESTE</b>: libera as 70 fases, todas as plantas, 9 espaços e moedas de teste neste navegador.</p><p>↩️ <b>PVMNORMAL</b>: encerra o modo de teste e restaura seu progresso e pacote de sementes anteriores.</p><p>Os códigos promocionais do servidor continuam funcionando normalmente.</p></div>
 </div>
 </div>
 <!-- Oficina do Caos: sandbox para testar limites sem editar arquivos -->
@@ -1866,12 +1866,65 @@
       adventureProgress.completedLevels.forEach(n=>{const reward=PLANT_REWARDS[n];if(reward&&!adventureProgress.unlockedPlants.includes(reward))adventureProgress.unlockedPlants.push(reward);});
       saveAdventureProgress();selectedAdventureWorld=Math.floor((next-1)/10);selectedAdventureLevel=next-1;renderMenuLists();
     }
+    const PVM_LOCAL_TEST_BACKUP_KEY='pvm_local_test_backup_v1';
+    const PVM_LOCAL_TEST_ACTIVE_KEY='pvm_local_test_active_v1';
+    function activateLocalTestMode(){
+      const alreadyActive=localStorage.getItem(PVM_LOCAL_TEST_ACTIVE_KEY)==='1';
+      if(!alreadyActive){
+        const backup={
+          allContentUnlocked,
+          progress:JSON.parse(JSON.stringify(adventureProgress)),
+          coins:Economy.coins,
+          seedSlots:Economy.seedSlots,
+          seedLoadout:selectedSeedPlants.slice()
+        };
+        localStorage.setItem(PVM_LOCAL_TEST_BACKUP_KEY,JSON.stringify(backup));
+        localStorage.setItem(PVM_LOCAL_TEST_ACTIVE_KEY,'1');
+      }
+      unlockAllContent();
+      Economy.coins=Math.max(Economy.coins,100000);
+      Economy.seedSlots=9;
+      saveEconomy();
+      selectedSeedPlants=getUnlockedSeedIds().slice(0,9);
+      normalizeSeedLoadout();
+      renderMenuLists();
+    }
+    function deactivateLocalTestMode(){
+      if(localStorage.getItem(PVM_LOCAL_TEST_ACTIVE_KEY)!=='1')throw new Error('O modo de teste local não está ativo.');
+      const backup=JSON.parse(localStorage.getItem(PVM_LOCAL_TEST_BACKUP_KEY)||'null');
+      if(!backup||!backup.progress)throw new Error('Não encontrei o backup do progresso anterior. O modo de teste foi mantido para evitar perda de dados.');
+      adventureProgress=backup.progress;
+      allContentUnlocked=!!backup.allContentUnlocked;
+      localStorage.setItem(PVM_ALL_UNLOCKED_KEY,allContentUnlocked?'1':'0');
+      Economy.coins=Math.max(0,Math.floor(Number(backup.coins)||0));
+      Economy.seedSlots=Math.max(4,Math.min(9,Math.floor(Number(backup.seedSlots)||4)));
+      selectedSeedPlants=Array.isArray(backup.seedLoadout)?backup.seedLoadout.filter(id=>PLANTS[id]):[];
+      localStorage.removeItem(PVM_LOCAL_TEST_BACKUP_KEY);
+      localStorage.removeItem(PVM_LOCAL_TEST_ACTIVE_KEY);
+      saveAdventureProgress();
+      saveEconomy();
+      normalizeSeedLoadout();
+      selectedAdventureLevel=Math.max(0,Math.min(69,(Number(adventureProgress.maxUnlockedLevel)||1)-1));
+      selectedAdventureWorld=Math.floor(selectedAdventureLevel/10);
+      renderMenuLists();
+    }
+
     async function activateSecretCode(){
       const input=document.getElementById('secret-code-input');
       const feedback=document.getElementById('secret-code-feedback');
       if(!input||!feedback)return;
       const code=input.value.trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'');
       if(!code){feedback.textContent='Digite um código.';return;}
+      if(code==='PVMTESTE'||code==='TESTARTUDO'){
+        try{activateLocalTestMode();feedback.textContent='Modo de teste ativado: 70 fases, plantas e 9 espaços liberados.';showToast('🧪 MODO DE TESTE ATIVADO! Seu progresso anterior foi guardado.','success');}
+        catch(error){feedback.textContent=error?.message||'Não foi possível ativar o modo de teste.';}
+        return;
+      }
+      if(code==='PVMNORMAL'||code==='SAIRTESTE'){
+        try{deactivateLocalTestMode();feedback.textContent='Modo de teste encerrado. Seu progresso anterior foi restaurado.';showToast('↩️ PROGRESSO NORMAL RESTAURADO!','success');}
+        catch(error){feedback.textContent=error?.message||'Não foi possível restaurar o progresso.';}
+        return;
+      }
       const profile=window.PVMAccountBridge?.getProfile?.()||{};
       const player=String(profile.name||'jogador').trim().slice(0,64)||'jogador';
       const localKey='pvm_server_promo_claims_v1:'+encodeURIComponent(player.toLocaleLowerCase('pt-BR'));
@@ -2395,7 +2448,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       const base=allContentUnlocked?Object.keys(PLANTS):adventureProgress.unlockedPlants;
       const prize=Object.keys(PLANTS).filter(id=>window.PVM_IS_PRIZE_UNLOCKED?.(id));
       const custom=SAVED_CUSTOM_PLANTS.map(p=>p?.id).filter(id=>id&&PLANTS[id]);
-      let result=[...new Set([...base,...prize,...custom])].filter(id=>PLANTS[id]&&(id!=='waterpot'||adventureProgress.completedLevels.includes(40))&&(!window.PVM_PRIZE_IDS?.includes(id)||window.PVM_IS_PRIZE_UNLOCKED?.(id)));
+      let result=[...new Set([...base,...prize,...custom])].filter(id=>PLANTS[id]&&(allContentUnlocked||id!=='waterpot'||adventureProgress.completedLevels.includes(40))&&(allContentUnlocked||!window.PVM_PRIZE_IDS?.includes(id)||window.PVM_IS_PRIZE_UNLOCKED?.(id)));
       const banned=pendingLevel?.isExtremeChallenge?pendingLevel.extremeBannedPlants:null;
       if(Array.isArray(banned)&&banned.length)result=result.filter(id=>!banned.includes(id));
       const legacyAllowed=pendingLevel?.isExtremeChallenge&&!Array.isArray(pendingLevel.extremeBannedPlants)?pendingLevel.extremeAllowedPlants:null;
