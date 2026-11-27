@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="5.34.0" name="application-version"/>
+<meta content="5.35.0" name="application-version"/>
 <title>PvM</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -1285,8 +1285,8 @@
       scaredyshroom: { id:'scaredyshroom', name:'Cogumelo Assustado', cost:25, cooldown:7.5, hp:300, emoji:'🍄😨', color:'#84cc16', mushroom:true, damage:20, range:7, desc:'Atira esporos a longa distância, mas se esconde quando um zumbi chega perto. Dorme durante o dia.' },
       iceshroom: { id:'iceshroom', name:'Cogumelo de Gelo', cost:75, cooldown:50, hp:300, emoji:'🧊🍄', color:'#7dd3fc', mushroom:true, singleUse:true, damage:20, desc:'Após despertar, congela e causa dano a todos os zumbis na tela. Dorme durante o dia.' },
       doomshroom: { id:'doomshroom', name:'Cogumelo Catástrofe', cost:125, cooldown:50, hp:300, emoji:'🍄💥', color:'#581c87', mushroom:true, singleUse:true, damage:1800, desc:'Explode em uma área enorme e deixa uma cratera temporária. Dorme durante o dia.' },
-      hypnoshroom: { id:'hypnoshroom', name:'Cogumelo Hipnótico', cost:75, cooldown:30, hp:300, emoji:'🍄🌀', color:'#ec4899', mushroom:true, singleUse:true, desc:'Quando é devorado, faz o zumbi mudar de lado e lutar contra os outros. Dorme durante o dia.' },
-      magnetshroom: { id:'magnetshroom', name:'Cogumelo Magnético', cost:100, cooldown:7.5, hp:300, emoji:'🍄🧲', color:'#64748b', mushroom:true, desc:'Atrai e remove armaduras metálicas de zumbis próximos. Dorme durante o dia.' },
+      hypnoshroom: { id:'hypnoshroom', name:'Cogumelo Hipnótico', cost:75, cooldown:30, hp:300, emoji:'🍄🌀', color:'#ec4899', mushroom:true, singleUse:true, desc:'Quando é devorado, converte o zumbi em aliado, recupera parte da vida e remove sua armadura para impedir reparos. O aliado enfrenta os inimigos próximos. Dorme durante o dia.' },
+      magnetshroom: { id:'magnetshroom', name:'Cogumelo Magnético', cost:100, cooldown:7.5, hp:300, emoji:'🍄🧲', color:'#64748b', mushroom:true, desc:'Atrai baldes, portas de tela, escadas metálicas, placas de sucata e outras peças leves. Também desarma o Soldador e derruba o rotor do Drone de Sucata. Não afeta madeira nem máquinas grandes. Dorme durante o dia.' },
       coffeebean: { id:'coffeebean', name:'Grão de Café', cost:75, cooldown:7.5, hp:100, emoji:'🫘', color:'#78350f', instant:true, desc:'Plante sobre um cogumelo adormecido para acordá-lo durante o dia.' },
       goldensun: { id: 'goldensun', name: 'Girassol Dourado', cost: 125, cooldown: 10, hp: 300, emoji: '🌼', color: '#fbbf24', desc: 'Produz sóis maiores, valendo 50 sóis.' },
       lilypad: { id: 'lilypad', name: 'Vitória-régia', cost: 25, cooldown: 7.5, hp: 300, emoji: '🪷', color: '#65a30d', platform: true, desc: 'Plataforma aquática: permite plantar outra planta nas casas de água.' },
@@ -1308,7 +1308,7 @@
       kernelpult: { id:'kernelpult', name:'Milho-Pulta', cost:100, cooldown:7.5, hp:300, emoji:'🌽', color:'#eab308', damage:22, butterDamage:42, attackInterval:2.65, lobbed:true, desc:'Arremessa grãos de milho e, às vezes, manteiga que paralisa o zumbi por um instante.' },
       cattail: { id:'cattail', name:'Rabo-de-Gato', upgradeFrom:'lilypad', aquatic:true, cost:225, cooldown:7.5, hp:300, emoji:'🌾', color:'#65a30d', damage:20, range:99, attackInterval:1.5, desc:'Evolução da Vitória-Régia: lança espinhos teleguiados contra zumbis em qualquer linha da piscina.' },
       spikerock: { id:'spikerock', name:'Espinho-Rocha', upgradeFrom:'spikeweed', cost:125, cooldown:30, hp:450, emoji:'🪨🌵', color:'#78716c', damage:20, range:0, desc:'Evolução do Espinho: uma armadilha mais resistente que fere veículos e zumbis.' },
-      goldmagnet: { id:'goldmagnet', name:'Ímã Dourado', upgradeFrom:'magnetshroom', cost:150, cooldown:7.5, hp:300, emoji:'🧲✨', color:'#fbbf24', mushroom:true, desc:'Evolução do Cogumelo Magnético: remove armaduras e atrai moedas para o jardim.' },
+      goldmagnet: { id:'goldmagnet', name:'Ímã Dourado', upgradeFrom:'magnetshroom', cost:150, cooldown:7.5, hp:300, emoji:'🧲✨', color:'#fbbf24', mushroom:true, desc:'Evolução do Cogumelo Magnético: atrai peças metálicas em maior alcance, remove até duas por pulso e puxa moedas próximas automaticamente. Também desarma o Soldador e o Drone de Sucata. Dorme durante o dia.' },
       wintermelon: { id:'wintermelon', name:'Melancia Invernal', upgradeFrom:'watermelon', cost:500, cooldown:7.5, hp:300, emoji:'🍈❄️', color:'#38bdf8', damage:80, splashDamage:36, lobbed:true, ice:true, attackInterval:2.9, desc:'Evolução da Melancia-Pulta: arremessa melancias congelantes que causam dano em área e deixam zumbis lentos.' },
       cobcannon: { id:'cobcannon', name:'Canhão de Milho', cost:500, cooldown:50, hp:300, emoji:'🌽💣', color:'#eab308', damage:500, splashDamage:350, lobbed:true, attackInterval:8, desc:'Dispara um enorme projétil explosivo em arco.' },
       // Clássicas que faltavam no catálogo original. Cada uma recebe uma função própria no motor abaixo.
@@ -1507,6 +1507,9 @@
       forklift: {id:'forklift',name:'Zumbi Empilhadeira',hp:560,armorHp:680,armorType:'wood',speed:15.5,damage:155,skin:'#86efac',outfit:'#ca8a04',hat:'forklift',scale:1.18,ability:'forklift',builtin:true},
       scrapdrone: {id:'scrapdrone',name:'Zumbi Drone de Sucata',hp:260,speed:16.5,damage:115,skin:'#a5f3fc',outfit:'#0f766e',hat:'drone',scale:.98,ability:'drone',builtin:true}
     };
+
+    // O ímã puxa apenas peças metálicas removíveis; madeira e máquinas pesadas ficam de fora.
+    const MAGNETIC_ARMOR_TYPES = new Set(['bucket','screenDoor','scrap','space','ladder','football','pulse_shell']);
 
     const ADVENTURE_WORLDS = [
       { key:'day',name:'Dia',short:'DIA',emoji:'☀️',description:'O gramado está tranquilo... por enquanto.',theme:'day',noSkySun:false,waterRows:[] },
@@ -2427,6 +2430,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       peas: [],
       suns: [],
       coinDrops: [],
+      magnetScraps: [],
       autoCollector: false,
       levelRewardGranted: false,
       hudUpdateTimer: 0,
@@ -2646,6 +2650,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       Game.peas = [];
       Game.suns = [];
       Game.coinDrops = [];
+      Game.magnetScraps = [];
       Game.particles = [];
       Game.boss = null;
       Game.currentWave = 1;
@@ -3102,6 +3107,12 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       SoundFX.sun();
     }
 
+    // Uma peça metálica visível viaja do zumbi até o ímã antes de desaparecer.
+    function spawnMagnetPickup(kind, fromX, fromY, toX, toY) {
+      if (!Array.isArray(Game.magnetScraps)) Game.magnetScraps = [];
+      Game.magnetScraps.push({kind,x:fromX,y:fromY,startX:fromX,startY:fromY,targetX:toX,targetY:toY,progress:0,duration:.58,spin:(Math.random()-.5)*.7});
+    }
+
     function spawnParticles(x, y, color, count = 10) {
       if (Game.particles.length > 260) Game.particles.splice(0, Game.particles.length - 180);
       for (let i = 0; i < count; i++) {
@@ -3340,15 +3351,32 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           if (s.life <= 0) Game.suns.splice(i, 1);
         }
       }
+      const activeGoldMagnets=Game.plants.filter(pl=>pl.type==='goldmagnet'&&!isMushroomSleeping(pl));
       for (let i = Game.coinDrops.length - 1; i >= 0; i--) {
         const coin = Game.coinDrops[i];
-        coin.bob += dt * 4.5;        if (coin.y < coin.targetY) {
+        coin.bob += dt * 4.5;
+        if(!coin.magnetizing&&activeGoldMagnets.length){
+          const nearest=activeGoldMagnets.map(pl=>({pl,d:Math.hypot((coin.x-pl.x)/GRID.cellW,(coin.y-pl.y)/GRID.cellH)})).filter(v=>v.d<=7.2).sort((a,b)=>a.d-b.d)[0];
+          if(nearest){coin.magnetizing=true;coin.magnetTargetX=nearest.pl.x+5;coin.magnetTargetY=nearest.pl.y-22;}
+        }
+        if(coin.magnetizing){
+          const dx=coin.magnetTargetX-coin.x,dy=coin.magnetTargetY-coin.y,dist=Math.hypot(dx,dy);
+          if(dist<=17){collectCoin(i);continue;}
+          const step=Math.min(1,(520*dt)/Math.max(1,dist));coin.x+=dx*step;coin.y+=dy*step;
+          continue;
+        }
+        if (coin.y < coin.targetY) {
           coin.y = Math.min(coin.targetY, coin.y + 90 * dt);
           coin.x += (coin.drift || 0) * dt;
         } else {
           coin.life -= dt;
           if (coin.life <= 0) Game.coinDrops.splice(i, 1);
         }
+      }
+      for(let i=Game.magnetScraps.length-1;i>=0;i--){
+        const piece=Game.magnetScraps[i];piece.progress=Math.min(1,piece.progress+dt/piece.duration);
+        const t=piece.progress,e=t*t*(3-2*t);piece.x=piece.startX+(piece.targetX-piece.startX)*e;piece.y=piece.startY+(piece.targetY-piece.startY)*e-Math.sin(t*Math.PI)*25;
+        if(t>=1)Game.magnetScraps.splice(i,1);
       }
 
       // 5. Atualiza Plantas
@@ -3423,13 +3451,34 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         } else if (plantLogicType === 'magnetshroom' || plantLogicType === 'goldmagnet') {
           p.timer -= dt;
           if (p.timer <= 0) {
-            const metalTargets=Game.zombies.filter(z=>!z.friendly&&!z.isDying&&z.armorHp>0&&['bucket','screenDoor'].includes(z.armorType)&&Math.abs(z.row-p.row)<=2&&z.x>p.x-GRID.cellW&&z.x-p.x<=GRID.cellW*(plantLogicType==='goldmagnet'?5:3.5)).sort((a,b)=>Math.hypot(a.x-p.x,(a.y-p.y)*1.2)-Math.hypot(b.x-p.x,(b.y-p.y)*1.2));
-            const target=metalTargets[0];
-            if(target){
-              target.armorHp=0;target.armorBreakTimer=.75;target.armorBroken=true;
-              spawnParticles(target.x-22,target.y-24,'#cbd5e1',18);spawnParticles(p.x+18,p.y-18,'#93c5fd',12);SoundFX.shroomWake();
-              showToast(`🧲 ${target.name}: proteção metálica removida!`,'success');p.timer=15;
-            }else p.timer=1.2;
+            const isGoldMagnet=plantLogicType==='goldmagnet';
+            const rangeCells=isGoldMagnet?5.5:4.0,maxPulls=isGoldMagnet?2:1;
+            const metalTargets=Game.zombies.filter(z=>{
+              if(z.friendly||z.isDying||z.id==='forklift'||z.armorType==='wood')return false;
+              const removableArmor=z.armorHp>0&&MAGNETIC_ARMOR_TYPES.has(z.armorType);
+              const looseFactoryPart=!z.magnetDisabled&&(z.id==='scrapdrone'||z.id==='welder');
+              return (removableArmor||looseFactoryPart)&&Math.abs(z.row-p.row)<=2&&z.x>p.x-GRID.cellW*.7&&z.x-p.x<=GRID.cellW*rangeCells;
+            }).sort((a,b)=>Math.hypot(a.x-p.x,(a.y-p.y)*1.2)-Math.hypot(b.x-p.x,(b.y-p.y)*1.2));
+            const targets=metalTargets.slice(0,maxPulls),pulledNames=[];
+            for(const target of targets){
+              let kind=target.armorType||'scrap';
+              const startY=target.y-((target.id==='scrapdrone'||target.id==='welder'||kind==='bucket'||kind==='space')?53:29);
+              if(target.id==='scrapdrone'){
+                kind='droneRotor';target.magnetDisabled=true;target.ability='none';target.hat='none';target.speed=Math.max(8,target.speed*.84);target.droneFlash=0;target.droneTimer=0;
+              }else if(target.id==='welder'){
+                kind='welderMask';target.magnetDisabled=true;target.ability='none';target.hat='none';target.welderFlash=0;target.welderTimer=0;
+              }else{
+                target.armorHp=0;target.maxArmorHp=0;target.armorType=null;target.armorBreakTimer=.75;target.armorBroken=true;
+              }
+              spawnMagnetPickup(kind,target.x-18,startY,p.x+7,p.y-22);
+              spawnParticles(target.x-18,startY,'#cbd5e1',7);spawnParticles(p.x+18,p.y-18,'#93c5fd',9);
+              pulledNames.push(target.name);
+            }
+            if(pulledNames.length){
+              SoundFX.shroomWake();
+              showToast(`🧲 ${pulledNames.join(' + ')}: peça metálica atraída!`,'success');
+              p.timer=isGoldMagnet?10.5:14.5;
+            }else p.timer=.85;
           }
         } else if (plantLogicType === 'iceshroom') {
           p.timer -= dt;
@@ -3695,9 +3744,11 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
 
         // Zumbi hipnotizado vira aliado: avança para a direita e enfrenta os invasores.
         if (z.friendly) {
-          z.isWalking=true;z.walkPhase+=dt*6.5;z.x+=z.speed*.72*dt;
-          const rival=Game.zombies.find(other=>!other.friendly&&!other.isDying&&other.row===z.row&&other.x>z.x&&other.x-z.x<52);
-          if(rival){z.isWalking=false;z.attackTimer+=dt;if(z.attackTimer>=.72){z.attackTimer=0;damageZombie(rival,Math.max(20,z.damage*.55),'front');spawnParticles(rival.x,rival.y-18,'#86efac',4);}}
+          const rival=Game.zombies.filter(other=>!other.friendly&&!other.isDying&&other.row===z.row&&Math.abs(other.x-z.x)<62).sort((a,b)=>Math.abs(a.x-z.x)-Math.abs(b.x-z.x))[0];
+          if(rival){
+            z.isWalking=false;z.idlePhase=(z.idlePhase||0)+dt*2;z.attackTimer+=dt;
+            if(z.attackTimer>=.72){z.attackTimer=0;damageZombie(rival,Math.max(20,z.damage*.55),'front');spawnParticles(rival.x,rival.y-18,'#86efac',5);}
+          }else{z.isWalking=true;z.walkPhase+=dt*6.5;z.x+=z.speed*.72*dt;z.attackTimer=0;}
           if(z.x>LOGICAL_W+55){spawnParticles(z.x,z.y,'#86efac',12);Game.zombies.splice(i,1);}
           continue;
         }
@@ -3945,7 +3996,13 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
               spawnParticles(blockingPlant.x,blockingPlant.y-18,'#fef3c7',15);SoundFX.chomp();continue;
             }
             if(blockingPlant.type==='hypnoshroom'){
-              Game.plants=Game.plants.filter(item=>item!==blockingPlant);z.friendly=true;z.hp=Math.max(z.hp,z.maxHp*.75);z.armorHp=0;z.isWalking=true;SoundFX.shroomWake();spawnParticles(z.x,z.y-24,'#f0abfc',24);showToast('🌀 Um zumbi mudou de lado!','success');continue;
+              Game.plants=Game.plants.filter(item=>item!==blockingPlant);
+              z.friendly=true;z.hp=Math.min(z.maxHp,Math.max(z.hp,z.maxHp*.75));
+              z.armorHp=0;z.maxArmorHp=0;z.armorType=null;z.armorBreakTimer=0;z.armorBroken=true;
+              z.isWalking=true;z.attackTimer=0;
+              if(z.id==='welder'||z.id==='scrapdrone'){z.ability='none';z.hat='none';z.magnetDisabled=true;}
+              SoundFX.shroomWake();spawnParticles(z.x,z.y-24,'#f0abfc',24);spawnParticles(z.x,z.y-8,'#e9d5ff',12);
+              showToast('🌀 O zumbi foi hipnotizado! A armadura foi perdida e ele agora luta pelo jardim.','success');continue;
             }
             const umbrellaCover=Game.plants.some(pl=>(PLANTS[pl.type]?.baseType||pl.type)==='umbrellaleaf'&&Math.abs(pl.x-blockingPlant.x)<=GRID.cellW*1.25&&Math.abs(pl.row-blockingPlant.row)<=1);
             blockingPlant.hp -= (gargantuarAttack ? (blockingPlant.type==='pumpkin'?1900:Math.max(1200,z.damage*3.2)) : z.damage * 0.6) * (umbrellaCover?.72:1);
@@ -4487,6 +4544,25 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
           ctx.lineWidth = 2;
           ctx.strokeStyle = pea.ice ? '#e0f2fe' : (pea.kind==='spore'?'#581c87':(pea.kind==='fire'?'#7c2d12':'#14532d'));
           ctx.stroke();
+        }
+        ctx.restore();
+      });
+
+      // Peças de metal arrancadas pelo ímã: cada uma percorre o caminho até o cogumelo.
+      Game.magnetScraps.forEach(piece=>{
+        ctx.save();ctx.translate(piece.x,piece.y);ctx.rotate(piece.spin+piece.progress*2.4);ctx.shadowColor='#93c5fd';ctx.shadowBlur=10;
+        if(piece.kind==='bucket'){
+          ctx.fillStyle='#94a3b8';ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-9,-7);ctx.lineTo(9,-7);ctx.lineTo(7,8);ctx.lineTo(-7,8);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(0,-7,9,Math.PI,Math.PI*2);ctx.stroke();
+        }else if(piece.kind==='screenDoor'||piece.kind==='ladder'){
+          ctx.fillStyle='#64748b';ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;ctx.fillRect(-9,-11,18,22);ctx.strokeRect(-9,-11,18,22);ctx.lineWidth=1;for(let k=-6;k<=6;k+=6){ctx.beginPath();ctx.moveTo(k,-10);ctx.lineTo(k,10);ctx.moveTo(-8,k);ctx.lineTo(8,k);ctx.stroke();}
+        }else if(piece.kind==='droneRotor'){
+          ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(12,0);ctx.moveTo(0,-11);ctx.lineTo(0,11);ctx.stroke();ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+        }else if(piece.kind==='welderMask'){
+          ctx.fillStyle='#64748b';ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(-10,-8,20,16,4);ctx.fill();ctx.stroke();ctx.fillStyle='#facc15';ctx.fillRect(-7,-3,14,5);
+        }else if(piece.kind==='space'){
+          ctx.fillStyle='#cbd5e1';ctx.strokeStyle='#f8fafc';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,1,10,Math.PI,Math.PI*2);ctx.lineTo(10,6);ctx.lineTo(-10,6);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#38bdf8';ctx.fillRect(-5,-1,10,5);
+        }else{
+          ctx.fillStyle='#94a3b8';ctx.strokeStyle='#e2e8f0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-10,-4);ctx.lineTo(-3,-10);ctx.lineTo(8,-7);ctx.lineTo(11,4);ctx.lineTo(1,9);ctx.lineTo(-9,5);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#475569';ctx.beginPath();ctx.arc(-4,-2,1.8,0,Math.PI*2);ctx.arc(5,3,1.8,0,Math.PI*2);ctx.fill();
         }
         ctx.restore();
       });
@@ -6997,7 +7073,7 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
         applyRemoteSnapshot: snap => {
           if(!Game.remoteGuest||!snap)return false;
           const wasRunning=Game.running;
-          ['plants','zombies','peas','suns','coinDrops','particles','mowers','craters','graves','spawnQueue'].forEach(k=>{if(Array.isArray(snap[k]))Game[k]=snap[k]});
+          ['plants','zombies','peas','suns','coinDrops','magnetScraps','particles','mowers','craters','graves','spawnQueue'].forEach(k=>{if(Array.isArray(snap[k]))Game[k]=snap[k]});
           ['sun','levelCompleted','currentWave','waveTimer','waveIntermission','waveBannerTimer','spawnTimer','skySunTimer','vsBrains','vsMatchTimer','vsSelectedZombie','bloodMoonMeter','bloodMoonWarning','bloodMoonActiveTimer','bloodMoonDone'].forEach(k=>{if(snap[k]!==undefined)Game[k]=snap[k]});
           if(snap.boss!==undefined)Game.boss=snap.boss;
           if(snap.grid)Object.assign(GRID,snap.grid);
@@ -8444,8 +8520,8 @@ updateMailBadge();if(!auth.dataset.authenticated)auth.style.display='flex';
 // PLANTA scaredyshroom — Cogumelo Assustado: deve Atira esporos a longa distância, mas se esconde quando um zumbi chega perto. Dorme durante o dia. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (scaredyshroom).
 // PLANTA iceshroom — Cogumelo de Gelo: deve Após despertar, congela e causa dano a todos os zumbis na tela. Dorme durante o dia. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (iceshroom).
 // PLANTA doomshroom — Cogumelo Catástrofe: deve Explode em uma área enorme e deixa uma cratera temporária. Dorme durante o dia. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (doomshroom).
-// PLANTA hypnoshroom — Cogumelo Hipnótico: deve Quando é devorado, faz o zumbi mudar de lado e lutar contra os outros. Dorme durante o dia. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (hypnoshroom).
-// PLANTA magnetshroom — Cogumelo Magnético: deve Atrai e remove armaduras metálicas de zumbis próximos. Dorme durante o dia. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (magnetshroom).
+// PLANTA hypnoshroom — Cogumelo Hipnótico: ao ser devorado, converte o zumbi, recupera até 75% da vida máxima e remove definitivamente sua armadura. Aliados procuram o inimigo mais próximo na mesma linha e o atacam. Dorme durante o dia. Animação: aura rosa/roxa de conversão.
+// PLANTA magnetshroom — Cogumelo Magnético: puxa baldes, portas de tela, escadas metálicas, sucata e peças leves; desarma o Soldador e derruba o rotor do Drone de Sucata. Não afeta madeira nem Empilhadeiras. O Ímã Dourado tem maior alcance, retira até duas peças e atrai moedas automaticamente. Ambos dormem durante o dia.
 // PLANTA coffeebean — Grão de Café: deve Plante sobre um cogumelo adormecido para acordá-lo durante o dia. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (coffeebean).
 // PLANTA goldensun — Girassol Dourado: deve Produz sóis maiores, valendo 50 sóis. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (goldensun).
 // PLANTA lilypad — Vitória-régia: deve Plataforma aquática: permite plantar outra planta nas casas de água. Animação: animação de espera e movimento em drawPlant(); efeitos de ação aparecem quando executa sua função (lilypad).
