@@ -389,6 +389,18 @@ def admin_broadcast():
             online_players = _online_count_locked(time.time())
         return jsonify({"ok": True, "eventId": event_id, "deliveredTo": online_players})
 
+    if kind == "sun":
+        try:
+            amount = int(float(body.get("amount", 0)))
+        except (TypeError, ValueError):
+            amount = 0
+        if amount < 50 or amount > 5000:
+            return jsonify({"error": "O pacote precisa conter entre 50 e 5.000 sóis."}), 400
+        with _lock:
+            event_id = _append_event_locked("sun", {"amount": amount}, origin_client_id)
+            online_players = _online_count_locked(time.time())
+        return jsonify({"ok": True, "eventId": event_id, "deliveredTo": online_players, "amount": amount})
+
     if kind == "clear":
         with _lock:
             _active_world_events.clear()
