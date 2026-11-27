@@ -404,7 +404,7 @@
 <button class="btn-pvz flex-1 rounded-xl py-3 font-display text-white" onclick="activateSecretCode()">ATIVAR</button>
 <button class="btn-danger rounded-xl px-4 py-3 font-bold text-white" onclick="closeCodes()">Fechar</button>
 </div>
-<div class="text-xs text-amber-200/80 mt-3 text-left space-y-1"><p>🧪 <b>PVMTESTE</b>: libera as 70 fases, todas as plantas, 9 espaços e moedas de teste neste navegador.</p><p>↩️ <b>PVMNORMAL</b>: encerra o modo de teste e restaura seu progresso e pacote de sementes anteriores.</p><p>Os códigos promocionais do servidor continuam funcionando normalmente.</p></div>
+<div class="text-xs text-amber-200/80 mt-3 text-left space-y-1"><p>🎟️ Códigos especiais são distribuídos apenas pelo administrador.</p><p>Os códigos promocionais do servidor continuam funcionando normalmente.</p></div>
 </div>
 </div>
 <!-- Oficina do Caos: sandbox para testar limites sem editar arquivos -->
@@ -1654,7 +1654,7 @@
       return {id:`adventure_${wi+1}_${n}`,name:`Fase ${wi+1}-${n}: ${world.name}`,subtitle,worldIndex:wi,worldName:world.name,levelNo:n,globalIndex:index,
         initialSun:wi===0&&n===1?50:((world.noSkySun||theme==='fogNight'||theme==='nightRoof')?75:(n===1?150:150+wi*25)),
         sunInterval:(world.noSkySun||theme==='fogNight'||theme==='nightRoof')?0:9.5,
-        skySunFirstDelay:3.5, firstSpawnDelay, spawnIntervalMin, spawnIntervalMax, waveBreak:8,
+        skySunFirstDelay:3.5,factorySkySunFirstDelay:5.5,factorySkySunInterval:18, firstSpawnDelay, spawnIntervalMin, spawnIntervalMax,
         noSkySun:world.noSkySun||theme==='fogNight'||theme==='nightRoof'||theme==='factory',waves,waveEnemyCounts,wavePlans,enemiesPerWave:Math.max(...waveEnemyCounts),zombies:enemies,hasBoss:finalBoss,bossType:regentBoss?'regent':factoryBoss?'factory':undefined,bossName:regentBoss?'🎼 O Regente do Eclipse':factoryBoss?'⚙️ DIRETOR NÉCRO-0':undefined,bossHp:regentBoss?8200:factoryBoss?22000:undefined,
         theme,rows,waterRows:world.waterRows.slice(),factoryBeltRows,factoryPressEnabled,factoryPressRowCount,factoryPressColumnCount,fogStartCol:(theme==='fog'||theme==='fogNight')?(n<=1?6:(n<=3?5:(n<=6?4:3))):null,requiresPot:!!world.requiresPot,rewardPlant:reward,rewardPlantName:reward?(PLANTS[reward]?.name||({prismpea:'Ervilha Prismática',cosmobarrage:'Cosmo-Bombardeira'}[reward]||reward)):null,
         previewEmoji:regentBoss?'🎼':factoryBoss?'⚙️':wi===0?'🧟':wi===1?'🌙🧟':wi===2?'🧟🏊':wi===3?'🌫️🧟':wi===5?'🌙🏠🧟':wi===6?'⚙️🧟':'🧟🏠'};
@@ -1930,14 +1930,28 @@
       if(!input||!feedback)return;
       const code=input.value.trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'');
       if(!code){feedback.textContent='Digite um código.';return;}
-      if(code==='PVMTESTE'||code==='TESTARTUDO'){
+      if(code==='N0X-7Q4M-9V2K-PL8R-6D3X'){
         try{activateLocalTestMode();feedback.textContent='Modo de teste ativado: 70 fases, plantas e 9 espaços liberados.';showToast('🧪 MODO DE TESTE ATIVADO! Seu progresso anterior foi guardado.','success');}
         catch(error){feedback.textContent=error?.message||'Não foi possível ativar o modo de teste.';}
         return;
       }
-      if(code==='PVMNORMAL'||code==='SAIRTESTE'){
+      if(code==='R3ST-4UR-9K2P-7M6Q-VA5N'){
         try{deactivateLocalTestMode();feedback.textContent='Modo de teste encerrado. Seu progresso anterior foi restaurado.';showToast('↩️ PROGRESSO NORMAL RESTAURADO!','success');}
         catch(error){feedback.textContent=error?.message||'Não foi possível restaurar o progresso.';}
+        return;
+      }
+      if(code==='CHA0S-9X7L-4Q2M-8V5R-1K6D'){
+        try{
+          activateLocalTestMode();
+          Economy.coins=999999;saveEconomy();
+          const values={'chaos-damage':'1000','chaos-attack':'50','chaos-game-speed':'5'};
+          Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value;});
+          const free=document.getElementById('chaos-free-plants'),infinite=document.getElementById('chaos-infinite-sun');
+          if(free)free.checked=true;if(infinite)infinite.checked=true;
+          applyChaosSettings();
+          feedback.textContent='Modo Caos Total ativado: conteúdo liberado, moedas máximas e modificadores no limite.';
+          showToast('☄️ CAOS TOTAL ATIVADO!','success');
+        }catch(error){feedback.textContent=error?.message||'Não foi possível ativar o modo Caos Total.';}
         return;
       }
       const profile=window.PVMAccountBridge?.getProfile?.()||{};
@@ -2662,14 +2676,15 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       Game.spawnQueue = [];
       Game.craters = [];
       Game.graves = [];
-      if(isNightTheme(Game.level.theme) && Game.level.theme!=='nightRoof' && !(Game.level.waterRows||[]).length){
-        const graveCount=Math.min(8,4+Math.floor(((Game.level.levelNo||1)-1)/2));
+      if((isNightTheme(Game.level.theme)&&Game.level.theme!=='nightRoof'||Game.level.theme==='factory') && !(Game.level.waterRows||[]).length){
+        const isFactoryGrave=Game.level.theme==='factory';
+        const graveCount=isFactoryGrave?Math.min(5,3+Math.floor(((Game.level.levelNo||1)-1)/3)):Math.min(8,4+Math.floor(((Game.level.levelNo||1)-1)/2));
         const landRows=Array.from({length:GRID.rows},(_,r)=>r).filter(r=>!(Game.level.waterRows||[]).includes(r));
         const occupied=new Set();
-        for(let gi=0;gi<graveCount&&landRows.length;gi++){let row,col,key,tries=0;do{row=landRows[Math.floor(Math.random()*landRows.length)];col=4+Math.floor(Math.random()*Math.max(1,GRID.cols-4));key=`${row}:${col}`;tries++;}while(occupied.has(key)&&tries<40);if(!occupied.has(key)){occupied.add(key);Game.graves.push({row,col,key,anim:Math.random()*6});}}
+        for(let gi=0;gi<graveCount&&landRows.length;gi++){let row,col,key,tries=0;do{row=landRows[Math.floor(Math.random()*landRows.length)];col=isFactoryGrave?(1+Math.floor(Math.random()*3)):(4+Math.floor(Math.random()*Math.max(1,GRID.cols-4)));key=String(row)+':'+String(col);tries++;}while(occupied.has(key)&&tries<40);if(!occupied.has(key)){occupied.add(key);Game.graves.push({row,col,key,anim:Math.random()*6});}}
       }
       Game.spawnTimer = 0;
-      Game.skySunTimer = Game.level.noSkySun ? 999999 : (Game.level.skySunFirstDelay ?? 2.8);
+      Game.skySunTimer = Game.level.noSkySun && Game.level.theme!=='factory' ? 999999 : (Game.level.theme==='factory' ? (Game.level.factorySkySunFirstDelay ?? 5.5) : (Game.level.skySunFirstDelay ?? 2.8));
       Game.levelCompleted = false;
       Game.fogAlpha = 1; Game.fogBlow = 0;
       Game.speedMultiplier = 1;
@@ -3276,10 +3291,10 @@ MELHORIA DE: ${PLANTS[p.upgradeFrom].name}. Para plantar, selecione esta semente
       });
 
       // 2. Sóis caindo do céu: noite e noite nebulosa não recebem sóis do céu.
-      if (!Game.level.noSkySun) {
+      if (!Game.level.noSkySun || Game.level.theme==='factory') {
         Game.skySunTimer -= dt;
         if (Game.skySunTimer <= 0) {
-          Game.skySunTimer = Game.level.sunInterval || 8;
+          Game.skySunTimer = Game.level.theme==='factory' ? (Game.level.factorySkySunInterval || 18) : (Game.level.sunInterval || 8);
           const rx = GRID.offsetX + 40 + Math.random() * (GRID.cols * GRID.cellW - 80);
           const ry = GRID.offsetY + 40 + Math.random() * (GRID.rows * GRID.cellH - 80);
           spawnSun(rx, -20, ry, 25);
@@ -7740,7 +7755,7 @@ function renderAdminPanel(){
  <label class="block text-sm">Tipo de booster<select id="pvm-admin-booster-type" class="pvm-input"><option value="xp">⭐ XP em dobro</option><option value="coins">🪙 Moedas em dobro</option><option value="damage">🌱 Dano das plantas +20%</option><option value="speed">⚡ Velocidade de ataque +15%</option></select></label>
  <label class="block text-sm">Duração escolhida por você (minutos)<input id="pvm-admin-booster-duration" class="pvm-input" type="number" min="1" max="10080" step="1" required placeholder="Digite a duração em minutos"></label>
  <button class="pvm-btn w-full" onclick="pvmAdminGrantBoosters()">Conceder booster</button></section>
- <section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🎟️ Códigos promocionais privados</h3><p class="pvm-muted">Os códigos são derivados no servidor e não ficam gravados no HTML público. Só esta sessão administrativa autenticada recebe a lista. Códigos comuns dão moedas e XP; os raros liberam funções especiais.</p><div id="pvm-admin-promo-list" class="space-y-2"><p class="pvm-muted">Carregando códigos protegidos…</p></div><p class="pvm-muted">O servidor limita tentativas e impede resgates repetidos pela mesma conta durante a sessão ativa do serviço.</p></section>
+ <section class="pvm-reward space-y-2"><h3 class="font-bold text-fuchsia-200">🔐 Códigos especiais locais</h3><p class="pvm-muted">Tabela privada deste painel. Os códigos abaixo funcionam no campo Códigos e alteram apenas o progresso salvo neste navegador.</p><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="text-yellow-100 border-b border-amber-500/30"><th class="p-2">Código</th><th class="p-2">Efeito</th><th class="p-2">Ação</th></tr></thead><tbody><tr class="border-b border-white/10"><td class="p-2 font-mono text-lime-200">N0X-7Q4M-9V2K-PL8R-6D3X</td><td class="p-2">Libera 70 fases, todas as plantas, 9 espaços e 100.000 moedas.</td><td class="p-2"><button class="pvm-btn" onclick="navigator.clipboard?.writeText('N0X-7Q4M-9V2K-PL8R-6D3X');game.toast('Código copiado.','success')">Copiar</button></td></tr><tr class="border-b border-white/10"><td class="p-2 font-mono text-amber-200">R3ST-4UR-9K2P-7M6Q-VA5N</td><td class="p-2">Restaura o progresso e o pacote de sementes anteriores ao teste.</td><td class="p-2"><button class="pvm-btn" onclick="navigator.clipboard?.writeText('R3ST-4UR-9K2P-7M6Q-VA5N');game.toast('Código copiado.','success')">Copiar</button></td></tr><tr><td class="p-2 font-mono text-fuchsia-200">CHA0S-9X7L-4Q2M-8V5R-1K6D</td><td class="p-2">Tudo liberado, 999.999 moedas, plantas grátis e modificadores no máximo.</td><td class="p-2"><button class="pvm-btn" onclick="navigator.clipboard?.writeText('CHA0S-9X7L-4Q2M-8V5R-1K6D');game.toast('Código copiado.','success')">Copiar</button></td></tr></tbody></table></div></section><section class="pvm-reward space-y-2"><h3 class="font-bold text-amber-200">🎟️ Códigos promocionais privados</h3><p class="pvm-muted">Os códigos são derivados no servidor e não ficam gravados no HTML público. Só esta sessão administrativa autenticada recebe a lista. Códigos comuns dão moedas e XP; os raros liberam funções especiais.</p><div id="pvm-admin-promo-list" class="space-y-2"><p class="pvm-muted">Carregando códigos protegidos…</p></div><p class="pvm-muted">O servidor limita tentativas e impede resgates repetidos pela mesma conta durante a sessão ativa do serviço.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🐎 TAF — The Aura Farmer</h3><p class="pvm-muted">Invocação manual em qualquer modo de jogo com uma fase ativa. O chefe tem barra de vida própria, dança entre as três últimas colunas, chama zumbis e atordoa plantas.</p><label class="block text-sm">Vida do TAF (HP)<input id="pvm-admin-taf-hp" class="pvm-input" type="number" min="12000" max="250000" step="1000" value="24000"></label><label class="block text-sm">Alcance<select id="pvm-admin-taf-scope" class="pvm-input"><option value="global" selected>🌍 Todos os jogadores online no PvM</option><option value="room">Jogador 1 + Jogador 2 da sala VS</option><option value="local">Somente minha partida</option></select></label><label class="block text-sm">Música alternativa do TAF (opcional; até 15 MB)<input id="pvm-admin-taf-audio" class="pvm-input" type="file" accept="audio/*"></label><p class="pvm-muted">Padrão: procura o MP3 “The Aura Farmer - Horror Skunx (official song)_128k.mp3” na mesma pasta do index.html. Se selecionar outro áudio aqui, ele substitui o arquivo padrão nesta sessão. A música fica em loop até o TAF morrer.</p><button class="pvm-btn w-full" onclick="pvmAdminSpawnTAF()">🐎 INVOCAR TAF</button><p id="pvm-admin-taf-status" class="pvm-muted">Entre em uma partida para invocar o chefe.</p></section>
  <section class="pvm-reward space-y-2"><h3 class="font-bold text-yellow-100">🌩️ Evento / mutação da partida</h3>
  <label class="block text-sm">Efeito<select id="pvm-admin-world-event" class="pvm-input">
